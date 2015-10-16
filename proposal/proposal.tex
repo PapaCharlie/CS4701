@@ -2,7 +2,9 @@
 \usepackage[margin=2.5cm]{geometry}
 \usepackage{enumerate, fancyhdr, graphicx, amsmath}
 
-\title{Old School Tetris Meets Game Tree Search}
+\def\tetris{Tetris\textsuperscript{\textregistered}}
+
+\title{Old School \tetris{} Meets Game Tree Search}
 \author{Paul Chesnais (pmc85) and Sam Svenningsen (sjs382)}
 \date{\today}
 
@@ -17,8 +19,6 @@
 \renewcommand{\headrulewidth}{0.5pt}
 \renewcommand{\footrulewidth}{0.5pt}
 
-\def\tetris{Tetris\textsuperscript{\textregistered}}
-
 \newcommand{\exo}[1]{\section*{Exercise #1}}
 \newcommand{\prob}[1]{\section*{Problem #1}}
 \newcommand{\quest}[1]{\section*{Question #1}}
@@ -31,11 +31,14 @@
 
 \section{Description}
 
-\par For our Project in the AI Practicum, we plan on building a \tetris{} bot. Ideally, this bot would play at speeds far greater than normal human speed, and if at all possible, when faced with the original implementation of \tetris{}, would beat the current human world record.
+\par For our Project in the AI Practicum, we plan on building a \tetris{} bot. Ideally, this bot would play at speeds far greater than normal human speed, and if at all possible, when faced with the original implementation of \tetris{}, would beat the current human world record. We believe that such a task would be quite interesting to attack, and if done well, could in fact teach us a lot about what it is like to play a ``perfect'' \tetris{} game, or what strategies seem to work better than most.
 
-\section{Approach}
+\section{Possible approaches}
 
+\par There are multiple ways to approach solving, or playing, \tetris{}. For shorthand, we will refer to the current state of the game or the ``board'', i.e. all the stacked pieces, as the stack.
 
+\paragraph{Iterative Tree} An obvious choice would be to, given a particular piece, attempt to place in every rotation and every position, and according to some cost metric, pick the least expensive or most likely to create a good board for the next piece. If we have a lookahead, i.e. we know what piece is coming next, like in most popular \tetris{} games, we can even try all the combinations of each piece and pick which is best. Unfortunately, this method might actually take a while to compute, and may not finish computing until the piece drops and we lose control of it.
+\paragraph{Ranking} There is another method in which we look at the game completely differently. Suppose we want to enforce a guarantee that at all times, none of the pieces we have placed have created a hole in the stack. In other words, no hole is created that cannot be filled immediately with the right piece. If this is the case then the only thing we need to look at is the shape of the top layer
 
 \section{Plan}
 
