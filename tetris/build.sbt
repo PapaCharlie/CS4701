@@ -1,4 +1,4 @@
-name := "main"
+name := "tetris"
 
 version := "0.1"
 
@@ -14,12 +14,7 @@ initialize := {
 }
 
 lazy val tetris =
-  project.in(file("tetris"))
-    .settings(Common.settings: _*)
-
-lazy val main =
   project.in(file("."))
-    .aggregate(tetris).dependsOn(tetris)
     .settings(Common.settings: _*)
 
 mainClass in(Compile, run) := Some("tetris.Main")

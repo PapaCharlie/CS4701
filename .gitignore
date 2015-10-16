@@ -1,7 +1,3 @@
 proposal.*
 !proposal.tex
 .build/
-target/
-*/target/
-.idea/
-*/.idea/
