@@ -37,19 +37,19 @@
 
 \par There are multiple ways to approach solving, or playing, \tetris{}. For shorthand, we will refer to the current state of the game or the ``board'', i.e. all the stacked pieces, as the stack.
 
-\subsection{Iterative Tree} An obvious choice would be to, given a particular piece, attempt to place in every rotation and every position, and according to some cost metric, pick the least expensive or most likely to create a good board for the next piece. If we have a lookahead, i.e. we know what piece is coming next, like in most popular \tetris{} games, we can even try all the combinations of each piece and pick which is best. Unfortunately, this method might actually take a while to compute, and may not finish computing until the piece drops and we lose control of it.
+\subsection{Informed Search} An obvious choice would be to, given a particular piece, attempt to place in every rotation and every position, and according to some cost metric, pick the least expensive or most likely to create a good board for the next piece. If we have a lookahead, i.e. we know what piece is coming next, like in most popular \tetris{} games, we can even try all the combinations of each piece and pick which is best. Unfortunately, this method might actually take a while to compute, and may not finish computing until the piece drops and we lose control of it.
 
 \subsection{Ranking} There is another method in which we look at the game completely differently. Suppose we want to enforce a guarantee that at all times, none of the pieces we have placed have created a hole in the stack. In other words, no hole is created that cannot be filled immediately with the right piece. If this is the case then the only thing we need to look at is the shape of the top layer, let's call it the contour. Suppose we managed to rank every single contour, then all we need to do is pick the position of the falling piece that creates the best ranking contour among the positions that create no hole.
 
 \section{Plan}
 
-\subsection{Iterative Tree}
-The tree traversal part of the Iterative Tree seems to be the easiest to implement.
+\subsection{Informal Search}
+The tree traversal part of the Informal Search seems to be the easiest to implement.
 
 \section{Timeline}
 
-First, we begin by building some sort of framework against which to test different strategies. That involves creating a set of classes representing each of the \tetris{} pieces. Then we need methods which simulate stacking and dropping those pieces. Then we need to implement the random generator that implements which piece comes next. For this, we will do our best to implement something that's as close as possible to the original generator, or at least an official one.
+\par First, we will begin by building some sort of framework against which to test different strategies. We will do this together. Building it involves creating a set of classes representing each of the \tetris{} pieces. Then we need methods which simulate stacking and dropping those pieces. Then we need to implement the random generator that implements which piece comes next. For this, we will do our best to implement something that's as close as possible to the original generator, or at least an official one. Once our methods run relatively efficiently, we might also want to implement a timer that halts the execution of the decision methods if they run too long, to simulate a human running out of time as the piece drops to the bottom of the board.
 
-
+\par Once the boilerplate is out of the way, we can get to the fun stuff. That is, we can test the two different strategies outlined in this proposal. We will each work on a different strategy, Paul on the Ranking strategy and Sam on the Graph Traversal.
 
 \end{document}
