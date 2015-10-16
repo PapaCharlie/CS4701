@@ -3,3 +3,5 @@ proposal.*
 .build/
 target/
 */target/
+.idea/
+*/.idea/
