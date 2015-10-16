@@ -45,18 +45,17 @@ An obvious choice would be to, given a particular piece, attempt to place in eve
 \subsection{Ranking}
 There is another method in which we look at the game completely differently. Suppose we want to enforce a guarantee that at all times, none of the pieces we have placed have created a hole in the stack. In other words, no hole is created that cannot be filled immediately with the right piece. If this is the case then the only thing we need to look at is the shape of the top layer, let's call it the contour. Suppose we managed to rank every single contour, then all we need to do is pick the position of the falling piece that creates the best ranking contour among the positions that create no hole.
 
-\subsection{Reinforcement Learning}
 
 \section{Plan}
 
 \subsection{Informed Search}
 \subsubsection{MINIMAX} We know the current piece and the piece after it, but not the pieces that come after. So it would make sense to try to maximize the next two pieces placement in a way that would minimize the possible damage/maximize the least expected outcome of the next few pieces by using the mimimax approach.
 
+\subsubsection{Randomizer} We know the internals of how \tetris{} generates which pieces it is going to use next, so trying to leverage that to learn about what the next possible pieces will be could be useful. For instance, in some approaches, \tetris{} will go out of its way to not use a piece that was used in the previous 4 turns, so we can incorporate that into our search to avoid possible paths that will not occur.
+
 \subsection{Ranking}
 Google's PageRank algorithm does something very similar to what we want to achieve with this strategy. We can begin by simplifying contours into a sequence of incremental changes in height going left to right. This should be hashable and therefore very efficient to memoize. We then can compute the rank of all possible contours iteratively, and rank them. With this, we simply throw the algorithm against a sequence of \tetris{} pieces and see how it does.
 
-\subsection{Reinforcement Learning}
-\subsubsection{Randomizer} We know the internals of how \tetris{} generates which pieces it is going to use next, so trying to leverage that to learn about what the next possible pieces will be could be useful. For instance, in some approaches, \tetris{} will go out of its way to try to not use a piece that was used in the previous 4 turns, so we can incorporate that into our probability tree.
 
 \section{Timeline}
 
