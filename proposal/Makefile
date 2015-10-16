@@ -25,3 +25,5 @@ links:
 	-rm $(PDF)
 	ln -s .build/*.pdf .
 
+echo:
+	echo $(PDF)

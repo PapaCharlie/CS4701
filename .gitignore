@@ -1,3 +1,5 @@
 proposal.*
 !proposal.tex
 .build/
+target/
+*/target/
