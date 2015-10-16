@@ -4,7 +4,7 @@
 
 \def\tetris{Tetris\textsuperscript{\textregistered}}
 
-\title{Old School \tetris{} Meets Game Tree Search}
+\title{Old School \tetris{} Meets Machine Learning}
 \author{Paul Chesnais (pmc85) and Sam Svenningsen (sjs382)}
 \date{\today}
 
@@ -37,27 +37,18 @@
 
 \par There are multiple ways to approach solving, or playing, \tetris{}. For shorthand, we will refer to the current state of the game or the ``board'', i.e. all the stacked pieces, as the stack.
 
-\paragraph{Iterative Tree} An obvious choice would be to, given a particular piece, attempt to place in every rotation and every position, and according to some cost metric, pick the least expensive or most likely to create a good board for the next piece. If we have a lookahead, i.e. we know what piece is coming next, like in most popular \tetris{} games, we can even try all the combinations of each piece and pick which is best. Unfortunately, this method might actually take a while to compute, and may not finish computing until the piece drops and we lose control of it.
-\paragraph{Ranking} There is another method in which we look at the game completely differently. Suppose we want to enforce a guarantee that at all times, none of the pieces we have placed have created a hole in the stack. In other words, no hole is created that cannot be filled immediately with the right piece. If this is the case then the only thing we need to look at is the shape of the top layer, let's call it the contour. Suppose we managed to rank every single contour, then all we need to do is pick the position of the falling piece that creates the best ranking contour.
+\subsection{Iterative Tree} An obvious choice would be to, given a particular piece, attempt to place in every rotation and every position, and according to some cost metric, pick the least expensive or most likely to create a good board for the next piece. If we have a lookahead, i.e. we know what piece is coming next, like in most popular \tetris{} games, we can even try all the combinations of each piece and pick which is best. Unfortunately, this method might actually take a while to compute, and may not finish computing until the piece drops and we lose control of it.
+
+\subsection{Ranking} There is another method in which we look at the game completely differently. Suppose we want to enforce a guarantee that at all times, none of the pieces we have placed have created a hole in the stack. In other words, no hole is created that cannot be filled immediately with the right piece. If this is the case then the only thing we need to look at is the shape of the top layer, let's call it the contour. Suppose we managed to rank every single contour, then all we need to do is pick the position of the falling piece that creates the best ranking contour among the positions that create no hole.
 
 \section{Plan}
 
-Try different approaches to compare success and easiness. Success being average score and max highest score with each approach.
-
-\begin{description}
-
-  \item[Graph Traversal (Look for actual name)] Calculate all possibilities n moves ahead, choose best. Best being a ``perfect'' Tetris stack (i.e. no holes) for as many consecutive pieces as possible.
-
-  \item[Heuristic Approach] Find out if we can get a heuristic function that gives a score to a tetris state plus a new piece or pieces in any configuration and choose the max (or min) value one.
-
-  \item[A* search]
-
-  \item[Reinforcement Learning]?
-
-\end{description}
-
+\subsection{Iterative Tree}
+The tree traversal part of the Iterative Tree seems to be the easiest to implement.
 
 \section{Timeline}
+
+First, we begin by building some sort of framework against which to test different strategies. That involves creating a set of classes representing each of the \tetris{} pieces. Then we need methods which simulate stacking and dropping those pieces. Then we need to implement the random generator that implements which piece comes next. For this, we will do our best to implement something that's as close as possible to the original generator, or at least an official one.
 
 
 
