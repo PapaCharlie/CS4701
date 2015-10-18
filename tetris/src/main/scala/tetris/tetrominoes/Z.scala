@@ -1,11 +1,9 @@
 package tetris.tetrominoes
 
-import tetris.Piece
-
 /**
  * Created by papacharlie on 10/18/15.
  */
-case class Z(x: Int, rotation: Int = 0) extends Piece {
+case class Z(x: Int, rotation: Int = 0) extends Tetromino {
 
   val shape0 = Seq((-1, 0), (0, 1), (-1, -1))
   val shape1 = Seq((-1, 0), (1, -1), (0, -1))
