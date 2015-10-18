@@ -23,4 +23,6 @@ abstract class Tetromino {
     (currentShape :+(0, 0)).map { case (dx, dy) => (x + dx, y + dy) }
   }
 
+  def allRotations: Seq[Tetromino]
+
 }

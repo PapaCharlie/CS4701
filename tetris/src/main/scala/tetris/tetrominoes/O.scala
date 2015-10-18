@@ -9,4 +9,6 @@ case class O(x: Int) extends Tetromino {
 
   def rotate: O = this
 
+  def allRotations: Seq[O] = Seq(new O(x))
+
 }

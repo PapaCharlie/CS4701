@@ -15,4 +15,6 @@ case class S(x: Int, rotation: Int = 0) extends Tetromino {
 
   def rotate = S(x, (rotation + 1) % 2)
 
+  def allRotations: Seq[S] = (0 to 1).map(new S(x, _))
+
 }

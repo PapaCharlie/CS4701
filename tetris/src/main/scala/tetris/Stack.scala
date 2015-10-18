@@ -11,7 +11,6 @@ class Stack(val pieces: Array[Array[Boolean]] = Array.ofDim[Boolean](width + 1, 
   def highestY(x: Int): Int = pieces(x).lastIndexOf(true)
 
   def +(p: Tetromino): Option[Stack] = {
-
     def fitPiece(y: Int): Option[Seq[Square]] = {
       if (y <= height + 2) {
         val squares = p.getSquares(y)
@@ -32,7 +31,6 @@ class Stack(val pieces: Array[Array[Boolean]] = Array.ofDim[Boolean](width + 1, 
       }
       new Stack(newPieces)
     }
-
   }
 
   def ++(iterable: Iterable[Tetromino]): Option[Stack] = {
@@ -47,7 +45,6 @@ class Stack(val pieces: Array[Array[Boolean]] = Array.ofDim[Boolean](width + 1, 
   }
 
   def hasNoHoles: Boolean = {
-
     def twoTone(arr: Array[Boolean]): Boolean = {
       val rest = arr.dropWhile(_ == arr(0))
       if (rest.isEmpty || rest.toSet.size == 1) {
@@ -57,7 +54,6 @@ class Stack(val pieces: Array[Array[Boolean]] = Array.ofDim[Boolean](width + 1, 
       }
     }
     pieces.map(twoTone).forall(identity)
-
   }
 
   override def toString = {
@@ -66,10 +62,10 @@ class Stack(val pieces: Array[Array[Boolean]] = Array.ofDim[Boolean](width + 1, 
         if (pieces(x)(y)) {
           "1"
         } else {
-          "0"
+          " "
         }
-      }.mkString("")
-    }.mkString("\n")
+      }.mkString("|","","|")
+    }.mkString("-" * (width + 3) + "\n", "\n", "\n" + "-" * (width + 3))
   }
 }
 
