@@ -11,10 +11,10 @@ case class T(x: Int, rotation: Int = 0) extends Tetromino {
   val shape3 = Seq((-1, 0), (0, 1), (1, 0))
 
   var currentShape = rotation match {
-    case 0 => shape1
-    case 1 => shape2
-    case 2 => shape3
-    case 3 => shape0
+    case 0 => shape0
+    case 1 => shape1
+    case 2 => shape2
+    case 3 => shape3
   }
 
   def rotate: T = T(x, (rotation + 1) % 4)
