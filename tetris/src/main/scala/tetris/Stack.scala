@@ -10,17 +10,6 @@ class Stack(val pieces: Array[Array[Boolean]] = Array.ofDim[Boolean](width + 1, 
 
   def highestY(x: Int): Int = pieces(x).lastIndexOf(true)
 
-  def ++(iterable: Iterable[Tetromino]): Option[Stack] = {
-    if (iterable.isEmpty) {
-      Some(this)
-    } else {
-      iterable.foldLeft(Some(this): Option[Stack]) {
-        case (Some(stack), piece) => stack + piece
-        case _ => None
-      }
-    }
-  }
-
   def +(p: Tetromino): Option[Stack] = {
 
     def fitPiece(y: Int): Option[Seq[Square]] = {
@@ -46,11 +35,19 @@ class Stack(val pieces: Array[Array[Boolean]] = Array.ofDim[Boolean](width + 1, 
 
   }
 
-  def hasNoHoles: Boolean = {
-    hasNoHoles(width)
+  def ++(iterable: Iterable[Tetromino]): Option[Stack] = {
+    if (iterable.isEmpty) {
+      Some(this)
+    } else {
+      iterable.foldLeft(Some(this): Option[Stack]) {
+        case (Some(stack), piece) => stack + piece
+        case _ => None
+      }
+    }
   }
 
-  def hasNoHoles(maxX: Int): Boolean = {
+  def hasNoHoles: Boolean = {
+
     def twoTone(arr: Array[Boolean]): Boolean = {
       val rest = arr.dropWhile(_ == arr(0))
       if (rest.isEmpty || rest.toSet.size == 1) {
@@ -59,7 +56,8 @@ class Stack(val pieces: Array[Array[Boolean]] = Array.ofDim[Boolean](width + 1, 
         false
       }
     }
-    pieces.slice(0, maxX).map(twoTone).forall(identity)
+    pieces.map(twoTone).forall(identity)
+
   }
 
   override def toString = {
