@@ -9,6 +9,8 @@ abstract class Tetromino {
 
   def x: Int
 
+  def rotation: Int
+
   if (x < 0 || x > width) {
     throw new IllegalArgumentException("Piece is out of board bounds! (%d)".format(x))
   }
@@ -24,5 +26,9 @@ abstract class Tetromino {
   }
 
   def allRotations: Seq[Tetromino]
+
+  def copy(x: Int, rotation: Int): Tetromino
+
+  def copy: Tetromino = copy(0, 0)
 
 }

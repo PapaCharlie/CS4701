@@ -3,7 +3,7 @@ package tetris.tetrominoes
 /**
  * Created by papacharlie on 10/18/15.
  */
-case class T(x: Int, rotation: Int = 0) extends Tetromino {
+case class T(x: Int = 0, rotation: Int = 0) extends Tetromino {
 
   val shape0 = Seq((0, 1), (1, 0), (0, -1))
   val shape1 = Seq((-1, 0), (1, 0), (0, -1))
@@ -20,5 +20,7 @@ case class T(x: Int, rotation: Int = 0) extends Tetromino {
   def rotate: T = T(x, (rotation + 1) % 4)
 
   def allRotations: Seq[T] = (0 to 3).map(new T(x, _))
+
+  def copy(x: Int = 0, rotation: Int = 0): T = new T(x, rotation)
 
 }
