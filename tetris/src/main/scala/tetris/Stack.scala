@@ -8,6 +8,22 @@ import tetris.tetrominoes.Tetromino
  */
 class Stack(val pieces: Array[Array[Boolean]] = Array.ofDim[Boolean](width + 1, height + 3)) {
 
+  private def clearRows(arr: Array[Array[Boolean]], y: Int = 0): Array[Array[Boolean]] = {
+    def moveBackAddFalse(a: Array[Boolean]): Array[Boolean] = {
+      a.slice(0, y) ++ a.slice(y + 1, height + 3) :+ false
+    }
+    if (y == height) {
+      arr
+    } else {
+      if ((0 to width).map(arr(_)(y)).forall(identity)) {
+        val a = arr.map(moveBackAddFalse)
+        clearRows(a, y)
+      } else {
+        clearRows(arr, y + 1)
+      }
+    }
+  }
+
   def highestY(x: Int): Int = pieces(x).lastIndexOf(true)
 
   def +(p: Tetromino): Option[Stack] = {
@@ -24,12 +40,15 @@ class Stack(val pieces: Array[Array[Boolean]] = Array.ofDim[Boolean](width + 1, 
       }
     }
 
-    fitPiece(highestY(p.x)).map { squares =>
-      val newPieces = squares.foldLeft(pieces) { case (pieces, (x, y)) =>
-        pieces(x)(y) = true
-        pieces
+    fitPiece(highestY(p.x)) match {
+      case Some(squares) => {
+        val newPieces = squares.foldLeft(pieces) { case (pieces, (x, y)) =>
+          pieces(x)(y) = true
+          pieces
+        }
+        Some(new Stack(clearRows(newPieces)))
       }
-      new Stack(newPieces)
+      case _ => None
     }
   }
 
@@ -64,7 +83,7 @@ class Stack(val pieces: Array[Array[Boolean]] = Array.ofDim[Boolean](width + 1, 
         } else {
           " "
         }
-      }.mkString("|","","|")
+      }.mkString("|", "", "|")
     }.mkString("-" * (width + 3) + "\n", "\n", "\n" + "-" * (width + 3))
   }
 }

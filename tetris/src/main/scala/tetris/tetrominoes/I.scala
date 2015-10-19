@@ -9,8 +9,8 @@ case class I(x: Int = 0, rotation: Int = 0) extends Tetromino {
   val shape1 = Seq((-1, 0), (1, 0), (2, 0))
 
   var currentShape = rotation match {
-    case 0 => shape1
-    case 1 => shape0
+    case 0 => shape0
+    case 1 => shape1
   }
 
   def rotate = S(x, (rotation + 1) % 2)
