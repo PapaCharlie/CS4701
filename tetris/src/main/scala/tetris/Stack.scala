@@ -79,7 +79,7 @@ class Stack(val pieces: Array[Array[Boolean]] = Array.ofDim[Boolean](width + 1, 
     (height to 0 by -1).map { y =>
       (0 to width).map { x =>
         if (pieces(x)(y)) {
-          "1"
+          0x25AE.toChar
         } else {
           " "
         }
