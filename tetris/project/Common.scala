@@ -21,6 +21,11 @@ object Common {
     libraryDependencies ++= dependencies,
     resolvers += "softprops-maven" at "https://dl.bintray.com/content/softprops/maven",
     resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
-    scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
+    scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8"),
+    initialize := {
+      val required = "1.8"
+      val current = sys.props("java.specification.version")
+      assert(current == required, s"Unsupported JDK: java.specification.version $current != $required")
+    }
   )
 }
