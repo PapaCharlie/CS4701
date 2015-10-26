@@ -12,7 +12,6 @@ object Common {
   )
 
   val names: Seq[Setting[_]] = Seq(
-    // organization := "com.janesoft",
     version := "0.1",
     scalaVersion := "2.11.6"
   )
