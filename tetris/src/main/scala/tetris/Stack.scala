@@ -1,29 +1,30 @@
 package tetris
 
-import tetris.Stack.{Square, RichSquare, height, width}
-import tetris.tetrominoes.Tetromino
+import tetris.Stack.{Square, RichSquare, height, width, emptyStack}
+import tetris.tetrominoes.Color.Black
+import tetris.tetrominoes.{Color, Tetromino}
 
 /**
  * Created by papacharlie on 10/17/15.
  */
-class Stack(val pieces: Array[Array[Boolean]] = Array.ofDim[Boolean](width + 1, height + 1)) {
+class Stack(val pieces: IndexedSeq[IndexedSeq[(Boolean, Color)]] = emptyStack) {
 
   val lost: Boolean = (0 until width).map { x =>
-    pieces(x)(height) || pieces(x)(height - 1)
+    pieces(x)(height)._1 || pieces(x)(height - 1)._1
   }.reduce((b1, b2) => b1 || b2)
 
-  private def clearRows(arr: Array[Array[Boolean]], y: Int = 0): Array[Array[Boolean]] = {
-    def moveBackAddFalse(a: Array[Boolean]): Array[Boolean] = {
-      a.slice(0, y) ++ a.slice(y + 1, height + 1) :+ false
+  private def clearRows(stack: IndexedSeq[IndexedSeq[(Boolean, Color)]], y: Int = 0): IndexedSeq[IndexedSeq[(Boolean, Color)]] = {
+    def moveBackAddFalse(seq: IndexedSeq[(Boolean, Color)]): IndexedSeq[(Boolean, Color)] = {
+      seq.slice(0, y) ++ seq.slice(y + 1, height + 1) :+ (false, new Black)
     }
     if (y == height) {
-      arr
+      stack
     } else {
-      if ((0 to width).map(arr(_)(y)).forall(identity)) {
-        val a = arr.map(moveBackAddFalse)
+      if ((0 to width).map(stack(_)(y)).forall(_._1)) {
+        val a = stack.map(moveBackAddFalse)
         clearRows(a, y)
       } else {
-        clearRows(arr, y + 1)
+        clearRows(stack, y + 1)
       }
     }
   }
@@ -34,7 +35,7 @@ class Stack(val pieces: Array[Array[Boolean]] = Array.ofDim[Boolean](width + 1, 
     def fitPiece(y: Int): Option[Seq[Square]] = {
       if (y <= height) {
         val squares = p.getSquares(y)
-        if (squares.forall(_.fits) && squares.forall { case (x, y) => !pieces(x)(y) }) {
+        if (squares.forall(_.fits) && squares.forall { case (x, y) => !pieces(x)(y)._1 }) {
           Some(squares)
         } else {
           fitPiece(y + 1)
@@ -46,11 +47,10 @@ class Stack(val pieces: Array[Array[Boolean]] = Array.ofDim[Boolean](width + 1, 
 
     fitPiece(highestY(p.x)) match {
       case Some(squares) => {
-        val newPieces = squares.foldLeft(pieces) { case (pieces, (x, y)) =>
-          pieces(x)(y) = true
-          pieces
-        }
-        Some(new Stack(clearRows(newPieces)))
+        val newPieces = clearRows(squares.foldLeft(pieces) { case (stack, (x, y)) =>
+          stack.updated(x, stack(x).updated(y, (true, p.color)))
+        })
+        Some(new Stack(newPieces))
       }
       case _ => None
     }
@@ -61,16 +61,18 @@ class Stack(val pieces: Array[Array[Boolean]] = Array.ofDim[Boolean](width + 1, 
       Some(this)
     } else {
       iterable.foldLeft(Some(this): Option[Stack]) {
-        case (Some(stack), piece) => stack + piece
+        case (Some(stack), piece) => {
+          stack + piece
+        }
         case _ => None
       }
     }
   }
 
   def hasNoHoles: Boolean = {
-    def twoTone(arr: Array[Boolean]): Boolean = {
-      val rest = arr.dropWhile(_ == arr(0))
-      if (rest.isEmpty || rest.toSet.size == 1) {
+    def twoTone(arr: IndexedSeq[(Boolean, Color)]): Boolean = {
+      val rest = arr.dropWhile(_._1 == arr.head._1)
+      if (rest.isEmpty || rest.map(_._1).toSet.size == 1) {
         true
       } else {
         false
@@ -82,8 +84,8 @@ class Stack(val pieces: Array[Array[Boolean]] = Array.ofDim[Boolean](width + 1, 
   override def toString = {
     ((height - 2) to 0 by -1).map { y =>
       (0 to width).map { x =>
-        if (pieces(x)(y)) {
-          0x25AE.toChar
+        if (pieces(x)(y)._1) {
+          pieces(x)(y)._2.console + 0x25AE.toChar + Console.RESET
         } else {
           " "
         }
@@ -103,5 +105,10 @@ object Stack {
   val height = 21
 
   val width = 9
+
+  def emptyStack: IndexedSeq[IndexedSeq[(Boolean, Color)]] = {
+    val column: IndexedSeq[(Boolean, Color)] = (0 to height).map { x => (false, new Black) }
+    (0 to width).map(x => column)
+  }
 
 }

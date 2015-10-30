@@ -26,7 +26,23 @@ object Main extends App {
     }
   }
 
+  def stackRandom = {
+    val randomizer = new Randomizer
+    (0 to 9).map{ x =>
+      randomizer.next.copy(x, 1)
+    }.foldLeft(new Stack){ case (stack, piece) =>
+      stack + piece match {
+        case Some(s) => {
+          println(s)
+          s
+        }
+        case _ => stack
+      }
+    }
+  }
+
   bunchaTs
   testClearRows
+  stackRandom
 
 }
