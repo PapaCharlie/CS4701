@@ -15,7 +15,7 @@ object Main extends App {
   def testClearRows = {
     println("Show that rows clear properly when required (not tested).")
     println("Also test that contour hashes to same contour as that dude's :p")
-    new Stack() ++ Seq(new J(1, 1), new J(2, 3), new L(1, 3), new O(4), new L(7, 3),  new O(6)) match {
+    new Stack() ++ Seq(new J(1, 0), new J(2, 3), new L(1, 3), new O(4), new L(7, 3),  new O(6)) match {
       case Some(stack) => {
         println(stack)
         println(new Contour(stack))

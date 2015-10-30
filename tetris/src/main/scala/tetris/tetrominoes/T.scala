@@ -1,5 +1,7 @@
 package tetris.tetrominoes
 
+import tetris.tetrominoes.Color.Magenta
+
 /**
  * Created by papacharlie on 10/18/15.
  */
@@ -22,5 +24,7 @@ case class T(x: Int = 0, rotation: Int = 0) extends Tetromino {
   def allRotations: Seq[T] = (0 to 3).map(new T(x, _))
 
   def copy(x: Int = 0, rotation: Int = 0): T = new T(x, rotation)
+
+  def color = new Magenta
 
 }

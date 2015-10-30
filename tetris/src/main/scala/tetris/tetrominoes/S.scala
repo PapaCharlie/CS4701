@@ -1,5 +1,7 @@
 package tetris.tetrominoes
 
+import tetris.tetrominoes.Color.Green
+
 /**
  * Created by papacharlie on 10/18/15.
  */
@@ -18,5 +20,7 @@ case class S(x: Int = 0, rotation: Int = 0) extends Tetromino {
   def allRotations: Seq[S] = (0 to 1).map(new S(x, _))
 
   def copy(x: Int = 0, rotation: Int = 0): S = new S(x, rotation)
+
+  def color = new Green
 
 }

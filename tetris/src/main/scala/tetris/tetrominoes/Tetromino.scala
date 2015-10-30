@@ -31,4 +31,6 @@ abstract class Tetromino {
 
   def copy: Tetromino = copy(0, 0)
 
+  def color: Color
+
 }

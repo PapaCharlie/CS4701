@@ -1,5 +1,7 @@
 package tetris.tetrominoes
 
+import tetris.tetrominoes.Color.Orange
+
 /**
  * Created by papacharlie on 10/18/15.
  */
@@ -22,5 +24,7 @@ case class L(x: Int = 0, rotation: Int = 0) extends Tetromino {
   def allRotations: Seq[L] = (0 to 3).map(new L(x, _))
 
   def copy(x: Int = 0, rotation: Int = 0): L = new L(x, rotation)
+
+  def color = new Orange
 
 }

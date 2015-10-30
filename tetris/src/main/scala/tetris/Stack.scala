@@ -1,21 +1,24 @@
 package tetris
 
-import tetris.Stack.{Square, RichSquare, height, width}
-import tetris.tetrominoes.Tetromino
+import tetris.Stack.{Square, RichSquare, height, width, emptyStack}
+import tetris.tetrominoes.Color.Black
+import tetris.tetrominoes.{Color, Tetromino}
 
 /**
  * Created by papacharlie on 10/17/15.
  */
-class Stack(val pieces: Array[Array[Boolean]] = Array.ofDim[Boolean](width + 1, height + 3)) {
+class Stack(val pieces: Array[Array[(Boolean, Color)]] = emptyStack) {
 
-  private def clearRows(arr: Array[Array[Boolean]], y: Int = 0): Array[Array[Boolean]] = {
-    def moveBackAddFalse(a: Array[Boolean]): Array[Boolean] = {
-      a.slice(0, y) ++ a.slice(y + 1, height + 3) :+ false
+  implicit def squareToBoolean(k: (Boolean, Color)): Boolean = k._1
+
+  private def clearRows(arr: Array[Array[(Boolean, Color)]], y: Int = 0): Array[Array[(Boolean, Color)]] = {
+    def moveBackAddFalse(a: Array[(Boolean, Color)]): Array[(Boolean, Color)] = {
+      a.slice(0, y) ++ a.slice(y + 1, height + 3) :+ (false, new Black)
     }
     if (y == height) {
       arr
     } else {
-      if ((0 to width).map(arr(_)(y)).forall(identity)) {
+      if ((0 to width).map(arr(_)(y)).forall(_._1)) {
         val a = arr.map(moveBackAddFalse)
         clearRows(a, y)
       } else {
@@ -25,6 +28,10 @@ class Stack(val pieces: Array[Array[Boolean]] = Array.ofDim[Boolean](width + 1, 
   }
 
   def highestY(x: Int): Int = pieces(x).lastIndexOf(true)
+
+  val lost: Boolean = (0 until width).map { x =>
+    pieces(x)(height) || pieces(x)(height - 1)
+  }.reduce((b1, b2) => b1 || b2)
 
   def +(p: Tetromino): Option[Stack] = {
     def fitPiece(y: Int): Option[Seq[Square]] = {
@@ -42,9 +49,9 @@ class Stack(val pieces: Array[Array[Boolean]] = Array.ofDim[Boolean](width + 1, 
 
     fitPiece(highestY(p.x)) match {
       case Some(squares) => {
-        val newPieces = squares.foldLeft(pieces) { case (pieces, (x, y)) =>
-          pieces(x)(y) = true
-          pieces
+        val newPieces = squares.foldLeft(pieces) { case (stack, (x, y)) =>
+          stack(x)(y) = (true, p.color)
+          stack
         }
         Some(new Stack(clearRows(newPieces)))
       }
@@ -57,14 +64,16 @@ class Stack(val pieces: Array[Array[Boolean]] = Array.ofDim[Boolean](width + 1, 
       Some(this)
     } else {
       iterable.foldLeft(Some(this): Option[Stack]) {
-        case (Some(stack), piece) => stack + piece
+        case (Some(stack), piece) => {
+          stack + piece
+        }
         case _ => None
       }
     }
   }
 
   def hasNoHoles: Boolean = {
-    def twoTone(arr: Array[Boolean]): Boolean = {
+    def twoTone(arr: Array[(Boolean, Color)]): Boolean = {
       val rest = arr.dropWhile(_ == arr(0))
       if (rest.isEmpty || rest.toSet.size == 1) {
         true
@@ -99,5 +108,9 @@ object Stack {
   val height = 19
 
   val width = 9
+
+  private val column: Array[(Boolean, Color)] = (0 to height).map { x => (false, new Black) }.toArray
+
+  val emptyStack: Array[Array[(Boolean, Color)]] = (0 to width).map(x => column).toArray
 
 }
