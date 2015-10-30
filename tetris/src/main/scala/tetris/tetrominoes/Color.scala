@@ -34,7 +34,7 @@ object Color {
   }
 
   case class Orange() extends Color {
-    def console = Console.BLUE.replace("34","33")
+    def console = Console.BLUE.replace("34","37")
   }
 
   case class Black() extends Color {
