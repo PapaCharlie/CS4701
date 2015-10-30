@@ -6,11 +6,15 @@ import tetris.tetrominoes.Tetromino
 /**
  * Created by papacharlie on 10/17/15.
  */
-class Stack(val pieces: Array[Array[Boolean]] = Array.ofDim[Boolean](width + 1, height + 3)) {
+class Stack(val pieces: Array[Array[Boolean]] = Array.ofDim[Boolean](width + 1, height + 1)) {
+
+  val lost: Boolean = (0 until width).map { x =>
+    pieces(x)(height) || pieces(x)(height - 1)
+  }.reduce((b1, b2) => b1 || b2)
 
   private def clearRows(arr: Array[Array[Boolean]], y: Int = 0): Array[Array[Boolean]] = {
     def moveBackAddFalse(a: Array[Boolean]): Array[Boolean] = {
-      a.slice(0, y) ++ a.slice(y + 1, height + 3) :+ false
+      a.slice(0, y) ++ a.slice(y + 1, height + 1) :+ false
     }
     if (y == height) {
       arr
@@ -28,7 +32,7 @@ class Stack(val pieces: Array[Array[Boolean]] = Array.ofDim[Boolean](width + 1, 
 
   def +(p: Tetromino): Option[Stack] = {
     def fitPiece(y: Int): Option[Seq[Square]] = {
-      if (y <= height + 2) {
+      if (y <= height) {
         val squares = p.getSquares(y)
         if (squares.forall(_.fits) && squares.forall { case (x, y) => !pieces(x)(y) }) {
           Some(squares)
@@ -76,7 +80,7 @@ class Stack(val pieces: Array[Array[Boolean]] = Array.ofDim[Boolean](width + 1, 
   }
 
   override def toString = {
-    (height to 0 by -1).map { y =>
+    ((height - 2) to 0 by -1).map { y =>
       (0 to width).map { x =>
         if (pieces(x)(y)) {
           0x25AE.toChar
@@ -93,10 +97,10 @@ object Stack {
   type Square = (Int, Int)
 
   implicit class RichSquare(val s: Square) extends AnyVal {
-    def fits = (s._1 >= 0 && s._1 <= width) && (s._2 >= 0 && s._2 <= height + 2)
+    def fits = (s._1 >= 0 && s._1 <= width) && (s._2 >= 0 && s._2 <= height)
   }
 
-  val height = 19
+  val height = 21
 
   val width = 9
 
