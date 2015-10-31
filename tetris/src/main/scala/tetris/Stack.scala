@@ -9,9 +9,17 @@ import tetris.tetrominoes.{Color, Tetromino}
  */
 class Stack(val pieces: IndexedSeq[IndexedSeq[(Boolean, Color)]] = emptyStack) {
 
-  def lost: Boolean = (0 until width).map { x =>
-    pieces(x)(height)._1 || pieces(x)(height - 1)._1
-  }.reduce((b1, b2) => b1 || b2)
+  override def toString = {
+    ((height - 2) to 0 by -1).map { y =>
+      (0 to width).map { x =>
+        if (pieces(x)(y)._1) {
+          pieces(x)(y)._2.console + 0x25AE.toChar + Console.RESET
+        } else {
+          " "
+        }
+      }.mkString("|", "", "|")
+    }.mkString("-" * (width + 3) + "\n", "\n", "\n" + "-" * (width + 3))
+  }
 
   private def clearRows(stack: IndexedSeq[IndexedSeq[(Boolean, Color)]], y: Int = 0): IndexedSeq[IndexedSeq[(Boolean, Color)]] = {
     def moveBackAddFalse(seq: IndexedSeq[(Boolean, Color)]): IndexedSeq[(Boolean, Color)] = {
@@ -29,7 +37,7 @@ class Stack(val pieces: IndexedSeq[IndexedSeq[(Boolean, Color)]] = emptyStack) {
     }
   }
 
-  def highestY(x: Int): Int = pieces(x).lastIndexOf(true)
+  private def highestY(x: Int): Int = pieces(x).lastIndexOf(true)
 
   def +(p: Tetromino): Option[Stack] = {
     def fitPiece(y: Int): Option[Seq[Square]] = {
@@ -81,17 +89,12 @@ class Stack(val pieces: IndexedSeq[IndexedSeq[(Boolean, Color)]] = emptyStack) {
     pieces.map(twoTone).forall(identity)
   }
 
-  override def toString = {
-    ((height - 2) to 0 by -1).map { y =>
-      (0 to width).map { x =>
-        if (pieces(x)(y)._1) {
-          pieces(x)(y)._2.console + 0x25AE.toChar + Console.RESET
-        } else {
-          " "
-        }
-      }.mkString("|", "", "|")
-    }.mkString("-" * (width + 3) + "\n", "\n", "\n" + "-" * (width + 3))
-  }
+  def lost: Boolean = (0 to width).map { x =>
+    pieces(x)(height)._1 || pieces(x)(height - 1)._1
+  }.reduce((b1, b2) => b1 || b2)
+
+  def stackHeight: Int = (0 to width).map(highestY(_)).max
+
 }
 
 object Stack {
