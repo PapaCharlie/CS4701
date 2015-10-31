@@ -3,14 +3,17 @@ package tetris.tetrominoes
 import tetris.tetrominoes.Color.Green
 
 /**
- * Created by papacharlie on 10/18/15.
+ * Shape:
+ * x
+ * ox  ox
+ *  x xx
  */
 case class S(x: Int = 0, rotation: Int = 0) extends Tetromino {
 
   val shape0 = Seq((0, 1), (1, 0), (1, -1))
   val shape1 = Seq((1, 0), (0, -1), (-1, -1))
 
-  var currentShape = rotation match {
+  var currentShape = rotation % 2 match {
     case 0 => shape0
     case 1 => shape1
   }

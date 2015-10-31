@@ -1,6 +1,6 @@
 package tetris
 
-import tetris.Stack.{Square, RichSquare, height, width, emptyStack}
+import tetris.Stack._
 import tetris.tetrominoes.Color.Black
 import tetris.tetrominoes.{Color, Tetromino}
 
@@ -9,13 +9,13 @@ import tetris.tetrominoes.{Color, Tetromino}
  */
 class Stack(val pieces: IndexedSeq[IndexedSeq[(Boolean, Color)]] = emptyStack) {
 
-  val lost: Boolean = (0 until width).map { x =>
+  def lost: Boolean = (0 until width).map { x =>
     pieces(x)(height)._1 || pieces(x)(height - 1)._1
   }.reduce((b1, b2) => b1 || b2)
 
   private def clearRows(stack: IndexedSeq[IndexedSeq[(Boolean, Color)]], y: Int = 0): IndexedSeq[IndexedSeq[(Boolean, Color)]] = {
     def moveBackAddFalse(seq: IndexedSeq[(Boolean, Color)]): IndexedSeq[(Boolean, Color)] = {
-      seq.slice(0, y) ++ seq.slice(y + 1, height + 1) :+ (false, new Black)
+      seq.slice(0, y) ++ seq.slice(y + 1, height + 1) :+(false, new Black)
     }
     if (y == height) {
       stack

@@ -1,20 +1,27 @@
-JAR := "target/scala-2.11/tetris-assembly-0.1.jar"
+JARPATH := "target/scala-2.11/tetris-assembly-0.1.jar"
+JAR := "tetris.jar"
 
-all:
+all: compile
+
+compile:
 	sbt compile
-
-run:
-	sbt run
 
 clean:
 	sbt clean
 
-# assembly takes forever, don't recompile if jar already exists.
+assembly:
+	sbt assembly
+	ln $(JARPATH) $(JAR)
+
 jar:
-	test -s $(JAR) || sbt assembly
+	test -s $(JAR) || make assembly
+	java -jar $(JAR)
 
-play/rank: jar
-	java -jar $(JAR) rank
+play:
+	screen sbt run
 
-play/search: jar
-	java -jar $(JAR) search
+play/rank:
+	screen sbt "run rank"
+
+play/search:
+	screen sbt "run search"

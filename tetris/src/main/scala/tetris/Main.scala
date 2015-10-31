@@ -32,12 +32,14 @@ object Main extends App {
   //  testClearRows
 
   def showColors = {
-    applyPieces(new Stack, Seq(new I(0), new J(2),new L(3),
+    applyPieces(new Stack, Seq(new I(0), new J(2), new L(3),
       new O(5),
       new T(8, 3),
       new Z(8),
       new S(6, 1)
     )) |> printStacks
+    if (args.nonEmpty) println(args(0))
+    scala.io.StdIn.readLine()
   }
 
   showColors

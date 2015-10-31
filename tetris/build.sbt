@@ -6,7 +6,6 @@ scalaVersion := "2.11.6"
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
 
-
 lazy val tetris =
   project.in(file("."))
     .settings(Common.settings: _*)

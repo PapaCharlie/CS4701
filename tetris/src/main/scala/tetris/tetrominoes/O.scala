@@ -3,7 +3,9 @@ package tetris.tetrominoes
 import tetris.tetrominoes.Color.Yellow
 
 /**
- * Created by papacharlie on 10/18/15.
+ * Shapes:
+ * xx
+ * ox
  */
 case class O(x: Int = 0, rotation: Int = 0) extends Tetromino {
 

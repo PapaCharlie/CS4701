@@ -3,16 +3,19 @@ package tetris.tetrominoes
 import tetris.tetrominoes.Color.Orange
 
 /**
- * Created by papacharlie on 10/18/15.
+ * Shapes:
+ * x      xx   x
+ * o  xox  o xox
+ * xx x    x
  */
 case class L(x: Int = 0, rotation: Int = 0) extends Tetromino {
 
   val shape0 = Seq((0, 1), (0, -1), (1, -1))
   val shape1 = Seq((-1, 0), (-1, -1), (1, 0))
-  val shape2 = Seq((0, 1), (-1, 1), (0, -1))
-  val shape3 = Seq((-1, 0), (1, 0), (1, 1))
+  val shape2 = Seq((-1, 1), (0, 1), (0, -1))
+  val shape3 = Seq((-1, 0), (1, 1), (1, 0))
 
-  val currentShape = rotation match {
+  val currentShape = rotation % 4 match {
     case 0 => shape0
     case 1 => shape1
     case 2 => shape2
