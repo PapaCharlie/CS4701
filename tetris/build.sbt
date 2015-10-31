@@ -12,3 +12,5 @@ lazy val tetris =
     .settings(Common.settings: _*)
 
 mainClass in(Compile, run) := Some("tetris.Main")
+
+mainClass in assembly := Some("tetris.Main")
