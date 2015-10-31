@@ -4,6 +4,8 @@ import tetris.Stack._
 import tetris.tetrominoes.Color.Black
 import tetris.tetrominoes.{Color, Tetromino}
 
+import scala.math._
+
 /**
  * Created by papacharlie on 10/17/15.
  */
@@ -93,7 +95,15 @@ class Stack(val pieces: IndexedSeq[IndexedSeq[(Boolean, Color)]] = emptyStack) {
     pieces(x)(height)._1 || pieces(x)(height - 1)._1
   }.reduce((b1, b2) => b1 || b2)
 
-  def stackHeight: Int = (0 to width).map(highestY(_)).max
+  def stackHeight: Int = (0 to width).map(highestY).max
+
+  def contour: Int = {
+    val heights = (0 to width - 1).map(highestY)
+    heights.tail.foldLeft((0, heights.head)) { case ((contour, last), next) =>
+      val diff = max(min(next - last, 4), -4) + 4
+      (contour * 10 + diff, next)
+    }._1
+  }
 
 }
 
