@@ -1,6 +1,7 @@
 package tetris
 
 import tetris.Stack._
+import tetris.Utils.Pipe
 import tetris.tetrominoes.Color.Black
 import tetris.tetrominoes.{Color, Tetromino}
 
@@ -39,7 +40,7 @@ class Stack(val pieces: IndexedSeq[IndexedSeq[(Boolean, Color)]] = emptyStack) {
     }
   }
 
-  private def highestY(x: Int): Int = pieces(x).lastIndexOf(true)
+  private def highestY(x: Int): Int = pieces(x).map(_._1).lastIndexOf(true)
 
   def +(p: Tetromino): Option[Stack] = {
     def fitPiece(y: Int): Option[Seq[Square]] = {
@@ -122,6 +123,24 @@ object Stack {
   def emptyStack: IndexedSeq[IndexedSeq[(Boolean, Color)]] = {
     val column: IndexedSeq[(Boolean, Color)] = (0 to height).map { x => (false, new Black) }
     (0 to width).map(x => column)
+  }
+
+  def fromContour(contour: Int): Stack = {
+    def createSeq(n: Int): IndexedSeq[(Boolean, Color)] = {
+      IndexedSeq.fill(n)((true, new Black)) ++ IndexedSeq.fill(height - n)((false, new Black))
+    }
+    ((width - 2) to 0 by -1).map { n =>
+      contour / pow(10, n).toInt % 10 - 4
+    } |> (0 +: _) |> { diffs =>
+      (1 until width).foldLeft(IndexedSeq.fill(width)(0)) { case (heights, n) =>
+        heights.map(_ - diffs(n)).updated(n, heights(n - 1))
+      }
+    } |> { heights =>
+      val minHeight = heights.min
+      heights.map(_ - minHeight) :+ 0
+    } |> { heights =>
+      new Stack(heights.map(createSeq))
+    }
   }
 
 }

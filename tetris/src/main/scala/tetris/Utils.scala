@@ -24,8 +24,8 @@ object Utils {
     }
   }
 
-  implicit class Pipe[T, U](val t: T) extends AnyVal {
-    def |>(fun: T => U): U = fun(t)
+  implicit class Pipe[T](val t: T) extends AnyVal {
+    def |>[U](fun: T => U): U = fun(t)
   }
 
 }

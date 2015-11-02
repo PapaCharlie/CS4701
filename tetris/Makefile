@@ -25,3 +25,6 @@ play/rank:
 
 play/search:
 	screen sbt "run search"
+
+play/contour:
+	screen sbt "run contour"

@@ -8,7 +8,9 @@ object Common {
   val dependencies = Seq(
     // "com.typesafe.akka"   %%  "akka-actor"        % akkaV,
     // "com.typesafe.akka"   %%  "akka-testkit"      % akkaV   % "test",
-    "org.specs2"          %%  "specs2-core"       % "2.3.11" % "test"
+    "org.specs2"              %%  "specs2-core"     % "2.3.11" % "test",
+    "org.scala-lang.modules"  %%  "scala-pickling"  % "0.10.1",
+    "commons-io"              %   "commons-io"      % "2.4"
   )
 
   val names: Seq[Setting[_]] = Seq(
