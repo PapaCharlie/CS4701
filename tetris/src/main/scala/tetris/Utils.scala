@@ -28,4 +28,10 @@ object Utils {
     def |>[U](fun: T => U): U = fun(t)
   }
 
+  implicit class Base9(val i: Int) extends AnyVal {
+    def fromBase9: Int = {
+      Integer.parseInt(i.toString, 9)
+    }
+  }
+
 }

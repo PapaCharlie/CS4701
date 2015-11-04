@@ -11,20 +11,24 @@ clean:
 
 assembly:
 	sbt assembly
-	ln $(JARPATH) $(JAR)
+	-rm $(JAR)
+	cp $(JARPATH) $(JAR)
 
 jar:
 	test -s $(JAR) || make assembly
 	java -jar $(JAR)
 
 play:
-	screen sbt run
+	sbt run
 
 play/rank:
-	screen sbt "run rank"
+	sbt "run rank"
 
 play/search:
-	screen sbt "run search"
+	sbt "run search"
 
 play/contour:
-	screen sbt "run contour"
+	"run contour"
+
+play/computeContour:
+	sbt "run computeContour"

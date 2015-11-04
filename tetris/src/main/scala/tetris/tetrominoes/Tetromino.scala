@@ -34,3 +34,7 @@ abstract class Tetromino {
   def color: Color
 
 }
+
+object Tetromino {
+  val pieces: Seq[Tetromino] = Array(new J, new L, new O, new S, new T, new Z, new I)
+}

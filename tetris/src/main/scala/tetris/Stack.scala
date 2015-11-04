@@ -32,8 +32,7 @@ class Stack(val pieces: IndexedSeq[IndexedSeq[(Boolean, Color)]] = emptyStack) {
       stack
     } else {
       if ((0 to width).map(stack(_)(y)).forall(_._1)) {
-        val a = stack.map(moveBackAddFalse)
-        clearRows(a, y)
+        clearRows(stack.map(moveBackAddFalse), y)
       } else {
         clearRows(stack, y + 1)
       }
@@ -127,7 +126,7 @@ object Stack {
 
   def fromContour(contour: Int): Stack = {
     def createSeq(n: Int): IndexedSeq[(Boolean, Color)] = {
-      IndexedSeq.fill(n)((true, new Black)) ++ IndexedSeq.fill(height - n)((false, new Black))
+      IndexedSeq.fill(n)((true, new Black)) ++ IndexedSeq.fill(height + 1 - n)((false, new Black))
     }
     ((width - 2) to 0 by -1).map { n =>
       contour / pow(10, n).toInt % 10 - 4

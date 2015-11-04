@@ -1,67 +1,82 @@
 package tetris
 
 import java.io._
+
+import org.apache.spark.SparkContext
+import org.apache.spark.SparkConf
+
 import org.apache.commons.io.IOUtils
-
-import scala.pickling._         // This imports names only
-import scala.pickling.binary._    // Imports PickleFormat
-import scala.pickling.static._  // Avoid runtime pickler
-
-// Import pickle ops
-import scala.pickling.Defaults.{ pickleOps, unpickleOps }
-// Alternatively import pickle function
-// import scala.pickling.functions._
-
-// Import picklers for specific types
-import scala.pickling.Defaults.{ stringPickler, intPickler, refUnpickler, nullPickler }
-
-
 import tetris.tetrominoes.Tetromino
+import tetris.tetrominoes.Tetromino.pieces
+import tetris.Stack.width
+import tetris.Utils._
+
+import scala.math.max
+import scala.pickling._
+import scala.pickling.binary._
+import scala.pickling.static._
+import scala.pickling.Defaults.{pickleOps, unpickleOps}
+import scala.pickling.Defaults.{stringPickler, intPickler, refUnpickler, nullPickler}
 
 /**
  * Created by papacharlie on 10/30/15.
  */
-class ContourRank {
+class ContourRank(iterations: Int = 100) {
 
-  private implicit val intArrayPickler = Pickler.generate[Array[Int]]
-  private implicit val intArrayUnpickler = Unpickler.generate[Array[Int]]
+  private implicit val intArrayPickler = Pickler.generate[Array[Double]]
+  private implicit val intArrayUnpickler = Unpickler.generate[Array[Double]]
+
   private val rankArrayFilename = "rank_array.arr"
 
-  var ranks: Array[Array[Int]] = Array()
+  val contours: Int = 43046721
 
-  def saveArray(array: Array[Int], filename: String): Unit = {
+  var ranks: Array[Array[Double]] = Array.ofDim[Double](2, contours)
+
+  def saveArray(array: Array[Double], filename: String): Unit = {
     val bos = new BufferedOutputStream(new FileOutputStream(filename))
-    Stream.continually(bos.write( array.pickle.value ))
+    Stream.continually(bos.write(array.pickle.value))
     bos.close()
   }
 
-  def saveRankArray(array: Array[Int]): Unit = {
+  def saveRankArray(array: Array[Double]): Unit = {
     saveArray(array, rankArrayFilename)
   }
 
-  def readIntArray(filename: String): Option[Array[Int]] = {
+  def readDoubleArray(filename: String): Option[Array[Double]] = {
     if (new File(rankArrayFilename).exists()) {
-      Some(IOUtils.toByteArray(new FileInputStream(rankArrayFilename)).unpickle[Array[Int]])
+      Some(IOUtils.toByteArray(new FileInputStream(rankArrayFilename)).unpickle[Array[Double]])
     } else {
       None
     }
   }
 
-  def readRankArray: Option[Array[Int]] = {
-    readIntArray(rankArrayFilename)
+  def readRankArray: Option[Array[Double]] = {
+    readDoubleArray(rankArrayFilename)
   }
 
-
-  def rank(iteration: Int, stack: Stack) = {
-
+  def rank(iteration: Int, contour: Int): Double = {
+    val stack = Stack.fromContour(contour)
+    pieces.map(rankPiece(iteration, stack, _)).sum / pieces.length
   }
 
-  def rankPiece(iteration: Int, stack: Stack, piece: Tetromino) = {
-
+  def rankPiece(iteration: Int, stack: Stack, piece: Tetromino): Double = {
+    (0 to 3).map(rankOrientation(iteration, stack, piece, _)).max
   }
 
-  def rankOrientation(iteration: Int, stack: Stack, piece: Tetromino, orientation: Int) = {
+  def rankOrientation(iteration: Int, stack: Stack, piece: Tetromino, orientation: Int): Double = {
+    (0 to width)
+      .flatMap(stack + piece.copy(_, orientation))
+      .filter(_.hasNoHoles)
+      .map(x => ranks((iteration - 1) % 2)(x.contour.fromBase9))
+      .foldLeft(0.0)(max)
+  }
 
+  def compute = {
+    for (iteration <- 1 to iterations) {
+      for (contour <- 0 to contours) {
+        ranks(iteration % 2)(contour) = rank(iteration, contour)
+      }
+    }
   }
 
 }

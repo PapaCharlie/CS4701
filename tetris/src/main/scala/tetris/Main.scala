@@ -27,6 +27,7 @@ object Main extends App {
     }
     println(Stack.fromContour(45244543))
     println(Stack.fromContour(16426544))
+    println(Stack.fromContour(44200001))
   }
 
   def showColors() = {
@@ -37,6 +38,10 @@ object Main extends App {
 
   args.headOption.getOrElse("colors") match {
     case "contour" => testClearRows()
+    case "computeContour" => println(new ContourRank(4) {
+      compute
+      ranks(0)
+    })
     case "rank" =>
     case "learning" =>
     case "colors" => showColors()
