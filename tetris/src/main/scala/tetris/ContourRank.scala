@@ -2,8 +2,8 @@ package tetris
 
 import java.io._
 
-import org.apache.spark.SparkContext
-import org.apache.spark.SparkConf
+// import org.apache.spark.SparkContext
+// import org.apache.spark.SparkConf
 
 import org.apache.commons.io.IOUtils
 import tetris.tetrominoes.Tetromino

@@ -8,7 +8,7 @@ object Common {
   val dependencies = Seq(
     // "com.typesafe.akka"   %%  "akka-actor"        % akkaV,
     // "com.typesafe.akka"   %%  "akka-testkit"      % akkaV   % "test",
-    "org.apache.spark"        %% "spark-core"       % "1.5.1",
+    // "org.apache.spark"        %% "spark-core"       % "1.5.1",
     "commons-io"              %   "commons-io"      % "2.4",
     "org.scala-lang.modules"  %%  "scala-pickling"  % "0.10.1",
     "org.specs2"              %%  "specs2-core"     % "2.3.11" % "test"

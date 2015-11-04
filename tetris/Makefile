@@ -28,7 +28,10 @@ play/search:
 	sbt "run search"
 
 play/contour:
-	"run contour"
+	sbt "run contour"
+
+play/spark:
+	sbt "run spark"
 
 play/computeContour:
 	sbt "run computeContour"

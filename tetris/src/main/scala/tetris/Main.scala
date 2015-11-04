@@ -36,6 +36,19 @@ object Main extends App {
     println((new Stack ++ pieces).get.contour)
   }
 
+  // def doTheThing() = {
+  //   import org.apache.spark.{SparkContext, SparkConf}
+  //   val conf = new SparkConf().setMaster("local[2]").setAppName("tetris")
+  //   val sc = new SparkContext(conf)
+  //   val data = Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+  //   val smth = sc.parallelize(data)
+  //   smth.map(x => x / 2).reduce({ case (x, y) => {
+  //     println(x, y)
+  //     y
+  //   }
+  //   })
+  // }
+
   args.headOption.getOrElse("colors") match {
     case "contour" => testClearRows()
     case "computeContour" => println(new ContourRank(4) {
@@ -45,6 +58,7 @@ object Main extends App {
     case "rank" =>
     case "learning" =>
     case "colors" => showColors()
+    case "spark" => // doTheThing()
     case _ => println("Unknown game mode")
   }
   scala.io.StdIn.readLine()

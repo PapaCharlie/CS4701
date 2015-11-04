@@ -7,14 +7,16 @@ import tetris.tetrominoes.Tetromino
  */
 object Utils {
 
-  def clearScreen = print("\u001b[H\u001b[2J")
+  def clearScreen() = print("\u001b[H\u001b[2J")
+
+  def waitToPrint = Thread.sleep(250)
 
   def printStacks(stacks: Iterable[Stack]) = {
     // Assumes foreach runs in order (not actually guaranteed)
     stacks.foreach { stack =>
       clearScreen
       println(stack)
-      Thread.sleep(250)
+      waitToPrint
     }
   }
 
