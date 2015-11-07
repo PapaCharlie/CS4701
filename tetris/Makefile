@@ -1,4 +1,5 @@
 JARPATH := target/scala-2.11/tetris-assembly-0.1.jar
+PACKAGEPATH := target/scala-2.11/tetris_2.11-0.1.jar
 JAR := tetris.jar
 
 SPARK := spark-1.5.1
@@ -20,32 +21,24 @@ assembly:
 	-rm $(JAR)
 	cp $(JARPATH) $(JAR)
 
-echo:
-	echo $(SPARK_URL)
-	echo $(SPARK_TAR)
+package:
+	sbt package
 
 spark:
 	test -s $(SPARK_TAR) || wget "$(SPARK_URL)"
 	test -d $(SPARK_DIR) || tar xzf $(SPARK_TAR)
 
-jar:
-	test -s $(JAR) || make assembly
-	java -jar $(JAR)
-
-play:
+run:
 	sbt run
 
-play/rank:
-	sbt "run rank"
+run/showColors:
+	sbt "run showColors"
 
-play/search:
-	sbt "run search"
+# run/search:
+# 	sbt "run search"
 
-play/contour:
+run/contour:
 	sbt "run contour"
 
-play/spark:
-	$(SPARK_DIR)/bin/spark-submit tetris.jar spark
-
-play/computeContour:
-	sbt "run computeContour"
+run/computeRank:
+	sbt "run computeRank"

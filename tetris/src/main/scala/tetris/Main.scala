@@ -25,9 +25,9 @@ object Main extends App {
       }
       case _ =>
     }
-    println(Stack.fromContour(45244543))
-    println(Stack.fromContour(16426544))
-    println(Stack.fromContour(44200001))
+    println(new Contour(45244543).toStack)
+    println(new Contour(16426544).toStack)
+//    println(new Contour(44200001).toStack)
   }
 
   def showColors() = {
@@ -36,30 +36,11 @@ object Main extends App {
     println((new Stack ++ pieces).get.contour)
   }
 
-  def doTheThing() = {
-    import org.apache.spark.{SparkContext, SparkConf}
-    val conf = new SparkConf().setMaster("local[*]").setAppName("tetris")
-    val sc = new SparkContext(conf)
-    val data = Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
-    val smth = sc.parallelize(data)
-    smth.map(x => x / 2).reduce({ case (x, y) => {
-      println(x, y)
-      y
-    }
-    })
-    sc.stop()
-  }
-
   args.headOption.getOrElse("colors") match {
     case "contour" => testClearRows()
-    case "computeContour" => println(new ContourRank(4) {
-      compute
-      ranks(0)
-    })
-    case "rank" =>
-    case "learning" =>
+    case "computeRank" => new ContourRank(1).compute()
+//    case "search" =>
     case "colors" => showColors()
-    case "spark" => doTheThing()
     case _ => println("Unknown game mode")
   }
   scala.io.StdIn.readLine()

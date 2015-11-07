@@ -43,7 +43,7 @@ class Stack(val pieces: IndexedSeq[IndexedSeq[(Boolean, Color)]] = emptyStack) {
 
   def +(p: Tetromino): Option[Stack] = {
     def fitPiece(y: Int): Option[Seq[Square]] = {
-      if (y <= height) {
+      if (p.fits && y <= height) {
         val squares = p.getSquares(y)
         if (squares.forall(_.fits) && squares.forall { case (x, y) => !pieces(x)(y)._1 }) {
           Some(squares)
@@ -97,22 +97,22 @@ class Stack(val pieces: IndexedSeq[IndexedSeq[(Boolean, Color)]] = emptyStack) {
 
   def stackHeight: Int = (0 to width).map(highestY).max
 
-  def contour: Int = {
-    val heights = (0 to width - 1).map(highestY)
-    heights.tail.foldLeft((0, heights.head)) { case ((contour, last), next) =>
-      val diff = max(min(next - last, 4), -4) + 4
-      (contour * 10 + diff, next)
-    }._1
+  def contour: Contour = {
+    (0 to width - 1).map(highestY) |> Contour.fromHeights
   }
 
 }
 
-object Stack {
+object Stack extends {
 
   type Square = (Int, Int)
 
-  implicit class RichSquare(val s: Square) extends AnyVal {
-    def fits = (s._1 >= 0 && s._1 <= width) && (s._2 >= 0 && s._2 <= height)
+  implicit class RichSquare(val s1: Square) extends AnyVal {
+    def fits = (s1._1 >= 0 && s1._1 <= width) && (s1._2 >= 0 && s1._2 <= height)
+
+    def <(s2: Square): Boolean = {
+      (s1._1 < s2._1) || (s1._1 == s2._1 && s1._2 < s2._2)
+    }
   }
 
   val height = 21
@@ -122,24 +122,6 @@ object Stack {
   def emptyStack: IndexedSeq[IndexedSeq[(Boolean, Color)]] = {
     val column: IndexedSeq[(Boolean, Color)] = (0 to height).map { x => (false, new Black) }
     (0 to width).map(x => column)
-  }
-
-  def fromContour(contour: Int): Stack = {
-    def createSeq(n: Int): IndexedSeq[(Boolean, Color)] = {
-      IndexedSeq.fill(n)((true, new Black)) ++ IndexedSeq.fill(height + 1 - n)((false, new Black))
-    }
-    ((width - 2) to 0 by -1).map { n =>
-      contour / pow(10, n).toInt % 10 - 4
-    } |> (0 +: _) |> { diffs =>
-      (1 until width).foldLeft(IndexedSeq.fill(width)(0)) { case (heights, n) =>
-        heights.map(_ - diffs(n)).updated(n, heights(n - 1))
-      }
-    } |> { heights =>
-      val minHeight = heights.min
-      heights.map(_ - minHeight) :+ 0
-    } |> { heights =>
-      new Stack(heights.map(createSeq))
-    }
   }
 
 }

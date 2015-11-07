@@ -19,7 +19,7 @@ abstract class Tetromino {
 
   protected def currentShape: Seq[Square]
 
-  def fits: Boolean = currentShape.forall { case (posx, _) => posx + x > 0 && posx + x < width }
+  def fits: Boolean = currentShape.forall { case (posx, _) => posx + x >= 0 && posx + x <= width }
 
   def getSquares(y: Int): Seq[Square] = {
     (currentShape :+(0, 0)).map { case (dx, dy) => (x + dx, y + dy) }
