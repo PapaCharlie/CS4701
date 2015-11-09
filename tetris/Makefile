@@ -37,6 +37,9 @@ run/computeRank:
 run/computeMap:
 	$(SBT) "run computeMap"
 
+run/serialCompute:
+	$(SBT) "run serialCompute"
+
 install:
 	test -e $(SBT_TAR) || wget $(SBT_URL)
 	tar xzf $(SBT_TAR)

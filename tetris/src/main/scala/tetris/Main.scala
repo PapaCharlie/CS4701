@@ -40,6 +40,7 @@ object Main extends App {
     case "contour" => testClearRows()
     case "computeRank" => new ContourRank(1).compute()
     case "computeMap" => new ContourRank(1).computeMap()
+    case "serialCompute" => new ContourRank(1).serialCompute()
 //    case "search" =>
     case "colors" => showColors()
     case _ => println("Unknown game mode")
