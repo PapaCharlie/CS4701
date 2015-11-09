@@ -37,15 +37,27 @@ class ContourRank(iterations: Int = 2) {
     pieces.map(rankPiece(iteration, stack, _)).sum / pieces.length
   }
 
+  def computeMap() = executeInSpark { sc =>
+    sc.parallelize(0 to 2000)
+      .flatMap(mapWithContour)
+      .collect()
+      .foldLeft(Map(): Map[Int, Seq[Int]]) { case (map, (s1, s2)) =>
+      map + ((s1, s2 +: map.getOrElse(s1, Seq())))
+    }
+    //    |> saveStackMap
+  }
+
   def compute() = executeInSpark { sc =>
+    val map = readStackMap match {
+      case Some(map) => map
+      case None => {
+        val map = computeMap
+        saveStackMap(map)
+        map
+      }
+    }
     for (iteration <- 0 to iterations) {
-      val bRanks = sc.broadcast(ranks)
-      sc.parallelize(0 to 20)
-        .flatMap(mapWithStack(bRanks))
-        .reduceByKey(_ + _)
-        .collect()
-        .foreach { case (contour, newRank) => ranks(contour) = newRank }
-      println(ranks.filter(_ != 1).mkString("[", ", ", "]"))
+      
     }
   }
 }
@@ -85,33 +97,19 @@ object ContourRank {
     }
   }
 
-  def testAThing(total:Int) = {
-    for (contour <- 0 to total) {
-      val stack = Contour.fromBase10(contour).map(_.toStack)
-      val c = Contour.fromBase10(contour)
-      (stack, c) match {
-        case (Some(stack), Some(c)) => (0 until width).flatMap { x =>
-          (0 until 4).flatMap { orientation =>
-            pieces.map { piece =>
-              val k = c + piece.copy(x, orientation) match {
-                case Some(_) => Some(contour)
-                case _ => None
-              }
-              val l = stack + piece.copy(x, orientation) match {
-                case Some(s) if s.hasNoHoles => Some(contour)
-                case _ => None
-              }
-              if (k != l) {
-                println((stack + piece.copy(x, orientation)).get.contour)
-                println(s"Disagree on $contour + ${piece.copy(x, orientation)}")
-              }
-              k == l
+  def mapWithContour(contour: Int): Seq[(Int, Int)] = {
+    Contour.fromBase10(contour) match {
+      case Some(c) => (0 until width).flatMap { x =>
+        (0 to 4).flatMap { orientation =>
+          pieces.flatMap { piece =>
+            c + piece.copy(x, orientation) match {
+              case Some(c) => Some(contour, c.toBase10)
+              case _ => None
             }
           }
         }
-        case (Some(_),_) | (_,Some(_)) => println(s"($stack,$c)")
-        case _ =>
       }
+      case _ => Seq()
     }
   }
 }

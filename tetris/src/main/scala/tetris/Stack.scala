@@ -79,7 +79,7 @@ class Stack(val pieces: IndexedSeq[IndexedSeq[(Boolean, Color)]] = emptyStack) {
     }
   }
 
-  def hasNoHoles: Boolean = {
+  lazy val hasNoHoles: Boolean = {
     def twoTone(arr: IndexedSeq[(Boolean, Color)]): Boolean = {
       val rest = arr.dropWhile(_._1 == arr.head._1)
       if (rest.isEmpty || rest.map(_._1).toSet.size == 1) {
@@ -91,7 +91,7 @@ class Stack(val pieces: IndexedSeq[IndexedSeq[(Boolean, Color)]] = emptyStack) {
     pieces.map(twoTone).forall(identity)
   }
 
-  def lost: Boolean = (0 to width).map { x =>
+  lazy val lost: Boolean = (0 to width).map { x =>
     pieces(x)(height)._1 || pieces(x)(height - 1)._1
   }.reduce((b1, b2) => b1 || b2)
 

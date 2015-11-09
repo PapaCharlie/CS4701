@@ -44,7 +44,7 @@ case class Contour(contour: Int) {
         None
       }
     }
-    if (piece.fits) {
+    if (piece.fits && piece.getSquares(0).forall { case (x, _) => x < width - 1 }) {
       fitPiece(heights(piece.x) + 1) match {
         case Some(squares) =>
           squares.sorted.foldLeft(Some(heights): Option[IndexedSeq[Int]]) {
@@ -68,7 +68,6 @@ case class Contour(contour: Int) {
       IndexedSeq.fill(n)((true, new Black)) ++ IndexedSeq.fill(height + 1 - n)((false, new Black))
     }
     new Stack(heights.map(createSeq))
-
   }
 
 }
