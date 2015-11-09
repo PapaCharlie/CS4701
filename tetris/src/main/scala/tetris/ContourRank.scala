@@ -17,24 +17,19 @@ class ContourRank(iterations: Int = 2) {
 
   import ContourRank._
 
-  val contours: Int = 43046721 + 1
-
   val ranks: Array[Int] = Array.fill[Int](contours)(1)
 
-  def rank(iteration: Int, contour: Contour): Double = {
-    def rankPiece(iteration: Int, stack: Stack, piece: Tetromino): Double = {
-      def rankOrientation(iteration: Int, stack: Stack, piece: Tetromino, orientation: Int): Double = {
-        (0 to width)
-          .flatMap(stack + piece.copy(_, orientation))
-          .filter(_.hasNoHoles)
-          //          .map(x => ranks((iteration - 1) % 2)(x.contour.fromBase9))
-          .map(_ => 1.0)
-          .foldLeft(0.0)(max)
+  def serialCompute() = {
+    val map = readStackMap match {
+      case Some(map) => map
+      case None => {
+        val map: Map[Int, Seq[Int]] = Map() ++ (0 to contours).map { contour =>
+          contour -> serialMap(contour)
+        }
+        saveStackMap(map)
+        map
       }
-      (0 to 3).map(rankOrientation(iteration, stack, piece, _)).max
     }
-    val stack = contour.toStack
-    pieces.map(rankPiece(iteration, stack, _)).sum / pieces.length
   }
 
   def computeMap() = executeInSpark { sc =>
@@ -51,18 +46,20 @@ class ContourRank(iterations: Int = 2) {
     val map = readStackMap match {
       case Some(map) => map
       case None => {
-        val map = computeMap
+        val map = computeMap()
         saveStackMap(map)
         map
       }
     }
     for (iteration <- 0 to iterations) {
-      
+
     }
   }
 }
 
 object ContourRank {
+
+  val contours: Int = 43046721 + 1
 
   def mapWithStack(bRanks: Broadcast[Array[Int]])(contour: Int): Seq[(Int, Int)] = {
     val k = Contour.fromBase10(contour).map(_.toStack)
@@ -106,6 +103,19 @@ object ContourRank {
               case Some(c) => Some(contour, c.toBase10)
               case _ => None
             }
+          }
+        }
+      }
+      case _ => Seq()
+    }
+  }
+
+  def serialMap(contour: Int): Seq[Int] = {
+    Contour.fromBase10(contour) match {
+      case Some(c) => (0 until width).flatMap { x =>
+        (0 to 4).flatMap { orientation =>
+          pieces.flatMap { piece =>
+            (c + piece.copy(x, orientation)).map(_.toBase10)
           }
         }
       }
