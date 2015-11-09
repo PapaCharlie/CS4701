@@ -18,8 +18,8 @@ import scala.pickling.Defaults.{stringPickler, intPickler, refUnpickler, nullPic
  */
 object Utils extends {
 
-//  private implicit val intArrayPickler = Pickler.generate[Array[Int]]
-//  private implicit val intArrayUnpickler = Unpickler.generate[Array[Int]]
+  //  private implicit val intArrayPickler = Pickler.generate[Array[Int]]
+  //  private implicit val intArrayUnpickler = Unpickler.generate[Array[Int]]
 
   def executeInSpark[T](fun: SparkContext => T): T = {
     val conf = new SparkConf().setMaster("local[*]").setAppName("tetris")
@@ -49,6 +49,11 @@ object Utils extends {
   }
 
   implicit class Pipe[T](val t: T) extends AnyVal {
+    def |->(fun: T => Unit): T = {
+      fun(t)
+      t
+    }
+
     def |>[U](fun: T => U): U = fun(t)
   }
 

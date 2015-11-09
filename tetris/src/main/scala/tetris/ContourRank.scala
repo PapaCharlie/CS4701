@@ -19,15 +19,13 @@ class ContourRank(iterations: Int = 2) {
 
   val ranks: Array[Int] = Array.fill[Int](contours)(1)
 
-  def serialCompute() = {
-    val map = readStackMap match {
-      case Some(map) => map
+  def serialCompute(): Map[Int, Seq[Int]] = {
+    readStackMap match {
+      case Some(m) => m
       case None => {
-        val map: Map[Int, Seq[Int]] = Map() ++ (0 to contours).map { contour =>
+        Map() ++ (0 to contours).map { contour =>
           contour -> serialMap(contour)
-        }
-        saveStackMap(map)
-        map
+        } |-> saveStackMap
       }
     }
   }
