@@ -33,7 +33,7 @@ class ContourRank(iterations: Int = 2) {
           map += contour -> serialMap(contour)
         }
         map
-      } |-> { map =>  saveStackMap(map.toMap) }
+      } |-> { map => saveStackMap(map.toMap) }
     }
   }
 
