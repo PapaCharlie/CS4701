@@ -6,6 +6,7 @@ import tetris.Stack.width
 import tetris.Utils._
 import tetris.tetrominoes.Tetromino
 import tetris.tetrominoes.Tetromino.pieces
+import scala.collection.mutable.HashMap
 
 import scala.math.max
 
@@ -19,40 +20,23 @@ class ContourRank(iterations: Int = 2) {
 
   val ranks: Array[Int] = Array.fill[Int](contours)(1)
 
-  def serialCompute(): Map[Int, Seq[Int]] = {
+  def serialCompute(): HashMap[Int, Seq[Int]] = {
     readStackMap match {
-      case Some(m) => m
-      case None => {
-        Map() ++ (0 to contours).map { contour =>
-          contour -> serialMap(contour)
-        } |-> saveStackMap
-      }
-    }
-  }
-
-  def computeMap() = executeInSpark { sc =>
-    sc.parallelize(0 to 2000)
-      .flatMap(mapWithContour)
-      .collect()
-      .foldLeft(Map(): Map[Int, Seq[Int]]) { case (map, (s1, s2)) =>
-      map + ((s1, s2 +: map.getOrElse(s1, Seq())))
-    }
-    //    |> saveStackMap
-  }
-
-  def compute() = executeInSpark { sc =>
-    val map = readStackMap match {
-      case Some(map) => map
-      case None => {
-        val map = computeMap()
-        saveStackMap(map)
+      case Some(m) => {
+        val map: HashMap[Int, Seq[Int]] = new HashMap()
+        m.foreach { case (i, seq) => map += i -> seq }
         map
       }
-    }
-    for (iteration <- 0 to iterations) {
-
+      case None => {
+        val map: HashMap[Int, Seq[Int]] = new HashMap()
+        for (contour <- 0 to contours) {
+          map += contour -> serialMap(contour)
+        }
+        map
+      } |-> { map =>  saveStackMap(map.toMap) }
     }
   }
+
 }
 
 object ContourRank {
@@ -60,8 +44,7 @@ object ContourRank {
   val contours: Int = 43046721 + 1
 
   def mapWithStack(bRanks: Broadcast[Array[Int]])(contour: Int): Seq[(Int, Int)] = {
-    val k = Contour.fromBase10(contour).map(_.toStack)
-    k match {
+    Contour.fromBase10(contour).map(_.toStack) match {
       case Some(stack) => (0 until width).flatMap { x =>
         (0 to 4).flatMap { orientation =>
           pieces.flatMap { piece =>
