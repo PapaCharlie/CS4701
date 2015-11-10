@@ -27,11 +27,11 @@ object Common {
     resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
     run in Compile <<= Defaults.runTask(fullClasspath in Compile, mainClass in (Compile, run), runner in (Compile, run)),
     scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8"),
-    javaOptions += "-Xmx2G",
-    initialize := {
-      val required = "1.8"
-      val current = sys.props("java.specification.version")
-      assert(current == required, s"Unsupported JDK: java.specification.version $current != $required")
-    }
+    javaOptions += "-Xmx2G"
+    // initialize := {
+    //   val required = "1.8"
+    //   val current = sys.props("java.specification.version")
+    //   assert(current == required, s"Unsupported JDK: java.specification.version $current != $required")
+    // }
   )
 }
