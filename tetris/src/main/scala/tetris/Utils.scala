@@ -6,6 +6,7 @@ import org.apache.commons.io.IOUtils
 import org.apache.spark.{SparkConf, SparkContext}
 import tetris.tetrominoes.Tetromino
 
+import scala.collection.mutable.Map
 import scala.pickling._
 import scala.pickling.binary._
 import scala.pickling.Defaults._
@@ -17,9 +18,6 @@ import scala.pickling.Defaults.{stringPickler, intPickler, refUnpickler, nullPic
  * Created by papacharlie on 10/31/15.
  */
 object Utils extends {
-
-  //  private implicit val intArrayPickler = Pickler.generate[Array[Int]]
-  //  private implicit val intArrayUnpickler = Unpickler.generate[Array[Int]]
 
   def executeInSpark[T](fun: SparkContext => T): T = {
     val conf = new SparkConf().setMaster("local[*]").setAppName("tetris")
@@ -57,8 +55,8 @@ object Utils extends {
     def |>[U](fun: T => U): U = fun(t)
   }
 
-  private val rankArrayFilename = "rank_array.arr"
-  private val rankMapFilename = "rank_map.map"
+  val rankArrayFilename = "rank_array.arr"
+  val rankMapFilename = "rank_map.map"
 
   def saveArray(array: Array[Int], filename: String): Unit = {
     val bos = new BufferedOutputStream(new FileOutputStream(filename))
@@ -68,6 +66,10 @@ object Utils extends {
 
   def saveRankArray(array: Array[Int]): Unit = {
     saveArray(array, rankArrayFilename)
+  }
+
+  def partialSaveMap(map: Map[Int, Seq[Int]], filename: String, part: Int) = {
+    saveMap(map, s"$filename.$part")
   }
 
   def saveMap(map: Map[Int, Seq[Int]], filename: String): Unit = {
@@ -104,5 +106,19 @@ object Utils extends {
     readMap(rankMapFilename)
   }
 
+  def readPartialMap(filename: String, parts: Int): Option[Map[Int, Seq[Int]]] = {
+    val map: Map[Int, Seq[Int]] = Map()
+    for (part <- 0 until parts) {
+      readMap(s"$filename.$part") match {
+        case Some(m) => map ++= m
+        case _ =>
+      }
+    }
+    if (map.isEmpty) {
+      None
+    } else {
+      Some(map)
+    }
+  }
 
 }

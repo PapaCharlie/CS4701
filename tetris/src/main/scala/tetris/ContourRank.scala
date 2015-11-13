@@ -19,24 +19,26 @@ class ContourRank(iterations: Int = 2) {
   import ContourRank._
 
   val ranks: Array[Int] = Array.fill[Int](contours)(1)
+  val parts = 20
 
-  def serialCompute(): HashMap[Int, Seq[Int]] = {
+  def serialCompute(): Unit = {
     readStackMap match {
       case Some(m) => {
         val map: HashMap[Int, Seq[Int]] = new HashMap()
-        m.foreach { case (i, seq) => map += i -> seq }
-        map
+        map ++= m
       }
       case None => {
-        val map: HashMap[Int, Seq[Int]] = new HashMap()
-        for (contour <- 0 to contours) {
-          map += contour -> serialMap(contour)
+        for (part <- 0 until parts) {
+          System.gc()
+          val map: HashMap[Int, Seq[Int]] = new HashMap()
+          for (contour <- (part * contours / parts) to ((parts + 1) * contours / parts)) {
+            map += contour -> serialMap(contour)
+          }
+          Utils.partialSaveMap(map, Utils.rankMapFilename, part)
         }
-        map
-      } |-> { map => saveStackMap(map.toMap) }
+      }
     }
   }
-
 }
 
 object ContourRank {
