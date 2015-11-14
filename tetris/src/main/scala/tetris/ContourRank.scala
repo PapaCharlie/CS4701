@@ -25,7 +25,7 @@ class ContourRank(iterations: Int = 2) {
   def serialCompute(): Unit = {
     for (part <- 0 until parts) {
       val map: HashMap[Int, Seq[Int]] = new HashMap()
-      if (new File(s"${Utils.rankMapFilename}.$part").exists()) {
+      if (!(new File(s"${Utils.rankMapFilename}.$part").exists())) {
         System.gc()
         println(s"Starting part $part of $parts")
         for (contour <- (part * contours / parts) to ((parts + 1) * contours / parts)) {
