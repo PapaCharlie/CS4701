@@ -22,20 +22,15 @@ class ContourRank(iterations: Int = 2) {
   val parts = 20
 
   def serialCompute(): Unit = {
-    readStackMap match {
-      case Some(m) => {
-        val map: HashMap[Int, Seq[Int]] = new HashMap()
-        map ++= m
-      }
-      case None => {
-        for (part <- 0 until parts) {
-          System.gc()
-          val map: HashMap[Int, Seq[Int]] = new HashMap()
-          for (contour <- (part * contours / parts) to ((parts + 1) * contours / parts)) {
-            map += contour -> serialMap(contour)
-          }
-          Utils.partialSaveMap(map, Utils.rankMapFilename, part)
+    for (part <- 0 until parts) {
+      val map: HashMap[Int, Seq[Int]] = new HashMap()
+      if (new File(s"$filename.$part").exists()) {
+        System.gc()
+        for (contour <- (part * contours / parts) to ((parts + 1) * contours / parts)) {
+          map += contour -> serialMap(contour)
         }
+        Utils.partialSaveMap(map, Utils.rankMapFilename, part)
+        map.retain(false)
       }
     }
   }

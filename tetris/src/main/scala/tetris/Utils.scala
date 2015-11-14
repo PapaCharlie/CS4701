@@ -106,13 +106,11 @@ object Utils extends {
     readMap(rankMapFilename)
   }
 
-  def readPartialMap(filename: String, parts: Int): Option[Map[Int, Seq[Int]]] = {
+  def readMapPart(filename: String, part: Int): Option[Map[Int, Seq[Int]]] = {
     val map: Map[Int, Seq[Int]] = Map()
-    for (part <- 0 until parts) {
-      readMap(s"$filename.$part") match {
-        case Some(m) => map ++= m
-        case _ =>
-      }
+    readMap(s"$filename.$part") match {
+      case Some(m) => map ++= m
+      case _ =>
     }
     if (map.isEmpty) {
       None
@@ -120,5 +118,20 @@ object Utils extends {
       Some(map)
     }
   }
+
+  // def readPartialMap(filename: String, parts: Int): Option[Map[Int, Seq[Int]]] = {
+  //   val map: Map[Int, Seq[Int]] = Map()
+  //   for (part <- 0 until parts) {
+  //     readMap(s"$filename.$part") match {
+  //       case Some(m) => map ++= m
+  //       case _ =>
+  //     }
+  //   }
+  //   if (map.isEmpty) {
+  //     None
+  //   } else {
+  //     Some(map)
+  //   }
+  // }
 
 }
