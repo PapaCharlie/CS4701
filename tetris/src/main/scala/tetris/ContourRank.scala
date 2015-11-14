@@ -27,11 +27,13 @@ class ContourRank(iterations: Int = 2) {
       val map: HashMap[Int, Seq[Int]] = new HashMap()
       if (new File(s"${Utils.rankMapFilename}.$part").exists()) {
         System.gc()
+        println(s"Starting part $part of $parts")
         for (contour <- (part * contours / parts) to ((parts + 1) * contours / parts)) {
           map += contour -> serialMap(contour)
         }
         Utils.partialSaveMap(map, Utils.rankMapFilename, part)
-        map.retain(_ => false)
+        map.retain((_,_) => false)
+        println(s"Finished part $part of $parts")
       }
     }
   }
