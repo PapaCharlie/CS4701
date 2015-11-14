@@ -19,7 +19,7 @@ class ContourRank(iterations: Int = 2) {
   import ContourRank._
 
   val ranks: Array[Int] = Array.fill[Int](contours)(1)
-  val parts = 20
+  val parts = 200
 
   def serialCompute(): Unit = {
     for (part <- 0 until parts) {
