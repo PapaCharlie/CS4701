@@ -8,6 +8,7 @@ import tetris.tetrominoes.Tetromino
 import tetris.tetrominoes.Tetromino.pieces
 import scala.collection.mutable.HashMap
 
+import java.io.File
 import scala.math.max
 
 
@@ -24,13 +25,13 @@ class ContourRank(iterations: Int = 2) {
   def serialCompute(): Unit = {
     for (part <- 0 until parts) {
       val map: HashMap[Int, Seq[Int]] = new HashMap()
-      if (new File(s"$filename.$part").exists()) {
+      if (new File(s"${Utils.rankMapFilename}.$part").exists()) {
         System.gc()
         for (contour <- (part * contours / parts) to ((parts + 1) * contours / parts)) {
           map += contour -> serialMap(contour)
         }
         Utils.partialSaveMap(map, Utils.rankMapFilename, part)
-        map.retain(false)
+        map.retain(_ => false)
       }
     }
   }
