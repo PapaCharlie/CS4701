@@ -38,11 +38,13 @@ class ContourRank(iterations: Int = 2) {
 
   def propagateRanks(iteration: Int): Unit = {
     for (part <- 0 until parts) {
+      println(s"${Calendar.getInstance.getTime.toString}: Starting part $part")
       val map = loadHashMap(rankMapFilename, Some(part)).get // Already checked for existence above
       System.gc()
       for (contour <- (part * (contours / parts)) to ((part + 1) * (contours / parts))) {
         ranks(iteration % 2)(contour) = map(contour).map(ranks(abs(iteration - 1) % 2)(_)).sum
       }
+      println(s"${Calendar.getInstance.getTime.toString}: Finished part $part")
     }
     saveArray(rankArrayFilename, ranks(iteration % 2), Some(iteration))
   }
