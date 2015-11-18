@@ -25,20 +25,20 @@ package:
 run:
 	$(SBT) run
 
-run/showColors:
-	$(SBT) "run showColors"
-
 run/contour:
 	$(SBT) "run contour"
 
-run/computeRank:
-	$(SBT) "run computeRank"
-
-run/computeMap:
-	$(SBT) "run computeMap"
-
 run/serialCompute:
 	$(SBT) "run serialCompute"
+
+run/runIterations:
+	$(SBT) "run runIterations"
+
+run/colors:
+	$(SBT) "run colors"
+
+run/loadMap:
+	$(SBT) "run loadMap"
 
 install:
 	test -e $(SBT_TAR) || wget $(SBT_URL)
