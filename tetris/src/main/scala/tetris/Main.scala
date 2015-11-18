@@ -43,8 +43,9 @@ object Main extends App {
     case "serialCompute" => new ContourRank(1).serialCompute()
 //    case "search" =>
     case "colors" => showColors()
+    case "loadMap" => new ContourRank(1).loadMap()
     case _ => println("Unknown game mode")
   }
-  scala.io.StdIn.readLine()
+//  scala.io.StdIn.readLine()
 
 }

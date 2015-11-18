@@ -39,11 +39,18 @@ class ContourRank(iterations: Int = 2) {
     }
   }
 
+  def loadMap(): Option[HashMap[Int, Seq[Int]]] = {
+    println(s"${Calendar.getInstance().getTime().toString}: Loading Map")
+    val k = Utils.readPartedHashMap(Utils.rankMapFilename, parts)
+    println(s"${Calendar.getInstance().getTime().toString}: Loaded")
+    k
+  }
+
 }
 
 object ContourRank {
 
-  val parts = 200
+  val parts = 500
   val contours: Int = 43046721 + 1
 
   def mapWithStack(bRanks: Broadcast[Array[Int]])(contour: Int): Seq[(Int, Int)] = {
