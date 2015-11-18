@@ -32,8 +32,8 @@ object Main extends App {
 
   def showColors() = {
     val pieces = Seq(new I(0), new J(2), new L(3), new O(5), new T(8, 3), new Z(8), new S(6, 1))
-    applyPieces(new Stack, pieces) |> printStacks
-    println((new Stack ++ pieces).get.contour)
+//    applyPieces(new Stack, pieces) |> printStacks
+//    println((new Stack ++ pieces).get.contour)
   }
 
   args.headOption.getOrElse("colors") match {

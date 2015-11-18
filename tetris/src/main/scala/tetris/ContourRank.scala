@@ -31,7 +31,7 @@ class ContourRank(iterations: Int = 2) {
         for (contour <- (part * contours / parts) to ((parts + 1) * contours / parts)) {
           map += contour -> serialMap(contour)
         }
-        Utils.partialSaveMap(map, Utils.rankMapFilename, part)
+        Utils.savePartedHashMap(Utils.rankMapFilename, map, part)
         map.retain((_,_) => false)
         println(s"Finished part $part of $parts")
       }

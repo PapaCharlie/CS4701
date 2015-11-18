@@ -1,5 +1,9 @@
 package tetris
 
+import scala.collection.JavaConversions._
+
+import org.apache.spark.{SparkConf, SparkContext}
+import scala.io.Source
 import java.io.{FileInputStream, File, FileOutputStream, BufferedOutputStream}
 
 import org.apache.commons.io.IOUtils
@@ -13,6 +17,9 @@ import scala.pickling.Defaults._
 import scala.pickling.static._
 import scala.pickling.Defaults.{pickleOps, unpickleOps}
 import scala.pickling.Defaults.{stringPickler, intPickler, refUnpickler, nullPickler}
+
+
+import scala.collection.mutable.HashMap
 
 /**
  * Created by papacharlie on 10/31/15.
@@ -40,12 +47,6 @@ object Utils extends {
     }
   }
 
-  def applyPieces(stack: Stack, pieces: Iterable[Tetromino]): Seq[Stack] = {
-    pieces.foldLeft(Seq(stack)) { case (stacks, piece) =>
-      stacks :+ (stacks.last + piece).getOrElse(stacks.last)
-    }
-  }
-
   implicit class Pipe[T](val t: T) extends AnyVal {
     def |->(fun: T => Unit): T = {
       fun(t)
@@ -58,80 +59,44 @@ object Utils extends {
   val rankArrayFilename = "rank_array.arr"
   val rankMapFilename = "rank_map.map"
 
-  def saveArray(array: Array[Int], filename: String): Unit = {
-    val bos = new BufferedOutputStream(new FileOutputStream(filename))
-    Stream.continually(bos.write(array.pickle.value))
-    bos.close()
+  def saveHashMap(filename: String, map: HashMap[Int, Seq[Int]]): Unit = {
+    val file = new FileOutputStream(filename)
+    map.foreach { case (c, seq) =>
+      IOUtils.write(c.toString + "," + seq.mkString(",") + "\n", file)
+    }
   }
 
-  def saveRankArray(array: Array[Int]): Unit = {
-    saveArray(array, rankArrayFilename)
+  def savePartedHashMap(filename: String, map: HashMap[Int, Seq[Int]], part: Int): Unit = {
+    saveHashMap(filename + "." + part.toString, map)
   }
 
-  def partialSaveMap(map: Map[Int, Seq[Int]], filename: String, part: Int) = {
-    saveMap(map, s"$filename.$part")
-  }
-
-  def saveMap(map: Map[Int, Seq[Int]], filename: String): Unit = {
-    val bos = new BufferedOutputStream(new FileOutputStream(filename))
-    Stream.continually(bos.write(map.pickle.value))
-    bos.close()
-  }
-
-  def saveStackMap(map: Map[Int, Seq[Int]]) = {
-    saveMap(map, rankMapFilename)
-  }
-
-  def readIntArray(filename: String): Option[Array[Int]] = {
+  def readHashMap(filename: String): Option[HashMap[Int, Seq[Int]]] = {
     if (new File(filename).exists()) {
-      Some(IOUtils.toByteArray(new FileInputStream(filename)).unpickle[Array[Int]])
+      val lines = IOUtils.readLines(new FileInputStream(filename))
+      val map: HashMap[Int, Seq[Int]] = new HashMap()
+      lines.map { line =>
+        val nums = line.split(",")
+        map += Integer.parseInt(nums.head) -> nums.tail.map(Integer.parseInt)
+      }
+      if (map.isEmpty) None else Some(map)
     } else {
       None
     }
   }
 
-  def readRankArray: Option[Array[Int]] = {
-    readIntArray(rankArrayFilename)
-  }
-
-  def readMap(filename: String): Option[Map[Int, Seq[Int]]] = {
-    if (new File(filename).exists()) {
-      Some(IOUtils.toByteArray(new FileInputStream(filename)).unpickle[Map[Int, Seq[Int]]])
-    } else {
-      None
+  def readPartedHashMap(filename: String, parts: Int): Option[HashMap[Int, Seq[Int]]] = {
+    val map: HashMap[Int, Seq[Int]] = new HashMap()
+    def loadMaps(part: Int): Unit = {
+      if (new File(filename + "." + part.toString).exists()) {
+        val lines = IOUtils.readLines(new FileInputStream(filename + "." + part.toString))
+        lines.map { line =>
+          val nums = line.split(",")
+          map += Integer.parseInt(nums.head) -> nums.tail.map(Integer.parseInt)
+        }
+        loadMaps(part + 1)
+      }
     }
+    loadMaps(0)
+    if (map.isEmpty) None else Some(map)
   }
-
-  def readStackMap: Option[Map[Int, Seq[Int]]] = {
-    readMap(rankMapFilename)
-  }
-
-  def readMapPart(filename: String, part: Int): Option[Map[Int, Seq[Int]]] = {
-    val map: Map[Int, Seq[Int]] = Map()
-    readMap(s"$filename.$part") match {
-      case Some(m) => map ++= m
-      case _ =>
-    }
-    if (map.isEmpty) {
-      None
-    } else {
-      Some(map)
-    }
-  }
-
-  // def readPartialMap(filename: String, parts: Int): Option[Map[Int, Seq[Int]]] = {
-  //   val map: Map[Int, Seq[Int]] = Map()
-  //   for (part <- 0 until parts) {
-  //     readMap(s"$filename.$part") match {
-  //       case Some(m) => map ++= m
-  //       case _ =>
-  //     }
-  //   }
-  //   if (map.isEmpty) {
-  //     None
-  //   } else {
-  //     Some(map)
-  //   }
-  // }
-
 }
