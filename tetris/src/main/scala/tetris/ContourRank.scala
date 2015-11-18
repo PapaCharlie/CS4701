@@ -47,7 +47,7 @@ class ContourRank(iterations: Int = 2) {
   }
 
   def runIterations(): Unit = {
-    if (!(0 until parts).map(iterationExists(rankArrayFilename, _)).forall(identity)) {
+    if (!(0 until parts).map(iterationExists(rankMapFilename, _)).forall(identity)) {
       throw new Exception("Saved mapping is incomplete! (not enough parts)")
     }
     for (iteration <- 0 until iterations) {
