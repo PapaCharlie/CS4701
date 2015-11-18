@@ -22,15 +22,14 @@ class ContourRank(iterations: Int = 2) {
   import ContourRank._
 
   val ranks: Array[Int] = Array.fill[Int](contours)(1)
-  val parts = 200
-
   def serialCompute(): Unit = {
     for (part <- 0 until parts) {
       val map: HashMap[Int, Seq[Int]] = new HashMap()
       if (!new File(s"${Utils.rankMapFilename}.$part").exists()) {
         System.gc()
         println(s"${Calendar.getInstance().getTime().toString}: Starting part $part of $parts")
-        for (contour <- (part * (contours / parts)) to ((parts + 1) * (contours / parts))) {
+        for (contour <- (part * (contours / parts)) to ((part + 1) * (contours / parts))) {
+//          println(contour)
           map += contour -> serialMap(contour)
         }
         Utils.savePartedHashMap(Utils.rankMapFilename, map, part)
@@ -39,10 +38,12 @@ class ContourRank(iterations: Int = 2) {
       }
     }
   }
+
 }
 
 object ContourRank {
 
+  val parts = 200
   val contours: Int = 43046721 + 1
 
   def mapWithStack(bRanks: Broadcast[Array[Int]])(contour: Int): Seq[(Int, Int)] = {
