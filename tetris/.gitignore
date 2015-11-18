@@ -4,5 +4,6 @@ target/
 */.idea/
 project/project/
 tetris.jar
-spark-1.5.1*
 sbt/
+sbt-*.tgz
+*.map*
