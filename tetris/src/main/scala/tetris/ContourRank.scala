@@ -9,6 +9,7 @@ import tetris.Stack.width
 import tetris.Utils._
 import tetris.tetrominoes.Tetromino.pieces
 import scala.collection.mutable.HashMap
+import scala.math.abs
 
 /**
  * Created by papacharlie on 10/30/15.
@@ -40,7 +41,7 @@ class ContourRank(iterations: Int = 2) {
       val map = loadHashMap(rankMapFilename, Some(part)).get // Already checked for existence above
       System.gc()
       for (contour <- (part * (contours / parts)) to ((part + 1) * (contours / parts))) {
-        ranks(iteration % 2)(contour) = map(contour).map(ranks((iteration - 1) % 2)(_)).sum
+        ranks(iteration % 2)(contour) = map(contour).map(ranks(abs(iteration - 1) % 2)(_)).sum
       }
     }
     saveArray(rankArrayFilename, ranks(iteration % 2), Some(iteration))
@@ -60,7 +61,7 @@ class ContourRank(iterations: Int = 2) {
         }
       }
     }
-    saveArray(rankArrayFilename, ranks((iterations - 1) % 2))
+    saveArray(rankArrayFilename, ranks(abs(iterations - 1) % 2))
   }
 
   def loadRanks: Array[Int] = {
