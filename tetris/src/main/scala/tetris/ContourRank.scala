@@ -1,5 +1,7 @@
 package tetris
 
+import java.util.Calendar
+
 import Utils._
 import org.apache.spark.broadcast.Broadcast
 import tetris.Stack.width
@@ -27,13 +29,13 @@ class ContourRank(iterations: Int = 2) {
       val map: HashMap[Int, Seq[Int]] = new HashMap()
       if (!new File(s"${Utils.rankMapFilename}.$part").exists()) {
         System.gc()
-        println(s"Starting part $part of $parts")
+        println(s"${Calendar.getInstance().getTime().toString}: Starting part $part of $parts")
         for (contour <- (part * (contours / parts)) to ((parts + 1) * (contours / parts))) {
           map += contour -> serialMap(contour)
         }
         Utils.savePartedHashMap(Utils.rankMapFilename, map, part)
         map.retain((_,_) => false)
-        println(s"Finished part $part of $parts")
+        println(s"${Calendar.getInstance().getTime().toString}: Finished part $part of $parts")
       }
     }
   }

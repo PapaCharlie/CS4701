@@ -62,12 +62,12 @@ object Utils extends {
   def saveHashMap(filename: String, map: HashMap[Int, Seq[Int]]): Unit = {
     val file = new FileOutputStream(filename)
     map.foreach { case (c, seq) =>
-      IOUtils.write(c.toString + "," + seq.mkString(",") + "\n", file)
+      IOUtils.write(s"$c,${seq.mkString(",")}\n", file)
     }
   }
 
   def savePartedHashMap(filename: String, map: HashMap[Int, Seq[Int]], part: Int): Unit = {
-    saveHashMap(filename + "." + part.toString, map)
+    saveHashMap(s"$filename.$part", map)
   }
 
   def readHashMap(filename: String): Option[HashMap[Int, Seq[Int]]] = {
@@ -87,7 +87,7 @@ object Utils extends {
   def readPartedHashMap(filename: String, parts: Int): Option[HashMap[Int, Seq[Int]]] = {
     val map: HashMap[Int, Seq[Int]] = new HashMap()
     def loadMaps(part: Int): Unit = {
-      if (new File(filename + "." + part.toString).exists()) {
+      if (new File(s"$filename.$part").exists()) {
         val lines = IOUtils.readLines(new FileInputStream(filename + "." + part.toString))
         lines.map { line =>
           val nums = line.split(",")
