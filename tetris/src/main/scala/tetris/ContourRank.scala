@@ -2,17 +2,12 @@ package tetris
 
 import java.util.Calendar
 
-import Utils._
+//import Utils._
 import org.apache.spark.broadcast.Broadcast
 import tetris.Stack.width
 import tetris.Utils._
-import tetris.tetrominoes.Tetromino
 import tetris.tetrominoes.Tetromino.pieces
 import scala.collection.mutable.HashMap
-
-import java.io.File
-import scala.math.max
-
 
 /**
  * Created by papacharlie on 10/30/15.
@@ -21,29 +16,55 @@ class ContourRank(iterations: Int = 2) {
 
   import ContourRank._
 
-  val ranks: Array[Int] = Array.fill[Int](contours)(1)
-  def serialCompute(): Unit = {
+  val ranks: Array[Array[Int]] = Array.fill[Int](2, contours)(1)
+
+  def computeMap(): Unit = {
     for (part <- 0 until parts) {
       val map: HashMap[Int, Seq[Int]] = new HashMap()
-      if (!new File(s"${Utils.rankMapFilename}.$part").exists()) {
+      if (!partExists(rankMapFilename, part)) {
         System.gc()
-        println(s"${Calendar.getInstance().getTime().toString}: Starting part $part of $parts")
+        println(s"${Calendar.getInstance.getTime.toString}: Starting part $part of $parts")
         for (contour <- (part * (contours / parts)) to ((part + 1) * (contours / parts))) {
-//          println(contour)
           map += contour -> serialMap(contour)
         }
-        Utils.savePartedHashMap(Utils.rankMapFilename, map, part)
-        map.retain((_,_) => false)
-        println(s"${Calendar.getInstance().getTime().toString}: Finished part $part of $parts")
+        Utils.savePartedHashMap(rankMapFilename, map, part)
+        map.retain((_, _) => false)
+        println(s"${Calendar.getInstance.getTime.toString}: Finished part $part of $parts")
       }
     }
   }
 
-  def loadMap(): Option[HashMap[Int, Seq[Int]]] = {
-    println(s"${Calendar.getInstance().getTime().toString}: Loading Map")
-    val k = Utils.readPartedHashMap(Utils.rankMapFilename, parts)
-    println(s"${Calendar.getInstance().getTime().toString}: Loaded")
-    k
+  def propagateRanks(iteration: Int): Unit = {
+    for (part <- 0 until parts) {
+      val map = loadHashMap(rankMapFilename, Some(part)).get // Already checked for existence above
+      System.gc()
+      println(s"${Calendar.getInstance.getTime.toString}: Starting rank propagation part $part of $parts, iteration: $iteration of $iterations")
+      for (contour <- (part * (contours / parts)) to ((part + 1) * (contours / parts))) {
+        ranks(iteration % 2)(contour) = map(contour).map(ranks((iteration - 1) % 2)(_)).sum
+      }
+    }
+    saveArray(rankArrayFilename, ranks(iteration), Some(iteration))
+  }
+
+  def runIterations(): Unit = {
+    if (!(0 until parts).map(iterationExists(rankArrayFilename, _)).forall(identity)) {
+      throw new Exception("Saved mapping is incomplete! (not enough parts)")
+    }
+    for (iteration <- 0 until iterations) {
+      loadArray(rankArrayFilename, Some(iteration)) match {
+        case Some(arr) => ranks(iteration % 2) = arr
+        case _ => {
+          propagateRanks(iteration)
+        }
+      }
+    }
+  }
+
+  def loadRanks: Array[Int] = {
+    loadArray(rankArrayFilename) match {
+      case Some(seq) => seq
+      case _ => throw new Exception(s"Could not find rank array file at $rankArrayFilename!")
+    }
   }
 
 }

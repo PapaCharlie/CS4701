@@ -40,10 +40,10 @@ object Main extends App {
     case "contour" => testClearRows()
 //    case "computeRank" => new ContourRank(1).compute()
 //    case "computeMap" => new ContourRank(1).computeMap()
-    case "serialCompute" => new ContourRank(1).serialCompute()
+    case "serialCompute" => new ContourRank(1).computeMap()
 //    case "search" =>
     case "colors" => showColors()
-    case "loadMap" => new ContourRank(1).loadMap()
+    case "loadMap" => new ContourRank(1).loadRanks
     case _ => println("Unknown game mode")
   }
 //  scala.io.StdIn.readLine()
