@@ -3,6 +3,7 @@ package tetris
 import java.util.Calendar
 
 //import Utils._
+
 import org.apache.spark.broadcast.Broadcast
 import tetris.Stack.width
 import tetris.Utils._
@@ -38,12 +39,11 @@ class ContourRank(iterations: Int = 2) {
     for (part <- 0 until parts) {
       val map = loadHashMap(rankMapFilename, Some(part)).get // Already checked for existence above
       System.gc()
-      println(s"${Calendar.getInstance.getTime.toString}: Starting rank propagation part $part of $parts, iteration: $iteration of $iterations")
       for (contour <- (part * (contours / parts)) to ((part + 1) * (contours / parts))) {
         ranks(iteration % 2)(contour) = map(contour).map(ranks((iteration - 1) % 2)(_)).sum
       }
     }
-    saveArray(rankArrayFilename, ranks(iteration), Some(iteration))
+    saveArray(rankArrayFilename, ranks(iteration % 2), Some(iteration))
   }
 
   def runIterations(): Unit = {
@@ -54,10 +54,13 @@ class ContourRank(iterations: Int = 2) {
       loadArray(rankArrayFilename, Some(iteration)) match {
         case Some(arr) => ranks(iteration % 2) = arr
         case _ => {
+          println(s"${Calendar.getInstance.getTime.toString}: Starting iteration $iteration of $iterations")
           propagateRanks(iteration)
+          println(s"${Calendar.getInstance.getTime.toString}: Finished iteration $iteration of $iterations")
         }
       }
     }
+    saveArray(rankArrayFilename, ranks((iterations - 1) % 2))
   }
 
   def loadRanks: Array[Int] = {

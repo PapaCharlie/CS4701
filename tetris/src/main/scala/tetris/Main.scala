@@ -38,10 +38,8 @@ object Main extends App {
 
   args.headOption.getOrElse("colors") match {
     case "contour" => testClearRows()
-//    case "computeRank" => new ContourRank(1).compute()
-//    case "computeMap" => new ContourRank(1).computeMap()
     case "serialCompute" => new ContourRank(1).computeMap()
-//    case "search" =>
+    case "runIterations" => new ContourRank(4).runIterations()
     case "colors" => showColors()
     case "loadMap" => new ContourRank(1).loadRanks
     case _ => println("Unknown game mode")
