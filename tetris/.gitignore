@@ -6,4 +6,5 @@ project/project/
 tetris.jar
 sbt/
 sbt-*.tgz
-*.map*
+*.map.*
+*.arr.*

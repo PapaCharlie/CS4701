@@ -59,30 +59,32 @@ object Utils {
   val rankArrayFilename = "ranks/rank_array.arr"
   val rankMapFilename = "maps/rank_map.map"
 
-  def saveArray(filename: String, arr: Array[Int], iteration: Option[Int]=None): Unit = {
+  def saveArray(filename: String, arr: Array[Int], iteration: Option[Int] = None): Unit = {
     def save(filename: String) = {
       val file = new FileOutputStream(filename)
-      IOUtils.write(arr.head.toString, file)
-      arr.tail.foreach{ i =>
-        IOUtils.write(s",$i", file)
+      arr.foreach { n =>
+        IOUtils.write((3 to 0 by -1).map( p => ((n >> (p * 8)) & 255).toChar).mkString, file)
       }
       file.close()
     }
     iteration match {
-      case Some(p) => save(s"$filename.$iteration")
+      case Some(i) => save(s"$filename.$i")
       case _ => save(filename)
     }
   }
 
-  def loadArray(filename: String, iteration: Option[Int] = None): Option[Array[Int]] = {
-    def load(filename:String) = {
-      if (new File(filename).exists()){
-        val (seq,_) = IOUtils.toString(new FileInputStream(filename)).foldLeft((IndexedSeq():IndexedSeq[Int],"")){
-          case ((seq, s), ',') => (seq :+ Integer.parseInt(s), "")
-          case ((seq, s), c) => (seq, s + c)
+  def loadArray(filename: String, iteration: Option[Int] = None, size: Int = ContourRank.contours): Option[Array[Int]] = {
+    def load(filename: String): Option[Array[Int]] = {
+      if (new File(filename).exists()) {
+        val arr = Array.fill[Int](size)(0)
+        val file = new FileInputStream(filename)
+        for (n <- 0 until size) {
+          arr(n) = (3 to 0 by -1).map(_ => file.read()).foldLeft(0){case (i, c) => i << 8 | c}
         }
-        Some(seq.toArray)
-      } else None
+        Some(arr)
+      } else {
+        None
+      }
     }
     iteration match {
       case Some(i) => load(s"$filename.$i")
@@ -103,7 +105,7 @@ object Utils {
   }
 
   def loadHashMap(filename: String, part: Option[Int]): Option[HashMap[Int, Seq[Int]]] = {
-    def load(filename: String): Option[HashMap[Int, Seq[Int]]] ={
+    def load(filename: String): Option[HashMap[Int, Seq[Int]]] = {
       val map: HashMap[Int, Seq[Int]] = new HashMap()
       if (new File(s"$filename").exists()) {
         val lines = IOUtils.readLines(new FileInputStream(filename))

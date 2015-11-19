@@ -37,8 +37,8 @@ run/runIterations:
 run/colors:
 	$(SBT) "run colors"
 
-run/loadMap:
-	$(SBT) "run loadMap"
+run/loadRanks:
+	$(SBT) "run loadRanks"
 
 install:
 	test -e $(SBT_TAR) || wget $(SBT_URL)

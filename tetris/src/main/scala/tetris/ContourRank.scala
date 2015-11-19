@@ -68,7 +68,7 @@ class ContourRank(iterations: Int = 2) {
 
   def loadRanks: Array[Int] = {
     loadArray(rankArrayFilename) match {
-      case Some(seq) => seq
+      case Some(arr) => arr
       case _ => throw new Exception(s"Could not find rank array file at $rankArrayFilename!")
     }
   }
