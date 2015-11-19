@@ -59,12 +59,18 @@ object Utils {
   val rankArrayFilename = "ranks/rank_array.arr"
   val rankMapFilename = "maps/rank_map.map"
 
+  def intToChars(n: Int): String = {
+    (3 to 0 by -1).map(p => ((n >> (p * 8)) & 255).toChar).mkString
+  }
+
+  def charsToInt(seq: Iterable[Int]): Int = {
+    seq.foldLeft(0) { case (i, c) => i << 8 | c }
+  }
+
   def saveArray(filename: String, arr: Array[Int], iteration: Option[Int] = None): Unit = {
     def save(filename: String) = {
       val file = new FileOutputStream(filename)
-      arr.foreach { n =>
-        IOUtils.write((3 to 0 by -1).map( p => ((n >> (p * 8)) & 255).toChar).mkString, file)
-      }
+      arr.foreach(n => IOUtils.write(intToChars(n), file))
       file.close()
     }
     iteration match {
@@ -79,7 +85,7 @@ object Utils {
         val arr = Array.fill[Int](size)(0)
         val file = new FileInputStream(filename)
         for (n <- 0 until size) {
-          arr(n) = (3 to 0 by -1).map(_ => file.read()).foldLeft(0){case (i, c) => i << 8 | c}
+          arr(n) = charsToInt((3 to 0 by -1).map(_ => file.read()))
         }
         Some(arr)
       } else {
@@ -107,7 +113,7 @@ object Utils {
   def loadHashMap(filename: String, part: Option[Int]): Option[HashMap[Int, Seq[Int]]] = {
     def load(filename: String): Option[HashMap[Int, Seq[Int]]] = {
       val map: HashMap[Int, Seq[Int]] = new HashMap()
-      if (new File(s"$filename").exists()) {
+      if (new File(filename).exists()) {
         val lines = IOUtils.readLines(new FileInputStream(filename))
         lines.map { line =>
           val nums = line.split(",")
