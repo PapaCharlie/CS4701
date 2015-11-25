@@ -27,7 +27,6 @@ object Main extends App {
     }
     println(new Contour(45244543).toStack)
     println(new Contour(16426544).toStack)
-//    println(new Contour(44200001).toStack)
   }
 
   def showColors() = {
@@ -41,7 +40,18 @@ object Main extends App {
     case "serialCompute" => new ContourRank(1).computeMap()
     case "runIterations" => new ContourRank(4).runIterations()
     case "colors" => showColors()
-    case "loadRanks" => new ContourRank(1).loadRanks
+    case "loadRanks" => ContourRank.loadRanks
+    case "playRanked" => {
+      import tetrominoes.{S,Z}
+      val game = new RankedGame
+      game.generator.preview(1).head match {
+        case S(_,_) | Z(_,_) => game.generator.next
+        case _ =>
+      }
+      for (_ <- 0 to 15) {
+        game.play()
+      }
+    }
     case _ => println("Unknown game mode")
   }
 //  scala.io.StdIn.readLine()

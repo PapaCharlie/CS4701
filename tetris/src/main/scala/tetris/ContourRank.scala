@@ -66,19 +66,19 @@ class ContourRank(iterations: Int = 2) {
     saveArray(rankArrayFilename, ranks(abs(iterations - 1) % 2))
   }
 
-  def loadRanks: Array[Int] = {
-    loadArray(rankArrayFilename) match {
-      case Some(arr) => arr
-      case _ => throw new Exception(s"Could not find rank array file at $rankArrayFilename!")
-    }
-  }
-
 }
 
 object ContourRank {
 
   val parts = 500
   val contours: Int = 43046721 + 1
+
+  def loadRanks: Array[Int] = {
+    loadArray(rankArrayFilename) match {
+      case Some(arr) => arr
+      case _ => throw new Exception(s"Could not find rank array file at $rankArrayFilename!")
+    }
+  }
 
   def mapWithStack(bRanks: Broadcast[Array[Int]])(contour: Int): Seq[(Int, Int)] = {
     Contour.fromBase10(contour).map(_.toStack) match {
@@ -130,7 +130,7 @@ object ContourRank {
 
   def serialMap(contour: Int): Seq[Int] = {
     Contour.fromBase10(contour) match {
-      case Some(c) => (0 until width).flatMap { x =>
+      case Some(c) => (0 to width).flatMap { x =>
         (0 to 4).flatMap { orientation =>
           pieces.flatMap { piece =>
             (c + piece.copy(x, orientation)).map(_.toBase10)

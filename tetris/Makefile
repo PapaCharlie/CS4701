@@ -40,6 +40,9 @@ run/colors:
 run/loadRanks:
 	$(SBT) "run loadRanks"
 
+run/playRanked:
+	$(SBT) "run playRanked"
+
 install:
 	test -e $(SBT_TAR) || wget $(SBT_URL)
 	tar xzf $(SBT_TAR)

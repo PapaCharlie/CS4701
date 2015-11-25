@@ -44,7 +44,7 @@ case class Contour(contour: Int) {
         None
       }
     }
-    if (piece.fits && piece.getSquares(0).forall { case (x, _) => x < width - 1 }) {
+    if (piece.fits && piece.getSquares(0).forall { case (x, _) => x < width }) {
       fitPiece(heights(piece.x) + 1) match {
         case Some(squares) =>
           squares.sorted.foldLeft(Some(heights): Option[IndexedSeq[Int]]) {
