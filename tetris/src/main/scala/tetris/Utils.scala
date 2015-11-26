@@ -1,24 +1,11 @@
 package tetris
 
-import scala.collection.JavaConversions._
-
-import org.apache.spark.{SparkConf, SparkContext}
-import scala.io.Source
-import java.io.{FileInputStream, File, FileOutputStream, BufferedOutputStream}
+import java.io.{File, FileInputStream, FileOutputStream}
 
 import org.apache.commons.io.IOUtils
 import org.apache.spark.{SparkConf, SparkContext}
-import tetris.tetrominoes.Tetromino
 
-import scala.collection.mutable.Map
-import scala.pickling._
-import scala.pickling.binary._
-import scala.pickling.Defaults._
-import scala.pickling.static._
-import scala.pickling.Defaults.{pickleOps, unpickleOps}
-import scala.pickling.Defaults.{stringPickler, intPickler, refUnpickler, nullPickler}
-
-
+import scala.collection.JavaConversions._
 import scala.collection.mutable.HashMap
 
 /**
@@ -56,6 +43,14 @@ object Utils {
     def |>[U](fun: T => U): U = fun(t)
   }
 
+  def mkdirp(dirname: String) = {
+    if (!new File(dirname).isDirectory) {
+      new File(dirname).mkdir()
+    }
+  }
+
+  val arrays = "ranks"
+  val maps = "maps"
   val rankArrayFilename = "ranks/rank_array.arr"
   val rankMapFilename = "maps/rank_map.map"
 
@@ -143,4 +138,5 @@ object Utils {
     loadMaps(0)
     if (map.isEmpty) None else Some(map)
   }
+
 }
