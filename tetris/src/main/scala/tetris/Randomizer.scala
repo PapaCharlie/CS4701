@@ -20,7 +20,7 @@ class Randomizer {
 
   private val toCome: Queue[Tetromino] = Queue()
 
-  private def pickAndEnqueue = {
+  private def pickAndEnqueue() = {
     val n = rng.nextInt(35)
     val letter = bag(n)
     history :+= letter
@@ -28,8 +28,8 @@ class Randomizer {
     toCome.enqueue(letter)
   }
 
-  def next: Tetromino = {
-    pickAndEnqueue
+  def next(): Tetromino = {
+    pickAndEnqueue()
     toCome.dequeue
   }
 
@@ -41,7 +41,7 @@ class Randomizer {
       toCome.slice(0, n).toSeq
     } else {
       while (toCome.length != n) {
-        pickAndEnqueue
+        pickAndEnqueue()
       }
       toCome.slice(0, n).toSeq
     }

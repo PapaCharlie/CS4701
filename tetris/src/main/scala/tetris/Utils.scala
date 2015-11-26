@@ -62,6 +62,14 @@ object Utils {
     seq.foldLeft(0) { case (i, c) => i << 8 | c }
   }
 
+  def biggestPart(filename: String) : Option[String] = {
+    val zerp = filename.split(File.separator)
+    zerp.take(zerp.length - 1).mkString(File.separator) match {
+      case "" => new File(".").list.filter(_.contains(zerp.last)).sorted.lastOption
+      case dir => new File(dir).list.filter(_.contains(zerp.last)).sorted.lastOption.map(dir + File.separator + _)
+    }
+  }
+
   def saveArray(filename: String, arr: Array[Int], iteration: Option[Int] = None): Unit = {
     def save(filename: String) = {
       val file = new FileOutputStream(filename)
@@ -87,8 +95,9 @@ object Utils {
         None
       }
     }
-    iteration match {
-      case Some(i) => load(s"$filename.$i")
+    (iteration, biggestPart(filename)) match {
+      case (Some(i),_) => load(s"$filename.$i")
+      case (_,Some(s)) => load(s)
       case _ => load(filename)
     }
   }
