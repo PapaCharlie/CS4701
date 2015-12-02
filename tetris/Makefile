@@ -25,22 +25,16 @@ package:
 run:
 	$(SBT) run
 
-run/contour:
-	$(SBT) "run contour"
+computeMap:
+	$(SBT) "run computeMap"
 
-run/serialCompute:
-	$(SBT) "run serialCompute"
-
-run/runIterations:
+runIterations:
 	$(SBT) "run runIterations"
 
-run/colors:
-	$(SBT) "run colors"
-
-run/loadRanks:
+loadRanks:
 	$(SBT) "run loadRanks"
 
-run/playRanked:
+playRanked:
 	$(SBT) "run playRanked"
 
 install:

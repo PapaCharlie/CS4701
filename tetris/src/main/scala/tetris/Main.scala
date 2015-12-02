@@ -8,7 +8,7 @@ object Main extends App {
   mkdirp(maps)
 
   args.headOption.getOrElse("playRanked") match {
-    case "serialCompute" => new ContourRank(1).computeMap()
+    case "computeMap" => new ContourRank().computeMap()
     case "runIterations" => new ContourRank(4).runIterations()
     case "loadRanks" => ContourRank.loadRanks
     case "playRanked" => {
