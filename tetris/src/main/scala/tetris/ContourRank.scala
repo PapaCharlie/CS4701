@@ -18,7 +18,7 @@ class ContourRank(iterations: Int = 2) {
 
   import ContourRank._
 
-  val ranks: Array[Array[Int]] = Array.fill[Int](2, contours)(1)
+  lazy val ranks: Array[Array[Int]] = Array.fill[Int](2, contours)(1)
 
   def computeMap(): Unit = {
     for (part <- 0 until parts) {
@@ -39,7 +39,7 @@ class ContourRank(iterations: Int = 2) {
   def propagateRanks(iteration: Int): Unit = {
     for (part <- 0 until parts) {
       println(s"${Calendar.getInstance.getTime.toString}: Starting part $part")
-      val map = loadHashMap(rankMapFilename, Some(part)).get // Already checked for existence above
+      val map = loadHashMap(rankMapFilename, Some(part)).get // Already checked for existence
       System.gc()
       for (contour <- (part * (contours / parts)) to ((part + 1) * (contours / parts))) {
         ranks(iteration % 2)(contour) = map(contour).map(ranks(abs(iteration - 1) % 2)(_)).sum
@@ -63,7 +63,6 @@ class ContourRank(iterations: Int = 2) {
         }
       }
     }
-    saveArray(rankArrayFilename, ranks(abs(iterations - 1) % 2))
   }
 
 }
@@ -129,11 +128,11 @@ object ContourRank {
   }
 
   def serialMap(contour: Int): Seq[Int] = {
-    Contour.fromBase10(contour) match {
-      case Some(c) => (0 to width).flatMap { x =>
+    Contour.fromBase10(contour).map(_.toStack) match {
+      case Some(s) => (0 to width).flatMap { x =>
         (0 to 4).flatMap { orientation =>
           pieces.flatMap { piece =>
-            (c + piece.copy(x, orientation)).map(_.toBase10)
+            (s + piece.copy(x, orientation)).map(_.contour.toBase10)
           }
         }
       }
