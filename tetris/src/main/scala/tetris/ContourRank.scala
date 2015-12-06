@@ -26,7 +26,7 @@ class ContourRank(iterations: Int = 2) {
       if (!partExists(rankMapFilename, part)) {
         System.gc()
         println(s"${Calendar.getInstance.getTime.toString}: Starting part $part of $parts")
-        for (contour <- (part * (contours / parts)) to ((part + 1) * (contours / parts))) {
+        for (contour <- (part * (contours / parts)) until ((part + 1) * (contours / parts))) {
           map += contour -> serialMap(contour)
         }
         Utils.savePartedHashMap(rankMapFilename, map, part)
