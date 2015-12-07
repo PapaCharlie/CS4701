@@ -128,11 +128,11 @@ object ContourRank {
   }
 
   def serialMap(contour: Int): Seq[Int] = {
-    Contour.fromBase10(contour).map(_.toStack) match {
-      case Some(s) => (0 to width).flatMap { x =>
+    Contour.fromBase10(contour) match {
+      case Some(c) => (0 to width).flatMap { x =>
         (0 to 4).flatMap { orientation =>
           pieces.flatMap { piece =>
-            (s + piece.copy(x, orientation)).map(_.contour.toBase10)
+            (c + piece.copy(x, orientation)).map(_.toBase10)
           }
         }
       }
