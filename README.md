@@ -1,3 +1,7 @@
+# Page Rank
+
+# Reinforced Learning
+
 # Sources
 http://tetris.wikia.com/wiki/Random_Generator
 http://tetris.wikia.com/wiki/TGM_randomizer
