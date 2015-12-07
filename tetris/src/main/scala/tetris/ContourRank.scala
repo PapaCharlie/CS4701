@@ -25,13 +25,13 @@ class ContourRank(iterations: Int = 2) {
       val map: HashMap[Int, Seq[Int]] = new HashMap()
       if (!partExists(rankMapFilename, part)) {
         System.gc()
-        println(s"${Calendar.getInstance.getTime.toString}: Starting part $part of $parts")
+        println(s"${Calendar.getInstance.getTime.toString}: Starting part $part of ${parts - 1}")
         for (contour <- (part * (contours / parts)) until ((part + 1) * (contours / parts))) {
           map += contour -> serialMap(contour)
         }
         Utils.savePartedHashMap(rankMapFilename, map, part)
         map.retain((_, _) => false)
-        println(s"${Calendar.getInstance.getTime.toString}: Finished part $part of $parts")
+        println(s"${Calendar.getInstance.getTime.toString}: Finished part $part of ${parts -1 }")
       }
     }
   }
