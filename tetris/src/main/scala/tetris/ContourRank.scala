@@ -25,20 +25,20 @@ class ContourRank(iterations: Int = 2) {
       val map: HashMap[Int, Seq[Int]] = new HashMap()
       if (!partExists(rankMapFilename, part)) {
         System.gc()
-        println(s"${Calendar.getInstance.getTime.toString}: Starting part $part of ${parts - 1}")
+        println(s"${Calendar.getInstance.getTime.toString}: Starting part ${part + 1} of $parts")
         for (contour <- (part * (contours / parts)) until ((part + 1) * (contours / parts))) {
           map += contour -> serialMap(contour)
         }
         Utils.savePartedHashMap(rankMapFilename, map, part)
         map.retain((_, _) => false)
-        println(s"${Calendar.getInstance.getTime.toString}: Finished part $part")
+        println(s"${Calendar.getInstance.getTime.toString}: Finished part ${part + 1}")
       }
     }
   }
 
   def propagateRanks(iteration: Int): Unit = {
     for (part <- 0 until parts) {
-      println(s"${Calendar.getInstance.getTime.toString}: Starting part $part of ${parts - 1}")
+      println(s"${Calendar.getInstance.getTime.toString}: Starting part ${part + 1} of $parts")
       val stackMap = loadHashMap(rankMapFilename, Some(part)).get // Already checked for existence
       System.gc()
       for (contour <- (part * (contours / parts)) to ((part + 1) * (contours / parts))) {
@@ -46,7 +46,7 @@ class ContourRank(iterations: Int = 2) {
           ranks(iteration % 2)(contour) = stackMap(contour).map(ranks(abs(iteration - 1) % 2)(_)).sum
         }
       }
-      println(s"${Calendar.getInstance.getTime.toString}: Finished part $part")
+      println(s"${Calendar.getInstance.getTime.toString}: Finished part ${part + 1}")
     }
     saveArray(rankArrayFilename, ranks(iteration % 2), Some(iteration))
   }
@@ -59,9 +59,9 @@ class ContourRank(iterations: Int = 2) {
       loadArray(rankArrayFilename, Some(iteration)) match {
         case Some(arr) => ranks(iteration % 2) = arr
         case _ => {
-          println(s"${Calendar.getInstance.getTime.toString}: Starting iteration $iteration of $iterations")
+          println(s"${Calendar.getInstance.getTime.toString}: Starting iteration ${iteration + 1} of $iterations")
           propagateRanks(iteration)
-          println(s"${Calendar.getInstance.getTime.toString}: Finished iteration $iteration of $iterations")
+          println(s"${Calendar.getInstance.getTime.toString}: Finished iteration ${iteration + 1} of $iterations")
         }
       }
     }
