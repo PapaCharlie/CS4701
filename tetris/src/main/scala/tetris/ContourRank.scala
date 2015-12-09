@@ -31,14 +31,14 @@ class ContourRank(iterations: Int = 2) {
         }
         Utils.savePartedHashMap(rankMapFilename, map, part)
         map.retain((_, _) => false)
-        println(s"${Calendar.getInstance.getTime.toString}: Finished part $part of ${parts -1 }")
+        println(s"${Calendar.getInstance.getTime.toString}: Finished part $part")
       }
     }
   }
 
   def propagateRanks(iteration: Int): Unit = {
     for (part <- 0 until parts) {
-      println(s"${Calendar.getInstance.getTime.toString}: Starting part $part")
+      println(s"${Calendar.getInstance.getTime.toString}: Starting part $part of ${parts - 1}")
       val stackMap = loadHashMap(rankMapFilename, Some(part)).get // Already checked for existence
       System.gc()
       for (contour <- (part * (contours / parts)) to ((part + 1) * (contours / parts))) {
