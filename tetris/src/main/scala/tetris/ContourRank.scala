@@ -2,12 +2,14 @@ package tetris
 
 import java.util.Calendar
 
+import tetris.tetrominoes.Tetromino
+
 //import Utils._
 
 import org.apache.spark.broadcast.Broadcast
 import tetris.Stack.width
 import tetris.Utils._
-import tetris.tetrominoes.Tetromino.pieces
+import tetris.tetrominoes.Tetromino._
 import scala.collection.mutable.HashMap
 import scala.math.abs
 
@@ -20,26 +22,10 @@ class ContourRank(iterations: Int = 2) {
 
   lazy val ranks: Array[Array[Int]] = Array.fill[Int](2, contours)(1)
 
-  def computeMap(): Unit = {
-    for (part <- 0 until parts) {
-      val map: HashMap[Int, Seq[Int]] = new HashMap()
-      if (!partExists(rankMapFilename, part)) {
-        System.gc()
-        println(s"${Calendar.getInstance.getTime.toString}: Starting part ${part + 1} of $parts")
-        for (contour <- (part * (contours / parts)) until ((part + 1) * (contours / parts))) {
-          map += contour -> serialMap(contour)
-        }
-        Utils.savePartedHashMap(rankMapFilename, map, part)
-        map.retain((_, _) => false)
-        println(s"${Calendar.getInstance.getTime.toString}: Finished part ${part + 1}")
-      }
-    }
-  }
-
   def propagateRanks(iteration: Int): Unit = {
     for (part <- 0 until parts) {
       println(s"${Calendar.getInstance.getTime.toString}: Starting part ${part + 1} of $parts")
-      val stackMap = loadHashMap(rankMapFilename, Some(part)).get // Already checked for existence
+      val stackMap = loadHashMapInt(rankMapFilename, Some(part)).get // Already checked for existence
       System.gc()
       for (contour <- (part * (contours / parts)) to ((part + 1) * (contours / parts))) {
         if (stackMap.contains(contour)) {
@@ -81,61 +67,27 @@ object ContourRank {
     }
   }
 
-  def mapWithStack(bRanks: Broadcast[Array[Int]])(contour: Int): Seq[(Int, Int)] = {
-    Contour.fromBase10(contour).map(_.toStack) match {
-      case Some(stack) => (0 until width).flatMap { x =>
-        (0 to 4).flatMap { orientation =>
-          pieces.flatMap { piece =>
-            stack + piece.copy(x, orientation) match {
-              case Some(s) if s.hasNoHoles => Some(contour, bRanks.value(s.contour.toBase10))
-              case _ => None
-            }
-          }
+  def computeMap(part: Int): Unit = {
+    if (!partExists(rankMapFilename, part)) {
+      System.gc()
+      val map: HashMap[(Int, Byte), Seq[Int]] = new HashMap()
+      println(s"${Calendar.getInstance.getTime.toString}: Starting part ${part + 1} of $parts")
+      for (contour <- (part * (contours / parts)) until ((part + 1) * (contours / parts))) {
+        for (p <- pieces) {
+          map += (contour, getID(p)) -> serialMap(contour, p)
         }
       }
-      case _ => Seq()
+      Utils.savePartedHashMapIntByte(rankMapFilename, map, part)
+//      map.retain((_, _) => false)
+      println(s"${Calendar.getInstance.getTime.toString}: Finished part ${part + 1}")
     }
   }
 
-  def mapWithContour(bRanks: Broadcast[Array[Int]])(contour: Int): Seq[(Int, Int)] = {
-    Contour.fromBase10(contour) match {
-      case Some(c) => (0 until width).flatMap { x =>
-        (0 to 4).flatMap { orientation =>
-          pieces.flatMap { piece =>
-            c + piece.copy(x, orientation) match {
-              case Some(c) => Some(contour, bRanks.value(c.toBase10))
-              case _ => None
-            }
-          }
-        }
-      }
-      case _ => Seq()
-    }
-  }
-
-  def mapWithContour(contour: Int): Seq[(Int, Int)] = {
-    Contour.fromBase10(contour) match {
-      case Some(c) => (0 until width).flatMap { x =>
-        (0 to 4).flatMap { orientation =>
-          pieces.flatMap { piece =>
-            c + piece.copy(x, orientation) match {
-              case Some(c) => Some(contour, c.toBase10)
-              case _ => None
-            }
-          }
-        }
-      }
-      case _ => Seq()
-    }
-  }
-
-  def serialMap(contour: Int): Seq[Int] = {
+  def serialMap(contour: Int, piece: Tetromino): Seq[Int] = {
     Contour.fromBase10(contour) match {
       case Some(c) => (0 to width).flatMap { x =>
         (0 to 4).flatMap { orientation =>
-          pieces.flatMap { piece =>
-            (c + piece.copy(x, orientation)).map(_.toBase10)
-          }
+          (c + piece.copy(x, orientation)).map(_.toBase10)
         }
       }
       case _ => Seq()

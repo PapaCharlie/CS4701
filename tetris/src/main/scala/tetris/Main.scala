@@ -8,14 +8,18 @@ object Main extends App {
   mkdirp(maps)
 
   args.headOption.getOrElse("playRanked") match {
-    case "computeMap" => new ContourRank().computeMap()
+    case "computeMap" => {
+      executeInSpark { sc =>
+        sc.parallelize(0 until ContourRank.parts).map(ContourRank.computeMap)
+      }
+    }
     case "runIterations" => new ContourRank(4).runIterations()
     case "loadRanks" => ContourRank.loadRanks
     case "playRanked" => {
-      import tetrominoes.{S,Z}
+      import tetrominoes.{S, Z}
       val game = new RankedGame
       game.generator.preview(1).head match {
-        case S(_,_) | Z(_,_) => game.generator.next
+        case S(_, _) | Z(_, _) => game.generator.next
         case _ =>
       }
       for (_ <- 0 to 15) {
@@ -24,6 +28,6 @@ object Main extends App {
     }
     case _ => println("Unknown game mode")
   }
-//  scala.io.StdIn.readLine()
+  //  scala.io.StdIn.readLine()
 
 }

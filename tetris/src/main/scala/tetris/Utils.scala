@@ -62,11 +62,11 @@ object Utils {
     seq.foldLeft(0) { case (i, c) => i << 8 | c }
   }
 
-  def biggestPart(filename: String) : Option[String] = {
-    val zerp = filename.split(File.separator)
-    zerp.take(zerp.length - 1).mkString(File.separator) match {
-      case "" => new File(".").list.filter(_.contains(zerp.last)).sorted.lastOption
-      case dir => new File(dir).list.filter(_.contains(zerp.last)).sorted.lastOption.map(dir + File.separator + _)
+  def biggestPart(filename: String): Option[String] = {
+    val f = filename.split(File.separator)
+    f.take(f.length - 1).mkString(File.separator) match {
+      case "" => new File(".").list.filter(_.contains(f.last)).sorted.lastOption
+      case dir => new File(dir).list.filter(_.contains(f.last)).sorted.lastOption.map(dir + File.separator + _)
     }
   }
 
@@ -96,8 +96,8 @@ object Utils {
       }
     }
     (iteration, biggestPart(filename)) match {
-      case (Some(i),_) => load(s"$filename.$i")
-      case (_,Some(s)) => load(s)
+      case (Some(i), _) => load(s"$filename.$i")
+      case (_, Some(s)) => load(s)
       case _ => load(filename)
     }
   }
@@ -106,7 +106,7 @@ object Utils {
 
   def partExists(filename: String, part: Int) = new File(s"$filename.$part").exists()
 
-  def savePartedHashMap(filename: String, map: HashMap[Int, Seq[Int]], part: Int): Unit = {
+  def savePartedHashMapInt(filename: String, map: HashMap[Int, Seq[Int]], part: Int): Unit = {
     val file = new FileOutputStream(s"$filename.$part")
     map.foreach { case (c, seq) =>
       IOUtils.write(s"$c,${seq.mkString(",")}\n", file)
@@ -114,7 +114,15 @@ object Utils {
     file.close()
   }
 
-  def loadHashMap(filename: String, part: Option[Int]): Option[HashMap[Int, Seq[Int]]] = {
+  def savePartedHashMapIntByte(filename: String, map: HashMap[(Int, Byte), Seq[Int]], part: Int): Unit = {
+    val file = new FileOutputStream(s"$filename.$part")
+    map.foreach { case ((c, b), seq) =>
+      IOUtils.write(s"$c,$b,${seq.mkString(",")}\n", file)
+    }
+    file.close()
+  }
+
+  def loadHashMapInt(filename: String, part: Option[Int]): Option[HashMap[Int, Seq[Int]]] = {
     def load(filename: String): Option[HashMap[Int, Seq[Int]]] = {
       val map: HashMap[Int, Seq[Int]] = new HashMap()
       if (new File(filename).exists()) {
@@ -132,20 +140,22 @@ object Utils {
     }
   }
 
-  def loadPartedHashMap(filename: String, parts: Int): Option[HashMap[Int, Seq[Int]]] = {
-    val map: HashMap[Int, Seq[Int]] = new HashMap()
-    def loadMaps(part: Int): Unit = {
-      if (new File(s"$filename.$part").exists()) {
-        val lines = IOUtils.readLines(new FileInputStream(s"$filename.$part"))
+  def loadHashMapIntByte(filename: String, part: Option[Int]): Option[HashMap[(Int, Byte), Seq[Int]]] = {
+    def load(filename: String): Option[HashMap[(Int, Byte), Seq[Int]]] = {
+      val map: HashMap[(Int, Byte), Seq[Int]] = new HashMap()
+      if (new File(filename).exists()) {
+        val lines = IOUtils.readLines(new FileInputStream(filename))
         lines.map { line =>
           val nums = line.split(",")
-          map += Integer.parseInt(nums.head) -> nums.tail.map(Integer.parseInt)
+          map += (Integer.parseInt(nums.head), Integer.parseInt(nums.tail.head).toByte) -> nums.tail.tail.map(Integer.parseInt)
         }
-        loadMaps(part + 1)
       }
+      if (map.isEmpty) None else Some(map)
     }
-    loadMaps(0)
-    if (map.isEmpty) None else Some(map)
+    part match {
+      case Some(p) => load(s"$filename.$p")
+      case _ => load(filename)
+    }
   }
 
 }
