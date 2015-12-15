@@ -42,5 +42,5 @@ install:
 	tar xzf $(SBT_TAR)
 
 tar:
-	test -e tetris.tar && rm tetris.tar
-	tar cf tetris.tar *
+	-test -e tetris.tar && rm tetris.tar
+	tar cf tetris.tar build.sbt Makefile project/Common.scala project/plugins.sbt src

@@ -8,3 +8,4 @@ sbt/
 sbt-*.tgz
 *.map.*
 *.arr.*
+tetris.tar
