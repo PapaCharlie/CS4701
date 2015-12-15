@@ -47,10 +47,6 @@ class RankedGame(peek: Int = 2) {
       }
     }
 
-//    def getBest(stack: Stack, pieces: Seq[Tetromino]) : Tetromino = {
-//      pieces.head
-//    }
-
     val pieces = generator.preview(peek)
     println(pieces)
     val currentContour = currentStack.contour
@@ -72,7 +68,7 @@ class RankedGame(peek: Int = 2) {
         currentStack = s
         println(currentStack)
       }
-      case None => throw new Exception("YOU DON GOOFED MOTHERFUCKER")
+      case None => throw new Exception("YOU DON GOOFED")
     }
   }
 

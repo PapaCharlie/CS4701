@@ -55,7 +55,7 @@ class ContourRank(iterations: Int = 2) {
 
 object ContourRank {
 
-  val parts = 500
+  val parts = 1000
   val contours: Int = 43046721 + 1
 
   def loadRanks: Array[Int] = {
