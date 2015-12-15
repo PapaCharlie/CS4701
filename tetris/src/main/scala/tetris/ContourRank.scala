@@ -2,11 +2,9 @@ package tetris
 
 import java.util.Calendar
 
-import tetris.tetrominoes.Tetromino
+//import tetris.tetrominoes.Tetromino
 
-//import Utils._
-
-import org.apache.spark.broadcast.Broadcast
+//import org.apache.spark.broadcast.Broadcast
 import tetris.Stack.width
 import tetris.Utils._
 import tetris.tetrominoes.Tetromino._
@@ -34,7 +32,7 @@ class ContourRank(iterations: Int = 2) {
       }
       println(s"${Calendar.getInstance.getTime.toString}: Finished part ${part + 1}")
     }
-    saveArray(rankArrayFilename, ranks(iteration % 2), Some(iteration))
+    saveArrayInt(rankArrayFilename, ranks(iteration % 2), Some(iteration))
   }
 
   def runIterations(): Unit = {
@@ -42,7 +40,7 @@ class ContourRank(iterations: Int = 2) {
       throw new Exception("Saved mapping is incomplete! (not enough parts)")
     }
     for (iteration <- 0 until iterations) {
-      loadArray(rankArrayFilename, Some(iteration)) match {
+      loadArrayInt(rankArrayFilename, Some(iteration)) match {
         case Some(arr) => ranks(iteration % 2) = arr
         case _ => {
           println(s"${Calendar.getInstance.getTime.toString}: Starting iteration ${iteration + 1} of $iterations")
@@ -61,36 +59,41 @@ object ContourRank {
   val contours: Int = 43046721 + 1
 
   def loadRanks: Array[Int] = {
-    loadArray(rankArrayFilename) match {
+    loadArrayInt(rankArrayFilename) match {
       case Some(arr) => arr
       case _ => throw new Exception(s"Could not find rank array file at $rankArrayFilename!")
     }
   }
 
-  def computeMap(part: Int): Unit = {
+  def computeMap() = {
+    executeInSpark { sc =>
+      val data = 0 until ContourRank.parts
+      sc.parallelize(data).map(ContourRank.computeMapPart).collect()
+    }
+  }
+
+  def computeMapPart(part: Int): Unit = {
     if (!partExists(rankMapFilename, part)) {
       System.gc()
       val map: HashMap[(Int, Byte), Seq[Int]] = new HashMap()
       println(s"${Calendar.getInstance.getTime.toString}: Starting part ${part + 1} of $parts")
       for (contour <- (part * (contours / parts)) until ((part + 1) * (contours / parts))) {
-        for (p <- pieces) {
-          map += (contour, getID(p)) -> serialMap(contour, p)
+        for (piece <- pieces) {
+          map += (contour, toID(piece)) -> {
+            Contour.fromBase10(contour) match {
+              case Some(c) => (0 to width).flatMap { x =>
+                (0 to 4).flatMap { orientation =>
+                  (c + piece.copy(x, orientation)).map(_.toBase10)
+                }
+              }
+              case _ => Seq()
+            }
+          }
         }
       }
       Utils.savePartedHashMapIntByte(rankMapFilename, map, part)
-//      map.retain((_, _) => false)
       println(s"${Calendar.getInstance.getTime.toString}: Finished part ${part + 1}")
     }
   }
 
-  def serialMap(contour: Int, piece: Tetromino): Seq[Int] = {
-    Contour.fromBase10(contour) match {
-      case Some(c) => (0 to width).flatMap { x =>
-        (0 to 4).flatMap { orientation =>
-          (c + piece.copy(x, orientation)).map(_.toBase10)
-        }
-      }
-      case _ => Seq()
-    }
-  }
 }

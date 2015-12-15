@@ -8,13 +8,7 @@ object Main extends App {
   mkdirp(maps)
 
   args.headOption.getOrElse("playRanked") match {
-    case "computeMap" => {
-      executeInSpark { sc =>
-        val data = 0 until ContourRank.parts
-        val k = sc.parallelize(data).map(ContourRank.computeMap)
-        k.collect()
-      }
-    }
+    case "computeMap" => ContourRank.computeMap()
     case "runIterations" => new ContourRank(4).runIterations()
     case "loadRanks" => ContourRank.loadRanks
     case "playRanked" => {

@@ -1,6 +1,9 @@
 package tetris
 
 import java.io.{File, FileInputStream, FileOutputStream}
+import java.nio.ByteBuffer
+import scala.math.BigDecimal
+
 
 import org.apache.commons.io.IOUtils
 import org.apache.spark.{SparkConf, SparkContext}
@@ -54,11 +57,20 @@ object Utils {
   val rankArrayFilename = "ranks/rank_array.arr"
   val rankMapFilename = "maps/rank_map.map"
 
-  def intToChars(n: Int): String = {
+  def intToByteArray(n: Int): String = {
     (3 to 0 by -1).map(p => ((n >> (p * 8)) & 255).toChar).mkString
   }
 
-  def charsToInt(seq: Iterable[Int]): Int = {
+  def doubleToByteArray(x: Double) = {
+    val l = java.lang.Double.doubleToLongBits(x)
+    ByteBuffer.allocate(8).putLong(l).array()
+  }
+
+  def byteArrayToDouble(x: Array[Byte]) = {
+    ByteBuffer.wrap(x).getDouble
+  }
+
+  def byteArrayToInt(seq: Iterable[Byte]): Int = {
     seq.foldLeft(0) { case (i, c) => i << 8 | c }
   }
 
@@ -70,10 +82,10 @@ object Utils {
     }
   }
 
-  def saveArray(filename: String, arr: Array[Int], iteration: Option[Int] = None): Unit = {
+  def saveArrayInt(filename: String, arr: Array[Int], iteration: Option[Int] = None): Unit = {
     def save(filename: String) = {
       val file = new FileOutputStream(filename)
-      arr.foreach(n => IOUtils.write(intToChars(n), file))
+      arr.foreach(n => IOUtils.write(intToByteArray(n), file))
       file.close()
     }
     iteration match {
@@ -82,13 +94,47 @@ object Utils {
     }
   }
 
-  def loadArray(filename: String, iteration: Option[Int] = None, size: Int = ContourRank.contours): Option[Array[Int]] = {
+  def saveArrayDouble(filename: String, arr: Array[Double], iteration: Option[Int] = None): Unit = {
+    def save(filename: String) = {
+      val file = new FileOutputStream(filename)
+      arr.foreach(n => IOUtils.write(doubleToByteArray(n).reverse, file))
+      file.close()
+    }
+    iteration match {
+      case Some(i) => save(s"$filename.$i")
+      case _ => save(filename)
+    }
+  }
+
+  def loadArrayInt(filename: String, iteration: Option[Int] = None, size: Int = ContourRank.contours): Option[Array[Int]] = {
     def load(filename: String): Option[Array[Int]] = {
       if (new File(filename).exists()) {
         val arr = Array.fill[Int](size)(0)
         val file = new FileInputStream(filename)
         for (n <- 0 until size) {
-          arr(n) = charsToInt((3 to 0 by -1).map(_ => file.read()))
+          arr(n) = byteArrayToInt((3 to 0 by -1).map(_ => file.read().toByte))
+        }
+        Some(arr)
+      } else {
+        None
+      }
+    }
+    (iteration, biggestPart(filename)) match {
+      case (Some(i), _) => load(s"$filename.$i")
+      case (_, Some(s)) => load(s)
+      case _ => load(filename)
+    }
+  }
+
+  def loadArrayDouble(filename: String, iteration: Option[Int] = None, size: Int = ContourRank.contours): Option[Array[Double]] = {
+    def load(filename: String): Option[Array[Double]] = {
+      if (new File(filename).exists()) {
+        val arr = Array.fill[Double](size)(0.0)
+        val buf = Array.fill[Byte](8)(0)
+        val file = new FileInputStream(filename)
+        for (n <- 0 until size) {
+          (7 to 0 by -1).foreach(i => buf(i) = file.read().toByte)
+          arr(n) = byteArrayToDouble(buf)
         }
         Some(arr)
       } else {

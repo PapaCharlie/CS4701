@@ -44,3 +44,4 @@ install:
 tar:
 	-test -e tetris.tar && rm tetris.tar
 	tar cf tetris.tar build.sbt Makefile project/Common.scala project/plugins.sbt src
+	scp tetris.tar datafarm:~/tetris/

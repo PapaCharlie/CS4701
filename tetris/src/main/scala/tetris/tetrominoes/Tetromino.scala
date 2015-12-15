@@ -38,7 +38,7 @@ abstract class Tetromino {
 object Tetromino {
   val pieces: Seq[Tetromino] = Array(new J, new L, new O, new S, new T, new Z, new I)
 
-  def getID(p: Tetromino): Byte = p match {
+  def toID(p: Tetromino): Byte = p match {
     case i: I => 0
     case j: J => 1
     case l: L => 2
@@ -48,4 +48,14 @@ object Tetromino {
     case t: T => 6
   }
 
+  def fromID(id: Byte): Tetromino = id match {
+    case 0 => new I
+    case 1 => new J
+    case 2 => new L
+    case 3 => new O
+    case 4 => new S
+    case 5 => new Z
+    case 6 => new T
+  }
+  
 }
