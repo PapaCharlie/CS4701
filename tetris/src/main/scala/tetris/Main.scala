@@ -10,7 +10,7 @@ object Main extends App {
   args.headOption.getOrElse("playRanked") match {
     case "computeMap" => {
       executeInSpark { sc =>
-        val data = 0 until 2// ContourRank.parts
+        val data = 0 until ContourRank.parts
         val k = sc.parallelize(data).map(ContourRank.computeMap)
         k.collect()
       }
