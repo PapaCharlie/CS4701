@@ -103,8 +103,10 @@ object Utils {
         val fileSize = file.length
         val stream = new FileInputStream(file)
         val buffer = stream.getChannel.map(READ_ONLY, 0, fileSize)
-        for (n <- 0 until size) {
+        var n = 0
+        while (n < size) {
           arr(n) = buffer.getInt()
+          n += 1
         }
         Some(arr)
       } else {
@@ -126,8 +128,10 @@ object Utils {
         val fileSize = file.length
         val stream = new FileInputStream(file)
         val buffer = stream.getChannel.map(READ_ONLY, 0, fileSize)
-        for (n <- 0 until size) {
+        var n = 0
+        while (n < size) {
           arr(n) = buffer.getDouble()
+          n += 1
         }
         Some(arr)
       } else {
