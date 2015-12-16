@@ -71,7 +71,12 @@ object Utils {
   def saveArrayInt(filename: String, arr: Array[Int], iteration: Option[Int] = None): Unit = {
     def save(filename: String) = {
       val file = new DataOutputStream(new FileOutputStream(filename))
-      arr.foreach(n => file.writeInt(n))
+      for (n <- arr.indices) {
+        file.writeFloat(arr(n))
+        if (n % 128 == 0) { // per block size
+          file.flush()
+        }
+      }
       file.flush()
       file.close()
     }
@@ -84,7 +89,12 @@ object Utils {
   def saveArrayDouble(filename: String, arr: Array[Float], iteration: Option[Int] = None): Unit = {
     def save(filename: String) = {
     val file = new DataOutputStream(new FileOutputStream(filename))
-      arr.foreach(n => file.writeFloat(n))
+      for (n <- arr.indices) {
+        file.writeFloat(arr(n))
+        if (n % 128 == 0) { // per block size
+          file.flush()
+        }
+      }
       file.flush()
       file.close()
     }
@@ -103,10 +113,8 @@ object Utils {
         val fileSize = file.length
         val stream = new FileInputStream(file)
         val buffer = stream.getChannel.map(READ_ONLY, 0, fileSize)
-        var n = 0
-        while (n < size) {
+        for (n <- arr.indices) {
           arr(n) = buffer.getInt()
-          n += 1
         }
         Some(arr)
       } else {
@@ -128,10 +136,8 @@ object Utils {
         val fileSize = file.length
         val stream = new FileInputStream(file)
         val buffer = stream.getChannel.map(READ_ONLY, 0, fileSize)
-        var n = 0
-        while (n < size) {
+        for (n <- arr.indices) {
           arr(n) = buffer.getFloat()
-          n += 1
         }
         Some(arr)
       } else {

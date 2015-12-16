@@ -16,7 +16,7 @@ import scala.math.abs
  */
 object ContourRank {
 
-  lazy val ranks: Array[Array[Float]] = Array.fill[Float](2, contours)(0.0.toFloat)
+  lazy val ranks: Array[Array[Float]] = Array.fill[Float](2, contours)(0.toFloat)
 
   def propagateRanks(iteration: Int): Unit = {
     for (part <- 0 until parts) {
@@ -48,7 +48,10 @@ object ContourRank {
     if (!(0 until parts).map(iterationExists(rankMapFilename, _)).forall(identity)) {
       throw new Exception("Saved mapping is incomplete! (not enough parts)")
     }
-    for (iteration <- 0 until iterations) {
+    for (n <- ranks(0).indices) {
+      ranks(0)(n) = 1.toFloat
+    }
+    for (iteration <- 1 to iterations) {
       loadArrayDouble(rankArrayFilename, Some(iteration)) match {
         case Some(arr) => ranks(iteration % 2) = arr
         case _ => {
@@ -60,15 +63,15 @@ object ContourRank {
     }
   }
 
-  val parts = 1000
-  val contours: Int = 43046721 + 1
-
   def loadRanks: Array[Int] = {
     loadArrayInt(rankArrayFilename) match {
       case Some(arr) => arr
       case _ => throw new Exception(s"Could not find rank array file at $rankArrayFilename!")
     }
   }
+
+  val parts = 1000
+  val contours: Int = 43046721 + 1
 
   def computeMap() = {
     executeInSpark { sc =>
