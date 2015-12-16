@@ -13,8 +13,7 @@ object Common {
     "org.scala-lang.modules"  %%  "scala-pickling"  % "0.10.1",
     "org.specs2"              %%  "specs2-core"     % "2.3.11"  % "test",
     "org.scalatest"           %   "scalatest_2.11"  % "2.2.4"   % "test",
-    "org.scalacheck"          %%  "scalacheck"      % "1.12.5"  % "test",
-    "org.scala-saddle"        %%  "saddle-core"     % "1.3.+"
+    "org.scalacheck"          %%  "scalacheck"      % "1.12.5"  % "test"
 
   )
 
