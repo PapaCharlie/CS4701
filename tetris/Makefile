@@ -37,6 +37,9 @@ loadRanks:
 playRanked:
 	$(SBT) "run playRanked"
 
+tetrominoes:
+	$(SBT) "run tetrominoes"
+
 install:
 	test -e $(SBT_TAR) || wget $(SBT_URL)
 	tar xzf $(SBT_TAR)

@@ -3,6 +3,7 @@ package tetris
 import Utils._
 import tetris.strategies.RankedGame
 import tetris.strategies.Strategy.GameLostException
+import tetris.tetrominoes.Tetromino._
 
 object Main extends App {
 
@@ -15,6 +16,11 @@ object Main extends App {
   args.headOption.getOrElse("playRanked") match {
     case "computeMap" => ContourRank.computeMap()
     case "runIterations" => ContourRank.runIterations(4)
+    case "tetrominoes" => {
+      for (p <- pieces.flatMap(_.allRotations)) {
+        printTetromino(p)
+      }
+    }
     case "loadRanks" => ContourRank.loadRanks
     case "playRanked" => {
       import tetrominoes.{S, Z}

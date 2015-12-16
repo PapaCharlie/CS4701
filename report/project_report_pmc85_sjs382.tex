@@ -2,7 +2,7 @@
 \linespread{1.5}
 % \usepackage[margin=2.5cm]{geometry}
 \usepackage[margin=2.5cm, headheight=0pt, headsep=1cm]{geometry}
-\usepackage{enumerate, fancyhdr, graphicx, amsmath, float}
+\usepackage{enumerate, fancyhdr, graphicx, amsmath, float, subcaption}
 \usepackage{hyperref}
 
 
@@ -27,31 +27,39 @@
 \begin{document}
 \maketitle
 \thispagestyle{empty}
-\begin{figure}[H]
-  \centering
-  \includegraphics[height=125pt]{tetris}
-  \caption{The \tetris{} Logo}
-  \label{fig:the_tetris}
-\end{figure}
-\begin{figure}[H]
-  \centering
-  \includegraphics[height=300pt]{tetris_screen}
-  \caption{A \tetris{} game in action}
-  \label{fig:the_tetris_board}
-\end{figure}
+% \begin{figure}[H]
+%   \centering
+%   \includegraphics[height=125pt]{figures/tetris}
+%   \caption{The \tetris{} Logo}
+%   \label{fig:the_tetris}
+% \end{figure}
+% \begin{figure}[H]
+%   \centering
+%   \includegraphics[height=300pt]{figures/tetris_screen}
+%   \caption{A \tetris{} game in action}
+%   \label{fig:the_tetris_board}
+% \end{figure}
 % \figure{\center{\includegraphics[height=300pt]{tetris_screen}}}
 \newpage
 \section{Abstract}
 \label{sec:abstract}
 
-\par We built a \tetris{} bot that plays \tetris{}, the Russian tile-matching puzzle video game. It has been shown that \tetris{} is NP-C \cite{tetrishard}, so none of our solutions are, or can be (assuming $P \neq NP$), perfect.  We solved it by simplifying the contour (of the top of the \tetris{} blocks on the board) into a sequence of incremental changes in height going left to right. Then we computed the rank of all possible contours iteratively, and ranked them. Then we used the PageRank algorithm to decide which pieces (and which orientations/locations) to go with. We also attempted a MiniMax solution, but were unable to complete it, but the attempt is discussed as well.
+\par It has been shown that \tetris{}, the Russian tile-stacking puzzle video game, is NP-Complete \cite{tetrishard}. This project sought to try to approximate a solution to \tetris{} that plays well according to human standards. Evidently, no solutions can be perfect (assuming $P \neq NP$), but one can still try. The current algorithm approximates a solution by ranking the contour (the shape of the top of the stack) using a method akin to Google's PageRank algorithm, then choosing the sequence of Tetrominoes (\tetris{} pieces) that lead to the highest ranking stack.
 
+\section{Introduction to \tetris{}}
+\label{sec:introduction_to_tetris}
+\par The mechanics of \tetris{} are beautifully simple. The user begins with an game board, henceforth referred to as the ``stack'', 10 units wide and 20 units high. Then the user is given a random sequence of the \tetris{} pieces, or Tetrominoes, shown in Figure~\ref{fig:the_7_tetrominoes}
 
-
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.4\textwidth]{figures/pieces}
+  \caption{The 7 Tetrominoes J, L, O, S, T, Z and I }
+  \label{fig:the_7_tetrominoes}
+\end{figure}
 
 \section{Motivation}
 \label{sec:motivation}
-One of us is a super \tetris{}fan, and we thought it would be fun to make something that does well on a NP-Complete problem.
+The current wwol
 
 
 \section{Initial Attempts}
