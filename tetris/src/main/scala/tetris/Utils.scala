@@ -2,8 +2,6 @@ package tetris
 
 import java.io.{File, FileInputStream, FileOutputStream}
 import java.nio.ByteBuffer
-import scala.math.BigDecimal
-
 
 import org.apache.commons.io.IOUtils
 import org.apache.spark.{SparkConf, SparkContext}
@@ -16,8 +14,13 @@ import scala.collection.mutable.HashMap
  */
 object Utils {
 
-  def executeInSpark[T](fun: SparkContext => T): T = {
-    val conf = new SparkConf().setMaster("local[*]").setAppName("tetris")
+  implicit val workers : Option[Int] = None
+
+  def executeInSpark[T](fun: SparkContext => T)(implicit workers: Option[Int] = None): T = {
+    val conf = workers match {
+      case Some(i) => new SparkConf().setMaster(s"local[$i]").setAppName("tetris")
+      case _ => new SparkConf().setMaster("local[*]").setAppName("tetris")
+    }
     val sc = new SparkContext(conf)
     val res = fun(sc)
     sc.stop()

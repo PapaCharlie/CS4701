@@ -14,20 +14,29 @@ import scala.math.abs
 /**
  * Created by papacharlie on 10/30/15.
  */
-class ContourRank(iterations: Int = 2) {
-
-  import ContourRank._
+object ContourRank {
 
   lazy val ranks: Array[Array[Int]] = Array.fill[Int](2, contours)(1)
 
   def propagateRanks(iteration: Int): Unit = {
     for (part <- 0 until parts) {
       println(s"${Calendar.getInstance.getTime.toString}: Starting part ${part + 1} of $parts")
-      val stackMap = loadHashMapInt(rankMapFilename, Some(part)).get // Already checked for existence
+      val stackMap = loadHashMapIntByte(rankMapFilename, Some(part)).get // Already checked for existence
       System.gc()
       for (contour <- (part * (contours / parts)) to ((part + 1) * (contours / parts))) {
-        if (stackMap.contains(contour)) {
-          ranks(iteration % 2)(contour) = stackMap(contour).map(ranks(abs(iteration - 1) % 2)(_)).sum
+        val pieceRanks = Array.fill[Int](pieces.length)(0)
+        val pieceLengths = Array.fill[Int](pieces.length)(0)
+        for (piece <- pieces){
+          if (stackMap.contains((contour, toID(piece)))) {
+//            ranks(iteration % 2)(contour) = stackMap(contour).map(ranks(abs(iteration - 1) % 2)(_)).sum
+            pieceRanks(toID(piece)) = stackMap((contour, toID(piece))).map(ranks(abs(iteration - 1) % 2)(_)).sum
+            pieceLengths(toID(piece)) = stackMap((contour, toID(piece))).length
+          }
+        }
+        if (pieceRanks.count(_ != 0) < pieceRanks.length - 1) {
+          ranks(iteration % 2)(contour) = 0
+        } else {
+          ranks(iteration % 2)(contour) = pieceRanks.sum / pieceRanks.length
         }
       }
       println(s"${Calendar.getInstance.getTime.toString}: Finished part ${part + 1}")
@@ -35,7 +44,7 @@ class ContourRank(iterations: Int = 2) {
     saveArrayInt(rankArrayFilename, ranks(iteration % 2), Some(iteration))
   }
 
-  def runIterations(): Unit = {
+  def runIterations(iterations: Int = 2): Unit = {
     if (!(0 until parts).map(iterationExists(rankMapFilename, _)).forall(identity)) {
       throw new Exception("Saved mapping is incomplete! (not enough parts)")
     }
@@ -51,10 +60,6 @@ class ContourRank(iterations: Int = 2) {
     }
   }
 
-}
-
-object ContourRank {
-
   val parts = 1000
   val contours: Int = 43046721 + 1
 
@@ -69,7 +74,7 @@ object ContourRank {
     executeInSpark { sc =>
       val data = 0 until ContourRank.parts
       sc.parallelize(data).map(ContourRank.computeMapPart).collect()
-    }
+    }(Some(2))
   }
 
   def computeMapPart(part: Int): Unit = {
