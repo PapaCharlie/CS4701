@@ -16,7 +16,7 @@ import scala.math.abs
  */
 object ContourRank {
 
-  lazy val ranks: Array[Array[Float]] = Array.fill[Float](2, contours)(0.0)
+  lazy val ranks: Array[Array[Float]] = Array.fill[Float](2, contours)(0.0.toFloat)
 
   def propagateRanks(iteration: Int): Unit = {
     for (part <- 0 until parts) {
