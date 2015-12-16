@@ -41,7 +41,7 @@ class Stack(val pieces: IndexedSeq[IndexedSeq[(Boolean, Color)]] = emptyStack) {
 
   private def highestY(x: Int): Int = pieces(x).map(_._1).lastIndexOf(true)
 
-  def +(p: Tetromino): Option[Stack] = {
+  def +(p: Tetromino, checkRows: Boolean = true): Option[Stack] = {
     def fitPiece(y: Int): Option[Seq[Square]] = {
       if (p.fits && y <= height) {
         val squares = p.getSquares(y)
@@ -57,9 +57,15 @@ class Stack(val pieces: IndexedSeq[IndexedSeq[(Boolean, Color)]] = emptyStack) {
 
     fitPiece(highestY(p.x)) match {
       case Some(squares) => {
-        val newPieces = clearRows(squares.foldLeft(pieces) { case (stack, (x, y)) =>
-          stack.updated(x, stack(x).updated(y, (true, p.color)))
-        })
+        val newPieces = if (checkRows) {
+          clearRows(squares.foldLeft(pieces) { case (stack, (x, y)) =>
+            stack.updated(x, stack(x).updated(y, (true, p.color)))
+          })
+        } else {
+          squares.foldLeft(pieces) { case (stack, (x, y)) =>
+            stack.updated(x, stack(x).updated(y, (true, p.color)))
+          }
+        }
         Some(new Stack(newPieces))
       }
       case _ => None
@@ -119,7 +125,7 @@ object Stack extends {
 
   val width = 9
 
-  def emptyStack: IndexedSeq[IndexedSeq[(Boolean, Color)]] = {
+  private def emptyStack: IndexedSeq[IndexedSeq[(Boolean, Color)]] = {
     val column: IndexedSeq[(Boolean, Color)] = (0 to height).map { x => (false, new Black) }
     (0 to width).map(x => column)
   }

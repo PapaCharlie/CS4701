@@ -6,6 +6,8 @@ SBT_URL := https://dl.bintray.com/sbt/native-packages/sbt/0.13.9/sbt-0.13.9.tgz
 SBT_TAR := sbt-0.13.9.tgz
 SBT := $(shell which sbt 2> /dev/null || echo sbt/bin/sbt)
 
+# TARGS = $(shell cat src/main/scala/tetris/Main.scala | grep -o 'case ".*"' | sed 's,",,g' | grep -oP '\w*$$')
+
 all: compile
 
 compile:
@@ -28,8 +30,8 @@ run:
 computeMap:
 	$(SBT) "run computeMap"
 
-runIterations:
-	$(SBT) "run runIterations"
+showRowClear:
+	$(SBT) "run showRowClear"
 
 loadRanks:
 	$(SBT) "run loadRanks"
