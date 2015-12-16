@@ -14,7 +14,7 @@ object Main extends App {
 
   args.headOption.getOrElse("playRanked") match {
     case "computeMap" => ContourRank.computeMap()
-    //    case "runIterations" => ContourRank.runIterations(4)
+    case "runIterations" => ContourRank.runIterations(4)
     case "loadRanks" => ContourRank.loadRanks
     case "playRanked" => {
       import tetrominoes.{S, Z}
