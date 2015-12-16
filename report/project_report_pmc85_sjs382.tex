@@ -1,4 +1,4 @@
-\documentclass[ fontsize=11pt]{article}
+\documentclass{article}
 \linespread{1.5}
 % \usepackage[margin=2.5cm]{geometry}
 \usepackage[margin=2.5cm, headheight=0pt, headsep=1cm]{geometry}
@@ -16,7 +16,7 @@
 \fancyhead{}
 \lhead{pmc85 \& sjs382}
 \chead{Old School \tetris{} Meets Machine Learning}
-\rhead{\today}
+\rhead{\tetris{}}
 \fancyfoot{}
 \rfoot{\thepage}
 \lfoot{\includegraphics[height=20pt]{Logo}}
@@ -41,6 +41,7 @@
 \end{figure}
 % \figure{\center{\includegraphics[height=300pt]{tetris_screen}}}
 \newpage
+% \twocolumn
 \section{Abstract}
 \label{sec:abstract}
 
@@ -57,6 +58,10 @@ One of us is a super \tetris{}fan, and we thought it would be fun to make someth
 \section{Initial Attempts}
 \label{sec:initial_attempts}
 
+
+
+\subsection{PageRank}
+
 \subsection{MiniMax}
 \par We tried to maximize the pieces placement in a way that would minimize the possible damage/maximize the least expected outcome of the next few pieces the \tetris{} board provides by using the MiniMax approach.
 \subsubsection{Heuristic}
@@ -72,22 +77,40 @@ One of us is a super \tetris{}fan, and we thought it would be fun to make someth
 
 \par We weren't quite sure how to implement this though since we did not know how to weight each feature appropriately besides running it a million times over, which was too slow.
 
-\subsubsection{Issues}
-\par The size of the state space leads to some issues. There are about $10-40$ places to put a piece if you know which one it is (each piece has between 1 an 4 rotations and ~10 spots you can put it in), and $~190$ places you can put a piece each round for an unknown piece. So to do this n-places into the unknown piece space you have about $160*190^n$ pieces, which ends up being on the order of $10^{2n + 2}$ each round, even looking 4 pieces ahead into the unknown can take $10^{10}$ possible boards to check, which does not take a trivial amount of time.
+\subsubsection{The Tree}
+
+\par We began by choosing trees that would be good regardless of what the unknown pieces would be, this meant leaving out what would probably have been good choices assuming we didn't get the one or two pieces, or combinations, that messed it up. Later, we considered weighing the loss according to its likelihood, though we were unsure how to make that work in terms of discounting the negative value of a branch.
+
+\par We memoized the algorithm by keeping the trees in memory and clipping relevant branches as we went on, and just recomputed the last branch from there so as to save time.
 
 \section{Challenges Faced}
 \label{sec:challenges_faced}
 
-\par Scala optimization
+\subsection{Size of State Space}
+
+\par The size of the state space leads to some issues. There are about $10-40$ places to put a piece if you know which one it is (each piece has between 1 an 4 rotations and ~10 spots you can put it in), and $~190$ places you can put a piece each round for an unknown piece. So to do this n-places into the unknown piece space you have about $160*190^n$ pieces, which ends up being on the order of $10^{2n + 2}$ each round, even looking 3 pieces ahead into the unknown can take $10^{8}$ possible boards to check, which does not take a trivial amount of time.
+
+\par This issue is made even worse for our PageRank algorithm, which has to literally check every single possible board. The size of this table ended up being larger than our RAM, so we had to write it to disk. This leads to very slow read times since it is incredibly rare that we get a cache hit (since boards don't tend to repeat anywhere near frequently enough to get hit).
+
+\subsection{Scala issues}
+
+\par Scala, a coding language that is a superset of Java, kept optimizing our for loops. It also had trouble efficiently dealing with the binary files (in terms of I/O) that we had to write our massive rankings data to.
 
 
 \section{Current Version}
 \label{sec:current_version}
 
+\par The current version is our PageRank version.
 
 
 \section{Conclusion}
 \label{sec:conclusion}
+
+\par Dealing with the computational difficulties of the problem, instead of just the theoretical and comprehension related difficulties like we do in our normal class, was educational. It brought to life the issues that our choices of algorithm and implementation would bring.
+
+\par Checking every possible combination is nice, but looking for ways to not have to do that would be ideal because the size gets out of hand quickly. We knew this before, but this was a nice demonstration of that on what one would have though is a simple problem (since it is one of the original video games).
+
+
 
 \newpage
 
