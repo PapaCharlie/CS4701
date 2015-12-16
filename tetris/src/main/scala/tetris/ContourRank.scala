@@ -16,7 +16,7 @@ import scala.math.abs
  */
 object ContourRank {
 
-  lazy val ranks: Array[Array[Int]] = Array.fill[Int](2, contours)(1)
+  lazy val ranks: Array[Array[Float]] = Array.fill[Float](2, contours)(0.toFloat)
 
   def propagateRanks(iteration: Int): Unit = {
     for (part <- 0 until parts) {
@@ -24,7 +24,7 @@ object ContourRank {
       val stackMap = loadHashMapIntByte(rankMapFilename, Some(part)).get // Already checked for existence
       System.gc()
       for (contour <- (part * (contours / parts)) to ((part + 1) * (contours / parts))) {
-        val pieceRanks = Array.fill[Int](pieces.length)(0)
+        val pieceRanks = Array.fill[Float](pieces.length)(0)
         val pieceLengths = Array.fill[Int](pieces.length)(0)
         for (piece <- pieces){
           if (stackMap.contains((contour, toID(piece)))) {
@@ -33,7 +33,7 @@ object ContourRank {
             pieceLengths(toID(piece)) = stackMap((contour, toID(piece))).length
           }
         }
-        if (pieceRanks.count(_ != 0) < pieceRanks.length - 1) {
+        if (pieceLengths.count(_ == 0) > 1) {
           ranks(iteration % 2)(contour) = 0
         } else {
           ranks(iteration % 2)(contour) = pieceRanks.sum / pieceRanks.length
@@ -41,15 +41,18 @@ object ContourRank {
       }
       println(s"${Calendar.getInstance.getTime.toString}: Finished part ${part + 1}")
     }
-    saveArrayInt(rankArrayFilename, ranks(iteration % 2), Some(iteration))
+    saveArrayDouble(rankArrayFilename, ranks(iteration % 2), Some(iteration))
   }
 
   def runIterations(iterations: Int = 2): Unit = {
     if (!(0 until parts).map(iterationExists(rankMapFilename, _)).forall(identity)) {
       throw new Exception("Saved mapping is incomplete! (not enough parts)")
     }
-    for (iteration <- 0 until iterations) {
-      loadArrayInt(rankArrayFilename, Some(iteration)) match {
+    for (n <- ranks(0).indices) {
+      ranks(0)(n) = 1.toFloat
+    }
+    for (iteration <- 1 to iterations) {
+      loadArrayDouble(rankArrayFilename, Some(iteration)) match {
         case Some(arr) => ranks(iteration % 2) = arr
         case _ => {
           println(s"${Calendar.getInstance.getTime.toString}: Starting iteration ${iteration + 1} of $iterations")
@@ -60,15 +63,15 @@ object ContourRank {
     }
   }
 
-  val parts = 1000
-  val contours: Int = 43046721 + 1
-
   def loadRanks: Array[Int] = {
     loadArrayInt(rankArrayFilename) match {
       case Some(arr) => arr
       case _ => throw new Exception(s"Could not find rank array file at $rankArrayFilename!")
     }
   }
+
+  val parts = 1000
+  val contours: Int = 43046721 + 1
 
   def computeMap() = {
     executeInSpark { sc =>

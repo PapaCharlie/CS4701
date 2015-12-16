@@ -4,14 +4,14 @@ import tetris.Stack._
 import tetris.strategies.Strategy.GameLostException
 import tetris.tetrominoes.Tetromino
 import tetris.tetrominoes.Tetromino._
-import tetris.{Contour, Main, Randomizer, Stack}
+import tetris.{Contour, Main}
 
 import scala.util.Random.{nextBoolean, shuffle}
 
 /**
  * Created by papacharlie on 11/18/15.
  */
-class RankedGame(peek: Int = 4, levels: Int = 5) extends Strategy {
+class RankedGame(peek: Int = 2, levels: Int = 3) extends Strategy {
 
   val ranks = Main.ranks
 
@@ -34,7 +34,11 @@ class RankedGame(peek: Int = 4, levels: Int = 5) extends Strategy {
               contour + newPiece match {
                 case Some(c) => {
                   getBest(c, depth + 1) match {
-                    case Some((rank, seq)) if rank >= bestRank => {
+                    case Some((rank, seq)) if rank > bestRank => {
+                      bestSeq = newPiece +: seq
+                      bestRank = rank
+                    }
+                    case Some((rank, seq)) if rank == bestRank => {
                       if (nextBoolean()) {
                         bestSeq = newPiece +: seq
                         bestRank = rank
@@ -62,8 +66,6 @@ class RankedGame(peek: Int = 4, levels: Int = 5) extends Strategy {
       }
       case _ => throw new GameLostException(s"Could not place $next on stack")
     }
-
-
   }
 
 }

@@ -28,7 +28,7 @@ object Common {
     resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
     run in Compile <<= Defaults.runTask(fullClasspath in Compile, mainClass in (Compile, run), runner in (Compile, run)),
     scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8", "-optimise"),
-    javaOptions ++= Seq("-d64", "-Xms512m", "-Xmx4g")
+    javaOptions ++= Seq("-d64", "-Xms1g", "-Xmx4g")
     // initialize := {
     //   val required = "1.8"
     //   val current = sys.props("java.specification.version")

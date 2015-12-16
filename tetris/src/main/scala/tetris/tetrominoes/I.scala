@@ -19,11 +19,11 @@ case class I(x: Int = 0, rotation: Int = 0) extends Tetromino {
     case 1 => shape1
   }
 
-  def rotate = S(x, (rotation + 1) % 2)
+  def rotate = I(x, (rotation + 1) % 2)
 
-  def allRotations: Seq[S] = (0 to 1).map(new S(x, _))
+  def allRotations: Seq[I] = (0 to 1).map(new I(x, _))
 
-  def copy(x: Int = 0, rotation: Int = 0): S = new S(x, rotation)
+  def copy(x: Int = 0, rotation: Int = 0): I = new I(x, rotation)
 
   def color = new Cyan
 

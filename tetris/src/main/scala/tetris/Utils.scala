@@ -1,7 +1,7 @@
 package tetris
 
-import java.io.{File, FileInputStream, FileOutputStream}
-import java.nio.ByteBuffer
+import java.io.{DataOutputStream, File, FileInputStream, FileOutputStream}
+import java.nio.channels.FileChannel.MapMode._
 
 import org.apache.commons.io.IOUtils
 import org.apache.spark.{SparkConf, SparkContext}
@@ -60,23 +60,6 @@ object Utils {
   val rankArrayFilename = "ranks/rank_array.arr"
   val rankMapFilename = "maps/rank_map.map"
 
-  def intToByteArray(n: Int): String = {
-    (3 to 0 by -1).map(p => ((n >> (p * 8)) & 255).toChar).mkString
-  }
-
-  def doubleToByteArray(x: Double) = {
-    val l = java.lang.Double.doubleToLongBits(x)
-    ByteBuffer.allocate(8).putLong(l).array()
-  }
-
-  def byteArrayToDouble(x: Array[Byte]) = {
-    ByteBuffer.wrap(x).getDouble
-  }
-
-  def byteArrayToInt(seq: Iterable[Byte]): Int = {
-    seq.foldLeft(0) { case (i, c) => i << 8 | c }
-  }
-
   def biggestPart(filename: String): Option[String] = {
     val f = filename.split(File.separator)
     f.take(f.length - 1).mkString(File.separator) match {
@@ -87,8 +70,14 @@ object Utils {
 
   def saveArrayInt(filename: String, arr: Array[Int], iteration: Option[Int] = None): Unit = {
     def save(filename: String) = {
-      val file = new FileOutputStream(filename)
-      arr.foreach(n => IOUtils.write(intToByteArray(n), file))
+      val file = new DataOutputStream(new FileOutputStream(filename))
+      for (n <- arr.indices) {
+        file.writeFloat(arr(n))
+        if (n % 128 == 0) { // per block size
+          file.flush()
+        }
+      }
+      file.flush()
       file.close()
     }
     iteration match {
@@ -97,10 +86,16 @@ object Utils {
     }
   }
 
-  def saveArrayDouble(filename: String, arr: Array[Double], iteration: Option[Int] = None): Unit = {
+  def saveArrayDouble(filename: String, arr: Array[Float], iteration: Option[Int] = None): Unit = {
     def save(filename: String) = {
-      val file = new FileOutputStream(filename)
-      arr.foreach(n => IOUtils.write(doubleToByteArray(n).reverse, file))
+    val file = new DataOutputStream(new FileOutputStream(filename))
+      for (n <- arr.indices) {
+        file.writeFloat(arr(n))
+        if (n % 128 == 0) { // per block size
+          file.flush()
+        }
+      }
+      file.flush()
       file.close()
     }
     iteration match {
@@ -108,14 +103,18 @@ object Utils {
       case _ => save(filename)
     }
   }
+
 
   def loadArrayInt(filename: String, iteration: Option[Int] = None, size: Int = ContourRank.contours): Option[Array[Int]] = {
     def load(filename: String): Option[Array[Int]] = {
       if (new File(filename).exists()) {
         val arr = Array.fill[Int](size)(0)
-        val file = new FileInputStream(filename)
-        for (n <- 0 until size) {
-          arr(n) = byteArrayToInt((3 to 0 by -1).map(_ => file.read().toByte))
+        val file = new File(filename)
+        val fileSize = file.length
+        val stream = new FileInputStream(file)
+        val buffer = stream.getChannel.map(READ_ONLY, 0, fileSize)
+        for (n <- arr.indices) {
+          arr(n) = buffer.getInt()
         }
         Some(arr)
       } else {
@@ -129,15 +128,16 @@ object Utils {
     }
   }
 
-  def loadArrayDouble(filename: String, iteration: Option[Int] = None, size: Int = ContourRank.contours): Option[Array[Double]] = {
-    def load(filename: String): Option[Array[Double]] = {
+  def loadArrayDouble(filename: String, iteration: Option[Int] = None, size: Int = ContourRank.contours): Option[Array[Float]] = {
+    def load(filename: String): Option[Array[Float]] = {
       if (new File(filename).exists()) {
-        val arr = Array.fill[Double](size)(0.0)
-        val buf = Array.fill[Byte](8)(0)
-        val file = new FileInputStream(filename)
-        for (n <- 0 until size) {
-          (7 to 0 by -1).foreach(i => buf(i) = file.read().toByte)
-          arr(n) = byteArrayToDouble(buf)
+        val arr = Array.fill[Float](size)(0.0.toFloat)
+        val file = new File(filename)
+        val fileSize = file.length
+        val stream = new FileInputStream(file)
+        val buffer = stream.getChannel.map(READ_ONLY, 0, fileSize)
+        for (n <- arr.indices) {
+          arr(n) = buffer.getFloat()
         }
         Some(arr)
       } else {
