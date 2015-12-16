@@ -1,4 +1,4 @@
-\documentclass{article}
+\documentclass[fontsize=12pt]{article}
 \linespread{1.5}
 % \usepackage[margin=2.5cm]{geometry}
 \usepackage[margin=2.5cm, headheight=0pt, headsep=1cm]{geometry}
@@ -33,14 +33,13 @@
   backgroundcolor=\color{Background},basicstyle=\ttfamily\small\setstretch{1},breaklines=true,commentstyle=\color{Comments}\slshape,emph={self},emphstyle={\color{self}\slshape},frame=l,framexbottommargin=2em,framextopmargin=2em,keywordstyle={[2]\color{Decorators}\slshape},keywordstyle={\color{Keywords}\bfseries},morekeywords={abstract,case,catch,class,def,do,else,extends,false,final,finally,for,if,implicit,import,lazy,match,mixin,new,null,object,override,package,private,protected,requires,return,sealed,er,this,throw,trait,true,try,type,val,var,while,with,yield},otherkeywords={=>,<-,<\%,<:,>:,\#,@},sensitive=true,morecomment=[l]{//},morecomment=[n]{/*}{*/},morestring=[b]",morestring=[b]',morestring=[b]""",numbers=left,numbersep=1em,numberstyle=\footnotesize,showspaces=false,showstringspaces=false,showtabs=false,stringstyle=\color{Strings},tabsize=4,xleftmargin=1em,
 }
 
-
 \begin{document}
 \maketitle
 \thispagestyle{empty}
 \section{Abstract}
 \label{sec:abstract}
 
-\par It has been shown that \tetris{}, the Russian tile-stacking puzzle video game, is NP-Complete \cite{tetrishard}. This project sought to try to approximate a solution to \tetris{} that plays well according to human standards. Evidently, no solutions can be perfect (assuming $P \neq NP$), but one can still try. The current algorithm approximates a solution by ranking the contour (the shape of the top of the stack) using a method akin to Google's PageRank algorithm, then choosing the sequence of Tetrominoes (\tetris{} pieces) that lead to the highest ranking stack.
+\par It has been shown that \tetris{}, the Russian tile-stacking puzzle video game, is NP-Complete \cite{bib:tetrishard}. This project sought to try to approximate a solution to \tetris{} that plays well according to human standards. Evidently, no solutions can be perfect (assuming $P \neq NP$), but one can still try. The current algorithm approximates a solution by ranking the contour (the shape of the top of the stack) using a method akin to Google's PageRank algorithm, then choosing the sequence of Tetrominoes (\tetris{} pieces) that lead to the highest ranking stack.
 
 \section{Getting computers to play \tetris{}}
 \label{sec:getting_computers_to_play_tetris}
@@ -66,12 +65,6 @@
   \label{fig:placing_an_i_piece_to_clear_a_row}
 \end{figure}
 
-% \figure{\center{\includegraphics[height=300pt]{tetris_screen}}}
-\newpage
-% \twocolumn
-\section{Abstract}
-\label{sec:abstract}
-
 \subsection{Representations}
 \label{sub:representations}
 \subsubsection{Tetrominoes}
@@ -83,30 +76,31 @@
 \end{align}
 With these lists and a given pair of coordinates $(x,y)$, finding the location of each square of a given tetromino only requires translating $(x,y)$ by each vector in the list.
 
+\subsubsection{The Stack}
+\label{ssub:the_stack}
 \subsubsection{Arrays}
-\label{ssub:array}
-\par One way to represent a stack is with an array. In this case, the stack was represented as a $10\times 20$ two dimensional array, where each square in the theoretical stack maps to an element in the array. One square is represented as a tuple $(s,c)$ where $s$ is a boolean representing whether or not there exists a square in the stack at that location, and $c$ is the color of that square \footnote{Again, $c$ is only kept for graphical purposes and plays no role in the actual implementation}. It then becomes really easy to traverse the array to figure out whether a row is full.
-
+\label{ssub:arrays}
+\par One way to represent a stack is with an array. In this case, the stack was represented as a $10\times 20$ two dimensional array, where each square in the theoretical stack maps to an element in the array. One square is represented as a tuple $(s,c)$ where $s$ is a boolean representing whether or not there exists a square in the stack at that location, and $c$ is the color of that square \footnote{Again, $c$ is only kept for graphical purposes and plays no role in the actual implementation}. In this implementation, traversing the array to figure out whether or not a row is full is very straightforward.
+\par Adding a tetromino to such a stack is a little more difficult. The player (human or otherwise) only has a choice between which column the center of mass of the tetromino will fall on, and at which height the piece will settle is entirely dependent on the current state of the stack. To find which height the tetromino should settle at, all we need to do is iteratively try to place the tetromino higher and higher starting at the current height of the specified column plus one. If at any time, any of the squares in the tetromino occupy a square that is already full, this height must be invalid, and we must try again one unit higher. Once all the squares fit and occupy what were empty spaces, return the new stack. This is a little slow, but is the only way to find a position where the tetromino fits.
+\subsubsection{Contour}
+\label{ssub:contour}
+\par The other way to represent a stack, according to Ryan Heise's similar attempt at playing \tetris{} \cite{bib:ryan_heise}, is by only keeping track of the shape of the stack's contour. The stack's contour is defined by the height of each individual column minus the height of the shortest column. Suppose we maintain the guarantee that the stack is always full, i.e. never has holes, and one of the outermost columns is always kept empty. In this case, two stacks of different heights can have the same contour, and all stacks with the same contour can be treated equally. Heise also introduced a method of serializing this contour to a single integer. A stack can be represented as a sequence of ``relative difference in height between one column and the next'', with the slight subtlety that an absolute difference greater than 4 will be cut to -4 and 4 accordingly. This sacrifice in complexity is argued to be mostly harmless under the guise that two such stacks will behave similarly. Given this sequence of numbers between -4 and 4, we can add 4 to each and string them together to get a base 9 integers. There is therefore a 1 to 1 mapping between contours and integers, which allows us to hash the contour.
+\par We can also add tetrominoes directly to a contour, given a desired column. First, transform the contour back into a list of heights. Then, for the desired column, attempt to place the tetromino at that height plus the height of the tetromino's center of mass. For all columns of height $h$, if the tetromino adds $n$ squares to that column, check that all those squares are at height $\leq h + n$. If not, then placing the tetromino at that height must have put a hole in the stack. This violates the invariant that a contour represents a stack with no holes, and therefore that tetromino cannot be placed in this spot. This is more efficient than the addition operation described above, since there are fewer squares to check.
 
 \subsection{Relaxations}
 \label{sub:relaxations}
 \begin{description}
-  \item[Scoring] The scoring scheme outlined above is unfortunately quite complex. Additionally, every implementation of \tetris{}
-  \item[Timing]
+  \item[Scoring] The scoring scheme outlined above is unfortunately quite complex. Additionally, every implementation of \tetris{} uses a slightly different scheme. As such, given that there is no strong consensus and given the additional complexity, the decision was made to score a player by how many tetrominoes they can consecutively place without losing. This also implies that a bot can search for the best move only by looking at the expected life of the stack that it creates.
+  \item[Timing] Another important aspect of \tetris{} is that there is a time limit for every move. The first problem is that it is hard to interrupt a running algorithm and get the currently computed best move from it. The second problem is that computers are quite fast, and are expected to come up with the next best move rather quickly. As such, instead of setting arbitrarily low time limits on the players, no time limits were set under the assumptions that AI players would be too fast for it to matter anyway.
 \end{description}
 
-
-\section{Motivation}
-\label{sec:motivation}
-The current
+% \subsection{The Motivation}
+% \label{sub:the_motivation}
+% Some scientists have shown that \tetris{} is NP-Complete. In other words, there exists
 
 
 \section{Initial Attempts}
 \label{sec:initial_attempts}
-
-
-
-\subsection{PageRank}
 
 \subsection{MiniMax}
 \par We tried to maximize the pieces placement in a way that would minimize the possible damage/maximize the least expected outcome of the next few pieces the \tetris{} board provides by using the MiniMax approach.
@@ -129,24 +123,24 @@ The current
 
 \par We memoized the algorithm by keeping the trees in memory and clipping relevant branches as we went on, and just recomputed the last branch from there so as to save time.
 
-\section{Challenges Faced}
-\label{sec:challenges_faced}
+% \section{Challenges Faced}
+% \label{sec:challenges_faced}
 
-\subsection{Size of State Space}
+% \subsection{Size of State Space}
 
-\par The size of the state space leads to some issues. There are about $10-40$ places to put a piece if you know which one it is (each piece has between 1 an 4 rotations and ~10 spots you can put it in), and $~190$ places you can put a piece each round for an unknown piece. So to do this n-places into the unknown piece space you have about $160*190^n$ pieces, which ends up being on the order of $10^{2n + 2}$ each round, even looking 3 pieces ahead into the unknown can take $10^{8}$ possible boards to check, which does not take a trivial amount of time.
+% \par The size of the state space leads to some issues. There are about $10-40$ places to put a piece if you know which one it is (each piece has between 1 and 4 rotations and 10 spots you can put it in), and $190$ places you can put a piece each round for an unknown piece. So to do this n-places into the unknown piece space you have about $160*190^n$ pieces, which ends up being on the order of $10^{2n + 2}$ each round, even looking 3 pieces ahead into the unknown can take $10^{8}$ possible boards to check, which does not take a trivial amount of time.
 
-\par This issue is made even worse for our PageRank algorithm, which has to literally check every single possible board. The size of this table ended up being larger than our RAM, so we had to write it to disk. This leads to very slow read times since it is incredibly rare that we get a cache hit (since boards don't tend to repeat anywhere near frequently enough to get hit).
+% \par This issue is made even worse for our PageRank algorithm, which has to literally check every single possible board. The size of this table ended up being larger than our RAM, so we had to write it to disk. This leads to very slow read times since it is incredibly rare that we get a cache hit (since boards don't tend to repeat anywhere near frequently enough to get hit).
 
-\subsection{Scala issues}
+% \subsection{Scala issues}
 
-\par Scala, a coding language that is a superset of Java, kept optimizing our for loops. It also had trouble efficiently dealing with the binary files (in terms of I/O) that we had to write our massive rankings data to.
+% \par Scala, a coding language that is a superset of Java, kept optimizing our for loops. It also had trouble efficiently dealing with the binary files (in terms of I/O) that we had to write our massive rankings data to.
 
 
 \section{Current Version}
 \label{sec:current_version}
 
-\par The current version is our PageRank version.
+\par The current and best algorithm developed for this project uses an algorithm that is quite close to Google's PageRank algorithm. Given an arbitrary stack, it attempts to calculate a meaningful rank
 
 
 \section{Conclusion}
@@ -162,12 +156,13 @@ The current
 
 
 \begin{thebibliography}{9}
-\bibitem{tetrishard}
+\bibitem{bib:tetrishard}
 Erik D. Demaine, Susan Hohenberger, David Liben-Nowell
 \textit{
 Tetris is Hard, Even to Approximate}.
 \\\href{https://arxiv.org/abs/cs/0210020}{arXiv:cs/0210020}
-
+\bibitem{bib:ryan_heise}
+  \url{http://www.ryanheise.com/tetris/tetris_artificial_intelligence.html}
 \end{thebibliography}
 
 % \lstinputlisting[style=Scala]{../tetris/src/main/scala/tetris/Main.scala}

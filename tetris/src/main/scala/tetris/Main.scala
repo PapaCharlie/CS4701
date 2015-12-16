@@ -29,6 +29,12 @@ object Main extends App {
       println((s + I(7)).get)
     }
     case "loadRanks" => ContourRank.loadRanks
+    case "testContour" => {
+      val c = (new Stack).contour
+      println((c + T(4)).get.toStack)
+      val zerp = (c + T(4)).get
+      println((zerp + T(3,3)).get.toStack)
+    }
     case "playRanked" => {
       import tetrominoes.{S, Z}
       while (true) {

@@ -2,7 +2,7 @@ package tetris.strategies
 
 import tetris.Stack._
 import tetris.strategies.Strategy.GameLostException
-import tetris.tetrominoes.Tetromino
+import tetris.tetrominoes.{I, Tetromino}
 import tetris.tetrominoes.Tetromino._
 import tetris.{Contour, Main}
 
@@ -58,13 +58,16 @@ class RankedGame(peek: Int = 2, levels: Int = 3) extends Strategy {
   }
 
   def play() = {
-    val next = generator.preview(1).head
-    getBest(currentStack.contour) match {
-      case Some((_, hd :: _)) => {
-        currentStack = (currentStack + hd).get
-        generator.next()
-      }
-      case _ => throw new GameLostException(s"Could not place $next on stack")
+    generator.preview(1).head match {
+      case _: I => currentStack = (currentStack + I(width)).get
+      case next =>
+        getBest(currentStack.contour) match {
+          case Some((_, hd :: _)) => {
+            currentStack = (currentStack + hd).get
+            generator.next()
+          }
+          case _ => throw new GameLostException(s"Could not place $next on stack")
+        }
     }
   }
 
