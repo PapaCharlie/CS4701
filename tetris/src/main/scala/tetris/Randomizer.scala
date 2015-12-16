@@ -36,14 +36,14 @@ class Randomizer {
   /**
    * Non-destructive
    */
-  def preview(n: Int = 1): Seq[Tetromino] = {
+  def preview(n: Int = 1): IndexedSeq[Tetromino] = {
     if (toCome.length >= n) {
-      toCome.slice(0, n).toSeq
+      toCome.slice(0, n).toIndexedSeq
     } else {
       while (toCome.length != n) {
         pickAndEnqueue()
       }
-      toCome.slice(0, n).toSeq
+      toCome.slice(0, n).toIndexedSeq
     }
   }
 
