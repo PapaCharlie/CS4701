@@ -16,7 +16,7 @@ import scala.math.abs
  */
 object ContourRank {
 
-  lazy val ranks: Array[Array[Int]] = Array.fill[Int](2, contours)(1)
+  lazy val ranks: Array[Array[Double]] = Array.fill[Double](2, contours)(0.0)
 
   def propagateRanks(iteration: Int): Unit = {
     for (part <- 0 until parts) {
@@ -24,7 +24,7 @@ object ContourRank {
       val stackMap = loadHashMapIntByte(rankMapFilename, Some(part)).get // Already checked for existence
       System.gc()
       for (contour <- (part * (contours / parts)) to ((part + 1) * (contours / parts))) {
-        val pieceRanks = Array.fill[Int](pieces.length)(0)
+        val pieceRanks = Array.fill[Double](pieces.length)(0)
         val pieceLengths = Array.fill[Int](pieces.length)(0)
         for (piece <- pieces){
           if (stackMap.contains((contour, toID(piece)))) {
@@ -33,7 +33,7 @@ object ContourRank {
             pieceLengths(toID(piece)) = stackMap((contour, toID(piece))).length
           }
         }
-        if (pieceRanks.count(_ != 0) < pieceRanks.length - 1) {
+        if (pieceLengths.count(_ == 0) > 1) {
           ranks(iteration % 2)(contour) = 0
         } else {
           ranks(iteration % 2)(contour) = pieceRanks.sum / pieceRanks.length
@@ -41,7 +41,7 @@ object ContourRank {
       }
       println(s"${Calendar.getInstance.getTime.toString}: Finished part ${part + 1}")
     }
-    saveArrayInt(rankArrayFilename, ranks(iteration % 2), Some(iteration))
+    saveArrayDouble(rankArrayFilename, ranks(iteration % 2), Some(iteration))
   }
 
   def runIterations(iterations: Int = 2): Unit = {
@@ -49,7 +49,7 @@ object ContourRank {
       throw new Exception("Saved mapping is incomplete! (not enough parts)")
     }
     for (iteration <- 0 until iterations) {
-      loadArrayInt(rankArrayFilename, Some(iteration)) match {
+      loadArrayDouble(rankArrayFilename, Some(iteration)) match {
         case Some(arr) => ranks(iteration % 2) = arr
         case _ => {
           println(s"${Calendar.getInstance.getTime.toString}: Starting iteration ${iteration + 1} of $iterations")

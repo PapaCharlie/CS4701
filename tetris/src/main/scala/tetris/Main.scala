@@ -10,7 +10,7 @@ object Main extends App {
   mkdirp(maps)
 
   lazy val ranks = ContourRank.loadRanks
-  //  lazy val ranks = Array.fill[Int](ContourRank.contours)(10)
+//    lazy val ranks = Array.fill[Int](ContourRank.contours)(10)
 
   args.headOption.getOrElse("playRanked") match {
     case "computeMap" => ContourRank.computeMap()
