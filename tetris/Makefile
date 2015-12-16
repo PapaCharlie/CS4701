@@ -36,6 +36,9 @@ showRowClear:
 loadRanks:
 	$(SBT) "run loadRanks"
 
+runIterations:
+	$(SBT) "run runIterations"
+
 testContour:
 	$(SBT) "run testContour"
 
