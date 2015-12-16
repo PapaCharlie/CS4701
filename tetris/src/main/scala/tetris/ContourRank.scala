@@ -16,7 +16,7 @@ import scala.math.abs
  */
 object ContourRank {
 
-  lazy val ranks: Array[Array[Float]] = Array.fill[Float](2, contours)(0.0.toFloat)
+  lazy val ranks: Array[Array[Double]] = Array.fill[Double](2, contours)(0.0)
 
   def propagateRanks(iteration: Int): Unit = {
     for (part <- 0 until parts) {
@@ -24,7 +24,7 @@ object ContourRank {
       val stackMap = loadHashMapIntByte(rankMapFilename, Some(part)).get // Already checked for existence
       System.gc()
       for (contour <- (part * (contours / parts)) to ((part + 1) * (contours / parts))) {
-        val pieceRanks = Array.fill[Float](pieces.length)(0)
+        val pieceRanks = Array.fill[Double](pieces.length)(0)
         val pieceLengths = Array.fill[Int](pieces.length)(0)
         for (piece <- pieces){
           if (stackMap.contains((contour, toID(piece)))) {

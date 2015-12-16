@@ -81,10 +81,10 @@ object Utils {
     }
   }
 
-  def saveArrayDouble(filename: String, arr: Array[Float], iteration: Option[Int] = None): Unit = {
+  def saveArrayDouble(filename: String, arr: Array[Double], iteration: Option[Int] = None): Unit = {
     def save(filename: String) = {
     val file = new DataOutputStream(new FileOutputStream(filename))
-      arr.foreach(n => file.writeFloat(n))
+      arr.foreach(n => file.writeDouble(n))
       file.flush()
       file.close()
     }
@@ -120,17 +120,17 @@ object Utils {
     }
   }
 
-  def loadArrayDouble(filename: String, iteration: Option[Int] = None, size: Int = ContourRank.contours): Option[Array[Float]] = {
-    def load(filename: String): Option[Array[Float]] = {
+  def loadArrayDouble(filename: String, iteration: Option[Int] = None, size: Int = ContourRank.contours): Option[Array[Double]] = {
+    def load(filename: String): Option[Array[Double]] = {
       if (new File(filename).exists()) {
-        val arr = Array.fill[Float](size)(0.0.toFloat)
+        val arr = Array.fill[Double](size)(0.0)
         val file = new File(filename)
         val fileSize = file.length
         val stream = new FileInputStream(file)
         val buffer = stream.getChannel.map(READ_ONLY, 0, fileSize)
         var n = 0
         while (n < size) {
-          arr(n) = buffer.getFloat()
+          arr(n) = buffer.getDouble()
           n += 1
         }
         Some(arr)
