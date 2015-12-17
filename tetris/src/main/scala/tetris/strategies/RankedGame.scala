@@ -5,55 +5,59 @@ import tetris.strategies.Strategy.GameLostException
 import tetris.tetrominoes.{I, Tetromino}
 import tetris.tetrominoes.Tetromino._
 import tetris.{Contour, Main}
+import tetris.Utils._
 
-import scala.util.Random.{nextBoolean, shuffle}
+import scala.util.Random.{nextBoolean, nextInt, shuffle}
 
 /**
  * Created by papacharlie on 11/18/15.
  */
-class RankedGame(peek: Int = 3, levels: Int = 3) extends Strategy {
+class RankedGame(peek: Int = 4, levels: Int = 4) extends Strategy {
 
   private val ranks = Main.ranks
 
-  private def getBest(contour: Contour, depth: Int = 0, upcoming: IndexedSeq[Tetromino] = generator.preview(peek)): Option[(Int, Seq[Tetromino])] = {
+  private def getBest(contour: Contour, depth: Int = 0, upcoming: IndexedSeq[Tetromino] = generator.preview(peek)): (Option[Float], Option[Tetromino]) = {
     if (depth >= levels) {
-      Some((ranks(contour.toBase10), Seq()))
+      (Some(ranks(contour.toBase10)), None)
     } else {
       val toCheck = if (depth < upcoming.length) {
         Seq(upcoming(depth))
       } else {
         shuffle(pieces)
       }
-      var bestSeq: Seq[Tetromino] = Seq()
-      var bestRank = 0
-      toCheck.foreach { piece =>
-        (0 until width + 1).foreach { x =>
-          if (piece.getSquares(0).forall { case (x, _) => x < width }) {
-            (0 until 4).foreach { r =>
-              val newPiece = piece.copy(x, r)
-              contour + newPiece match {
-                case Some(c) => {
-                  getBest(c, depth + 1) match {
-                    case Some((rank, seq)) if rank > bestRank => {
-                      bestSeq = newPiece +: seq
-                      bestRank = rank
-                    }
-                    case Some((rank, seq)) if rank == bestRank => {
-                      if (nextBoolean()) {
-                        bestSeq = newPiece +: seq
-                        bestRank = rank
-                      }
-                    }
-                    case _ =>
-                  }
-                }
-                case _ => None
-              }
+      val pieceOptions = for (piece <- toCheck) yield {
+        val options = for (x <- 0 to width; r <- 0 until 4) yield {
+          val newPiece = piece.copy(x, r)
+          if (newPiece.getSquares(0).forall(_._1 < width)) {
+            contour + newPiece match {
+              case Some(c) => Some(newPiece, getBest(c, depth + 1)._1)
+              case _ => None
             }
+          } else {
+            None
           }
+        }.flatMap { case (p, Some(ra)) => Some(p, ra) case _ => None }
+        val positions = options.flatten
+        if (positions.nonEmpty) {
+          val best = positions.maxBy(_._2)
+          val allBest = positions.filter(_._2 == best._2)
+          println(best)
+          println(allBest.length)
+          (Some(best._2), Some(allBest(nextInt(allBest.length))._1))
+        } else {
+          (None, None)
         }
       }
-      Some((bestRank, bestSeq))
+      val possibleMoves = pieceOptions.flatMap { case (Some(x), Some(y)) => Some(x, y) case _ => None }
+      println(possibleMoves)
+      val validMoves = possibleMoves.filter(t => toID(t._2) == toID(generator.preview(1).head))
+      println(validMoves)
+      if (validMoves.nonEmpty) {
+        val move = validMoves(nextInt(validMoves.length))
+        (Some(move._1), Some(move._2))
+      } else {
+        (None, None)
+      }
     }
   }
 
@@ -72,10 +76,15 @@ class RankedGame(peek: Int = 3, levels: Int = 3) extends Strategy {
       }
       case next =>
         getBest(currentStack.contour) match {
-          case Some((_, hd :: _)) => {
-            currentStack = (currentStack + hd).get
+          case (Some(_), Some(hd)) => {
+            val temp = currentStack + hd
+            if (temp.isDefined) {
+              currentStack = temp.get
+            } else {
+              throw new GameLostException("Stack reached top of board.")
+            }
           }
-          case _ => throw new GameLostException(s"Could not place $next on stack")
+          case _ => throw new GameLostException(s"Could not place ${getName(next)} on stack.")
         }
     }
     generator.next()
