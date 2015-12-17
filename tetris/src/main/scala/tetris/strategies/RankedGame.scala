@@ -39,7 +39,7 @@ class RankedGame(depth: Int = 4) extends Strategy {
           val options = for (x <- 0 to width; r <- 0 until 4) yield {
             val newPiece = hd.copy(x, r)
             contour + newPiece match {
-              case Some(c) if ranks(c.toBase10) > 0 => getBestRank(c, tl)
+//              case Some(c) if ranks(c.toBase10) > 0 => getBestRank(c, tl)
               //              case Some(c) => getBestRank(c, tl)
               case _ => None
             }
@@ -94,7 +94,7 @@ class RankedGame(depth: Int = 4) extends Strategy {
               throw new GameLostException("Stack reached top of board.")
             }
           }
-          case _ => throw new GameLostException(s"Could not place ${getName(next)} on stack, or loss predicted $depth moves away.}")
+          case _ => throw new GameLostException(s"Could not place ${getName(next)} on stack, or loss predicted $depth moves away.")
         }
     }
     generator.next()
