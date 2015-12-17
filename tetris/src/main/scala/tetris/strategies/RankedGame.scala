@@ -11,11 +11,11 @@ import scala.util.Random.{nextBoolean, shuffle}
 /**
  * Created by papacharlie on 11/18/15.
  */
-class RankedGame(peek: Int = 2, levels: Int = 3) extends Strategy {
+class RankedGame(peek: Int = 3, levels: Int = 3) extends Strategy {
 
-  val ranks = Main.ranks
+  private val ranks = Main.ranks
 
-  def getBest(contour: Contour, depth: Int = 0, upcoming: IndexedSeq[Tetromino] = generator.preview(peek)): Option[(Int, Seq[Tetromino])] = {
+  private def getBest(contour: Contour, depth: Int = 0, upcoming: IndexedSeq[Tetromino] = generator.preview(peek)): Option[(Int, Seq[Tetromino])] = {
     if (depth >= levels) {
       Some((ranks(contour.toBase10), Seq()))
     } else {
@@ -57,18 +57,28 @@ class RankedGame(peek: Int = 2, levels: Int = 3) extends Strategy {
     }
   }
 
-  def play() = {
+  def play(): Unit = {
     generator.preview(1).head match {
-      case _: I if currentStack.stackHeight > 12 => currentStack = (currentStack + I(width)).get
+      case _: I if currentStack.stackHeight > 12 => {
+        for (x <- 0 to width) {
+          currentStack + new I(x) match {
+            case Some(s) if s.stackHeight < currentStack.stackHeight => {
+              currentStack = s
+              return
+            }
+            case _ =>
+          }
+        }
+      }
       case next =>
         getBest(currentStack.contour) match {
           case Some((_, hd :: _)) => {
             currentStack = (currentStack + hd).get
-            generator.next()
           }
           case _ => throw new GameLostException(s"Could not place $next on stack")
         }
     }
+    generator.next()
   }
 
 }

@@ -1,20 +1,20 @@
-package tetris
+package tetris.randomizers
 
 import java.util.Random
 
-import tetris.tetrominoes._
 import tetris.tetrominoes.Tetromino.pieces
+import tetris.tetrominoes._
 
 import scala.collection.mutable.Queue
 
 /**
  * Created by papacharlie on 10/18/15.
  */
-class Randomizer {
+class BagRandomizer extends Randomizer {
 
   private val rng = new Random()
 
-  var bag: Array[Tetromino] = pieces.flatMap(piece => (1 to 5).map(_ => piece.copy)).toArray
+  val bag: Array[Tetromino] = pieces.flatMap(piece => (1 to 5).map(_ => piece.copy)).toArray
 
   var history: Seq[Tetromino] = Seq()
 
@@ -23,14 +23,15 @@ class Randomizer {
   private def pickAndEnqueue() = {
     val n = rng.nextInt(35)
     val letter = bag(n)
-    history :+= letter
-    bag(n) = history.head
+    history = letter +: history
+    bag(n) = history.last
+    history = history.slice(0, 35)
     toCome.enqueue(letter)
   }
 
   def next(): Tetromino = {
     pickAndEnqueue()
-    toCome.dequeue
+    toCome.dequeue()
   }
 
   /**

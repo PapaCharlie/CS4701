@@ -1,6 +1,6 @@
 package tetris.strategies
 
-import tetris.{Randomizer, Stack}
+import tetris.Stack
 
 /**
  * Created by papacharlie on 12/15/15.

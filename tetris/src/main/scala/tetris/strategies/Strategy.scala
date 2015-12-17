@@ -1,17 +1,18 @@
 package tetris.strategies
 
-import tetris.{Stack, Randomizer}
+import tetris.randomizers.TGMRandomizer
+import tetris.Stack
 
 /**
  * Created by papacharlie on 12/15/15.
  */
 abstract class Strategy {
 
-  val generator = new Randomizer
+  val generator = new TGMRandomizer
 
   var currentStack = new Stack
 
-  def play()
+  def play(): Unit
 
 }
 

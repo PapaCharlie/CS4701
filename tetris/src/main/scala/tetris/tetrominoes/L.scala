@@ -24,7 +24,7 @@ case class L(x: Int = 0, rotation: Int = 0) extends Tetromino {
 
   def rotate: L = L(x, (rotation + 1) % 4)
 
-  def allRotations: Seq[L] = (0 to 3).map(new L(x, _))
+  def allRotations: Seq[L] = (0 until 4).map(new L(x, _))
 
   def copy(x: Int = 0, rotation: Int = 0): L = new L(x, rotation)
 

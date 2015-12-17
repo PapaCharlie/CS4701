@@ -1,6 +1,7 @@
 package tetris
 
 import Utils._
+import tetris.randomizers.TGMRandomizer
 import tetris.strategies.RankedGame
 import tetris.strategies.Strategy.GameLostException
 import tetris.tetrominoes._
@@ -35,6 +36,16 @@ object Main extends App {
       val zerp = (c + T(4)).get
       println((zerp + T(3,3)).get.toStack)
     }
+    case "testRandomizer" => {
+      val rng = new TGMRandomizer()
+//      println(rng.bag.mkString("[",",","]"))
+      val stats = Array.ofDim[Int](pieces.length)
+      for (_ <- 0 until 2000) {
+        stats(toID(rng.next())) += 1
+      }
+      println(stats.mkString("[",",","]"))
+      println(stats.indices.map(n => fromID(n.toByte)))
+    }
     case "playRanked" => {
       import tetrominoes.{S, Z}
       while (true) {
@@ -45,12 +56,14 @@ object Main extends App {
           case _ =>
         }
         try{
-          for (turn <- 0 to 15) {
+          var turn = 0
+          while (true) {
             println(turn)
             game.play()
             waitToPrint()
             clearScreen()
             println(game.currentStack)
+            turn += 1
           }
         } catch {
           case GameLostException(msg) => println(msg)

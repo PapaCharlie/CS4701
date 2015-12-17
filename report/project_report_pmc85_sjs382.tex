@@ -2,7 +2,8 @@
 \linespread{1.5}
 % \usepackage[margin=2.5cm]{geometry}
 \usepackage[margin=2.5cm, headheight=0pt, headsep=1cm]{geometry}
-\usepackage{enumerate, fancyhdr, graphicx, amsmath, float, subcaption, textcomp, hyperref}
+\usepackage{enumerate, fancyhdr, graphicx, amsmath, float, subcaption, textcomp, hyperref, units}
+\usepackage{nth}
 
 \usepackage[binary-units=true]{siunitx}
 \sisetup{load-configurations = abbreviations}
@@ -139,27 +140,46 @@ With these lists and a given pair of coordinates $(x,y)$, finding the location o
 % \par Scala, a coding language that is a superset of Java, kept optimizing our for loops. It also had trouble efficiently dealing with the binary files (in terms of I/O) that we had to write our massive rankings data to.
 
 
-\section{Current Version}
-\label{sec:current_version}
+\section{Page Rank}
+\label{sec:page_rank}
+
 
 \par The current and best algorithm developed for this project uses a method that is quite close to Google's PageRank algorithm. Given an arbitrary stack, it attempts to calculate a meaningful rank given the rank of the stacks that it can reach and the stacks that reach it. For a stack $s$ to be able to ``reach'' another stack $s'$, there exists a tetromino such that can be placed on $s$ without creating any holes such that $s$ and $s'$ have the same contour.
 
 \subsection{The Mapping Stage}
 \label{sub:the_mapping_stage}
 
+\subsubsection{In theory}
+\label{ssub:in_theory}
 \par The contour approximation of a stack's features can only represent $9^8$ stacks, and as such, this is how many stacks the algorithm will attempt to rank. We can think of the total set of stacks as a graph, with a directed edge connecting stack $s$ to stack $s'$ if and only if $s$ can reach $s'$. Incidentally, this graph exists independently of rank, has a very large number of nodes, and is expected to have a very high connectivity, given the fact that a single stack can potentially reach dozens of different stacks. It would therefore be ideal if this graph did not have to be recomputed. Hence the creation of the Mapping Stage.
 \par The Mapping Stage computes the complete graph of stacks as a map between a stack $s$ and a tetromino $t$ to a new stack $s'$. There is a difference between this graph and the graph outlined above in that there effectively are 7 graphs, one for each tetromino, where an edge only exists between two stacks if one can reach the other using the tetromino associated with that graph. The reason for this difference is that in the Ranking Stage, the ranker needs to know what tetrominoes were used to connect the stacks. This will be addressed in Section~\ref{sub:the_ranking_stage}.
+
+\subsubsection{Technical difficulties}
+\label{ssub:technical_difficulties}
 \par Suppose that on average, a given stack and a given tetromino can reach 10 different stacks. Suppose we also represent the 7 tetrominoes with a number between 0 and 6. This number can fit in one byte, and will be stored as such. Therefore each key in the map is 5 bytes long: the 32-bit integer representing the contour and the byte representing the tetromino. Additionally, each value in the map is expected to be $10 \times 4 = 40$ bytes long. The following equation is a preliminary calculation of how large the map will be:
 \begin{align*}
   (9^8 \times 7) \times (5 \times 40) \simeq \SI{6.02e10}{\byte} \simeq \SI{56.127}{\giga\byte}\label{eq:map_size}
 \end{align*}
 Evidently, this will not fit in the memory of most machines. As such, precautions were immediately taken: the map was to be calculated piecewise. The range from 0 to $9^8$ was split into 1000 segment. For each contour in a given segment, the full mapping as defined above was computed, and stored a HashMap. Once every contour in a segment was mapped, the HashMap is forced to disk and flushed from memory. This means that, on average, the process is expected occupy less than $\SI{100}{\mega\byte}$ in memory.
 \par An interesting feature of this process is that every segment can be computed independently. As such, the Mapping Stage is actually executed in parallel. Each thread/worker receives a small range of contours for which to compute the map, and said thread writes its own computed segment to disk. This greatly increased the speed of the Mapping Stage, and as such was kept as standard.
+\par The final graph thankfully does not occupy \SI{56}{\giga\byte} on disk. Rather it is closer to \SI{11}{\giga\byte}. This does not change the fact that splitting it up was a good idea, but it does mean that iterating over it was a lot faster than previously projected.
 % This is the reason why the map was split into 1000 segments: cache-consciousness. When one process attempts to load a large dataset from RAM into processor memory, it will evict the memory of all processes with lower or equal priority. Additionally, all the cores in a single chip share the same processor memory. As such, when multiple processes are running in parallel, they are all fighting over space. Suppose the machine has $n$ core, and $n$ threads are spawned. If the required memory for each thread is small, then the likelihood of either having their memory evicted is low. As such, is
 
 \subsection{The Ranking Stage}
 \label{sub:the_ranking_stage}
-\par The initial hurdle in computing the rank of a given stack is
+\par The Ranking Stage is rather elegantly simple. Given a stack $s$, and an array $a$ of all the ranks of the stacks that reach it, compute $rank(s,a)$. The spread of ranks is computed iteratively. In other words, all ranks are initially set to the same value, then for all subsequent iterations, $a$ contains the ranks computed in the previous iteration. Because the previously computed ranks are used, the current rank of a contour changes only when it is computed, so as not to give bias to ranks depending on the order in which we compute them.
+\par The greatest hurdle in computing the rank of a given stack is figuring out what a good measure for the quality of a stack is. Here were the initial attempts:
+\begin{description}
+  \item[Naive Connectivity] For a given stack, its rank is the sum of ranks of all the stacks that it can reach. The problem with this is that some pieces fit in a lot of places on the stack. For example, the T piece is likely to place many, many times in different rotations and locations. This means that this sum is quite skewed, and means almost nothing when the piece that can be attribute to most of this sum is not available to play.
+  \item[Average Connectivity] For a given stack, its rank is the average rank of all the stacks that it can reach. This suffers from the same problem as Naive Connectivity. Even though the effect is lessened, if there is a truly large difference between how many times certain pieces can be placed, then this ranking still means next to nothing when the wrong piece is in play.
+  \item[Majority Rules] For a given stack, its rank is defined by the following: 0 if for more than half of the tetrominoes cannot be placed on this stack without creating a hole, else the sum of the ranks that this stack can reach over the number of tetrominoes, i.e. 7. This was actually quite a good measure. The bot played far better than with the two previous ranking schema, but there was still potential for improvement, since when the agent was unlucky, it would fail miserably.
+\end{description}
+
+\par The final ranking function, Pessimistic Evaluation, was designed to account for the absolute worst case scenario. It is quite similar to Majority Rules, but sets the score to 0 when more than 1 tetrominoes cannot be placed. This means that a ranking is only inaccurate \nicefrac{1}{7}th of the time, which some might consider unlikely.
+
+\subsubsection{Technical Difficulties}
+\label{ssub:technical_difficulties}
+\par We know that the computed ranks of only two iterations are in play at all times. As such the ranks of all but the last two iterations can be pushed to disk and flushed from memory. The array of ranks is therefore a $2\times 9^8$ two dimensional array of either single precision floats or integers, depending on the implementation. Thankfully, this is only $2 \times 9^8 \times 4 = \SI{328.5}{\mega\byte}$, which certainly fits into memory. On the other hand, the same problem as in the Mapping Stage arises when loading the stack graph into memory: it is far too big. As such, computing the ranks is equally segmented, and only \nicefrac{1}{1000}th of the graph is loaded into memory at all times. Again, because the ranks are computed iteratively, the fact that not all of it is in memory comes into play when considering the corrected of the computations.
 
 \section{Conclusion}
 \label{sec:conclusion}

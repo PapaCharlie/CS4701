@@ -20,7 +20,7 @@ case class Z(x: Int = 0, rotation: Int = 0) extends Tetromino {
 
   def rotate = Z(x, (rotation + 1) % 2)
 
-  def allRotations: Seq[Z] = (0 to 1).map(new Z(x, _))
+  def allRotations: Seq[Z] = (0 until 2).map(new Z(x, _))
 
   def copy(x: Int = 0, rotation: Int = 0): Z = new Z(x, rotation)
 

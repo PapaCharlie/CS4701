@@ -21,7 +21,7 @@ case class I(x: Int = 0, rotation: Int = 0) extends Tetromino {
 
   def rotate = I(x, (rotation + 1) % 2)
 
-  def allRotations: Seq[I] = (0 to 1).map(new I(x, _))
+  def allRotations: Seq[I] = (0 until 2).map(new I(x, _))
 
   def copy(x: Int = 0, rotation: Int = 0): I = new I(x, rotation)
 

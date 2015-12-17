@@ -39,6 +39,9 @@ loadRanks:
 runIterations:
 	$(SBT) "run runIterations"
 
+testRandomizer:
+	$(SBT) "run testRandomizer"
+
 testContour:
 	$(SBT) "run testContour"
 
