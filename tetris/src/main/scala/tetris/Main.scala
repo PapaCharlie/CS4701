@@ -16,7 +16,7 @@ object Main extends App {
 
   args.headOption.getOrElse("playRanked") match {
     case "computeMap" => ContourRank.computeMap()
-    case "runIterations" => ContourRank.runIterations(4)
+    case "runIterations" => ContourRank.runIterations(6)
     case "tetrominoes" => {
       for (p <- pieces.flatMap(_.allRotations)) {
         printTetromino(p)

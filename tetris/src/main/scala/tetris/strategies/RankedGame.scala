@@ -59,7 +59,7 @@ class RankedGame(peek: Int = 2, levels: Int = 3) extends Strategy {
 
   def play() = {
     generator.preview(1).head match {
-      case _: I => currentStack = (currentStack + I(width)).get
+      case _: I if currentStack.stackHeight > 12 => currentStack = (currentStack + I(width)).get
       case next =>
         getBest(currentStack.contour) match {
           case Some((_, hd :: _)) => {
