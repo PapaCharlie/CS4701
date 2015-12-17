@@ -33,7 +33,7 @@ object ContourRank {
             pieceLengths(toID(piece)) = stackMap((contour, toID(piece))).length
           }
         }
-        if (pieceLengths.count(_ == 0) > 1) {
+        if (pieceLengths.count(_ == 0) > 0) {
           ranks(iteration % 2)(contour) = 0
         } else {
           ranks(iteration % 2)(contour) = pieceRanks.sum / pieceRanks.length
