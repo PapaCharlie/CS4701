@@ -63,8 +63,8 @@ object ContourRank {
     }
   }
 
-  def loadRanks: Array[Int] = {
-    loadArrayInt(rankArrayFilename) match {
+  def loadRanks: Array[Float] = {
+    loadArrayDouble(rankArrayFilename) match {
       case Some(arr) => arr
       case _ => throw new Exception(s"Could not find rank array file at $rankArrayFilename!")
     }

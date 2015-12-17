@@ -12,58 +12,68 @@ import scala.util.Random.{nextBoolean, nextInt, shuffle}
 /**
  * Created by papacharlie on 11/18/15.
  */
-class RankedGame(peek: Int = 4, levels: Int = 4) extends Strategy {
+class RankedGame(depth: Int = 4) extends Strategy {
 
   private val ranks = Main.ranks
 
-  private def getBest(contour: Contour, depth: Int = 0, upcoming: IndexedSeq[Tetromino] = generator.preview(peek)): (Option[Float], Option[Tetromino]) = {
-    if (depth >= levels) {
-      (Some(ranks(contour.toBase10)), None)
-    } else {
-      val toCheck = if (depth < upcoming.length) {
-        Seq(upcoming(depth))
-      } else {
-        shuffle(pieces)
-      }
-      val pieceOptions = for (piece <- toCheck) yield {
-        val options = for (x <- 0 to width; r <- 0 until 4) yield {
-          val newPiece = piece.copy(x, r)
-          if (newPiece.getSquares(0).forall(_._1 < width)) {
+  private def getBest(contour: Contour, upcoming: Seq[Tetromino]): Option[Tetromino] = {
+    def getBestRank(contour: Contour, upcoming: Seq[Tetromino]): Option[Float] = {
+      upcoming match {
+        case Seq(hd) => {
+          val options = for (x <- 0 to width; r <- 0 until 4) yield {
+            val newPiece = hd.copy(x, r)
             contour + newPiece match {
-              case Some(c) => Some(newPiece, getBest(c, depth + 1)._1)
+//              case Some(c) if ranks(c.toBase10) > 0 => Some(ranks(c.toBase10))
+              case Some(c) => Some(ranks(c.toBase10))
               case _ => None
             }
+          }
+          val validOptions = options.flatten
+          if (validOptions.nonEmpty) {
+            Some(validOptions.max)
           } else {
             None
           }
-        }.flatMap { case (p, Some(ra)) => Some(p, ra) case _ => None }
-        val positions = options.flatten
-        if (positions.nonEmpty) {
-          val best = positions.maxBy(_._2)
-          val allBest = positions.filter(_._2 == best._2)
-          println(best)
-          println(allBest.length)
-          (Some(best._2), Some(allBest(nextInt(allBest.length))._1))
-        } else {
-          (None, None)
         }
+        case Seq(hd, tl @ _*) => {
+          val options = for (x <- 0 to width; r <- 0 until 4) yield {
+            val newPiece = hd.copy(x, r)
+            contour + newPiece match {
+              case Some(c) if ranks(c.toBase10) > 0 => getBestRank(c, tl)
+//              case Some(c) => getBestRank(c, tl)
+              case _ => None
+            }
+          }
+          val validOptions = options.flatten
+          if (validOptions.nonEmpty) {
+            Some(validOptions.max)
+          } else {
+            None
+          }
+        }
+        case Seq() => None
       }
-      val possibleMoves = pieceOptions.flatMap { case (Some(x), Some(y)) => Some(x, y) case _ => None }
-      println(possibleMoves)
-      val validMoves = possibleMoves.filter(t => toID(t._2) == toID(generator.preview(1).head))
-      println(validMoves)
-      if (validMoves.nonEmpty) {
-        val move = validMoves(nextInt(validMoves.length))
-        (Some(move._1), Some(move._2))
-      } else {
-        (None, None)
+    }
+    val piece = upcoming.head
+    val options = for (x <- 0 to width; r <- 0 until 4) yield {
+      val newPiece = piece.copy(x, r)
+      contour + newPiece match {
+        case Some(c)  => getBestRank(c, upcoming.tail).map((newPiece, _))
+        case _ => None
       }
+    }
+    val validOptions = options.flatten
+    if (validOptions.nonEmpty) {
+      Some(validOptions.maxBy(_._2)._1)
+    } else {
+      None
     }
   }
 
+
   def play(): Unit = {
     generator.preview(1).head match {
-      case _: I if currentStack.stackHeight > 12 => {
+      case _: I if currentStack.stackHeight > 10 => {
         for (x <- 0 to width) {
           currentStack + new I(x) match {
             case Some(s) if s.stackHeight < currentStack.stackHeight => {
@@ -75,16 +85,18 @@ class RankedGame(peek: Int = 4, levels: Int = 4) extends Strategy {
         }
       }
       case next =>
-        getBest(currentStack.contour) match {
-          case (Some(_), Some(hd)) => {
-            val temp = currentStack + hd
+        getBest(currentStack.contour, generator.preview(depth)) match {
+          case Some(t) => {
+            val temp = currentStack + t
             if (temp.isDefined) {
               currentStack = temp.get
             } else {
               throw new GameLostException("Stack reached top of board.")
             }
           }
-          case _ => throw new GameLostException(s"Could not place ${getName(next)} on stack.")
+          case _ => throw new GameLostException(s"Could not place ${
+            getName(next)
+          } on stack.")
         }
     }
     generator.next()

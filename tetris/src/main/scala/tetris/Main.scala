@@ -4,6 +4,7 @@ import Utils._
 import tetris.randomizers.TGMRandomizer
 import tetris.strategies.RankedGame
 import tetris.strategies.Strategy.GameLostException
+import tetris.tetrominoes.Color.Red
 import tetris.tetrominoes._
 import tetris.tetrominoes.Tetromino._
 
@@ -13,7 +14,6 @@ object Main extends App {
   mkdirp(maps)
 
   lazy val ranks = ContourRank.loadRanks
-//    lazy val ranks = Array.fill[Int](ContourRank.contours)(10)
 
   args.headOption.getOrElse("playRanked") match {
     case "computeMap" => ContourRank.computeMap()
@@ -48,15 +48,16 @@ object Main extends App {
     }
     case "playRanked" => {
       import tetrominoes.{S, Z}
-      while (true) {
+      var continue = true
+      while (continue) {
         System.gc()
-        val game = new RankedGame
+        val game = new RankedGame(6)
         game.generator.preview(1).head match {
           case S(_, _) | Z(_, _) => game.generator.next
           case _ =>
         }
+        var turn = 0
         try{
-          var turn = 0
           while (true) {
             println(turn)
             game.play()
@@ -66,9 +67,24 @@ object Main extends App {
             turn += 1
           }
         } catch {
-          case GameLostException(msg) => println(msg)
+          case GameLostException(msg) => {
+            clearScreen()
+            waitToPrint()
+            println(game.currentStack.toLoserStack())
+            println(new Red().console + "GAME OVER!" + Console.RESET)
+            println(msg)
+            println(s"$turn turns played.")
+          }
         }
-        scala.io.StdIn.readLine()
+        print("Press enter to play again, or q to quit:")
+        var message = scala.io.StdIn.readLine().stripLineEnd
+        while (message != "q" && message != "") {
+          print("Press enter to play again, or q to quit:")
+          message = scala.io.StdIn.readLine()
+        }
+        if (message == "q") {
+          continue = false
+        }
       }
     }
     case _ => println("Unknown game mode")

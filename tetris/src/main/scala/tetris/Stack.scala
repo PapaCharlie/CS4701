@@ -85,6 +85,17 @@ class Stack(val pieces: IndexedSeq[IndexedSeq[(Boolean, Color)]] = emptyStack) {
     }
   }
 
+  def toLoserStack(): Stack = {
+    pieces.map(_.map { case (s, c) => if (s) {
+      (s, new Black)
+    } else {
+      (s, c)
+    }
+    }) |> {
+      new Stack(_)
+    }
+  }
+
   lazy val hasNoHoles: Boolean = {
     def twoTone(arr: IndexedSeq[(Boolean, Color)]): Boolean = {
       val rest = arr.dropWhile(_._1 == arr.head._1)
