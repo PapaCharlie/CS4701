@@ -2,7 +2,7 @@ package tetris
 
 import Utils._
 import tetris.randomizers.TGMRandomizer
-import tetris.strategies.RankedGame
+import tetris.strategies.{MinimaxGame, RankedGame}
 import tetris.strategies.Strategy.GameLostException
 import tetris.tetrominoes.Color.Red
 import tetris.tetrominoes._
@@ -85,6 +85,32 @@ object Main extends App {
         if (message == "q") {
           continue = false
         }
+      }
+    }
+
+    case "playMiniMax" => {
+      import tetrominoes.{S, Z}
+      while (true) {
+        System.gc()
+        val game = new MinimaxGame
+        game.generator.preview(1).head match {
+          case S(_, _) | Z(_, _) => game.generator.next
+          case _ =>
+        }
+        try{
+          var turn = 0
+          while (true) {
+            println(turn)
+            game.play()
+            waitToPrint()
+            clearScreen()
+            println(game.currentStack)
+            turn += 1
+          }
+        } catch {
+          case GameLostException(msg) => println(msg)
+        }
+        scala.io.StdIn.readLine()
       }
     }
     case _ => println("Unknown game mode")
