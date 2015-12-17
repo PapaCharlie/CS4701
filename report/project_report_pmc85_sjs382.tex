@@ -4,6 +4,8 @@
 \usepackage[margin=2.5cm, headheight=0pt, headsep=1cm]{geometry}
 \usepackage{enumerate, fancyhdr, graphicx, amsmath, float, subcaption, textcomp, hyperref}
 
+\usepackage[binary-units=true]{siunitx}
+\sisetup{load-configurations = abbreviations}
 
 \title{Old School \tetris{} Meets Page Rank}
 \author{Paul Chesnais (pmc85) \& Sam ``Sven'' Svenningsen (sjs382)}
@@ -140,7 +142,23 @@ With these lists and a given pair of coordinates $(x,y)$, finding the location o
 \section{Current Version}
 \label{sec:current_version}
 
-\par The current and best algorithm developed for this project uses an algorithm that is quite close to Google's PageRank algorithm. Given an arbitrary stack, it attempts to calculate a meaningful rank
+\par The current and best algorithm developed for this project uses a method that is quite close to Google's PageRank algorithm. Given an arbitrary stack, it attempts to calculate a meaningful rank given the rank of the stacks that it can reach and the stacks that reach it. For a stack $s$ to be able to ``reach'' another stack $s'$, there exists a tetromino such that can be placed on $s$ without creating any holes such that $s$ and $s'$ have the same contour.
+
+\subsection{The Mapping Stage}
+\label{sub:the_mapping_stage}
+
+\par The contour approximation of a stack's features can only represent $9^8$ stacks, and as such, this is how many stacks the algorithm will attempt to rank. We can think of the total set of stacks as a graph, with a directed edge connecting stack $s$ to stack $s'$ if and only if $s$ can reach $s'$. Incidentally, this graph exists independently of rank, has a very large number of nodes, and is expected to have a very high connectivity, given the fact that a single stack can potentially reach dozens of different stacks. It would therefore be ideal if this graph did not have to be recomputed. Hence the creation of the Mapping Stage.
+\par The Mapping Stage computes the complete graph of stacks as a map between a stack $s$ and a tetromino $t$ to a new stack $s'$. There is a difference between this graph and the graph outlined above in that there effectively are 7 graphs, one for each tetromino, where an edge only exists between two stacks if one can reach the other using the tetromino associated with that graph. The reason for this difference is that in the Ranking Stage, the ranker needs to know what tetrominoes were used to connect the stacks. This will be addressed in Section~\ref{sub:the_ranking_stage}.
+\par Suppose that on average, a given stack and a given tetromino can reach 10 different stacks. Suppose we also represent the 7 tetrominoes with a number between 0 and 6. This number can fit in one byte, and will be stored as such. Therefore each key in the map is 5 bytes long: the 32-bit integer representing the contour and the byte representing the tetromino. Additionally, each value in the map is expected to be $10 \times 4 = 40$ bytes long. The following equation is a preliminary calculation of how large the map will be:
+\begin{align*}
+  (9^8 \times 7) \times (5 \times 40) \simeq \SI{6.02e10}{\byte} \simeq \SI{56.127}{\giga\byte}\label{eq:map_size}
+\end{align*}
+Evidently, this will not fit in the memory of most machines. As such, precautions were immediately taken: the map was to be calculated piecewise. The range from 0 to $9^8$ was split into 1000 segment. For each contour in a given segment, the full mapping as defined above was computed, and stored a HashMap. Once every contour in a segment was mapped, the HashMap is forced to disk and flushed from memory. This means that, on average, the process is expected occupy less than $\SI{100}{\mega\byte}$ in memory.
+\par An interesting feature of this process is that every segment can be computed independently. As such, the Mapping Stage is actually executed in parallel. Each thread/worker receives a small range of contours for which to compute the map, and said thread writes its own computed segment to disk. This greatly increased the speed of the Mapping Stage, and as such was kept as standard.
+% This is the reason why the map was split into 1000 segments: cache-consciousness. When one process attempts to load a large dataset from RAM into processor memory, it will evict the memory of all processes with lower or equal priority. Additionally, all the cores in a single chip share the same processor memory. As such, when multiple processes are running in parallel, they are all fighting over space. Suppose the machine has $n$ core, and $n$ threads are spawned. If the required memory for each thread is small, then the likelihood of either having their memory evicted is low. As such, is
+
+\subsection{The Ranking Stage}
+\label{sub:the_ranking_stage}
 
 
 \section{Conclusion}
@@ -164,7 +182,4 @@ Tetris is Hard, Even to Approximate}.
 \bibitem{bib:ryan_heise}
   \url{http://www.ryanheise.com/tetris/tetris_artificial_intelligence.html}
 \end{thebibliography}
-
-% \lstinputlisting[style=Scala]{../tetris/src/main/scala/tetris/Main.scala}
-
 \end{document}
