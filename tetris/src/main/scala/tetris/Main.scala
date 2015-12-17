@@ -51,7 +51,7 @@ object Main extends App {
       var continue = true
       while (continue) {
         System.gc()
-        val game = new RankedGame(6)
+        val game = new RankedGame(5)
         game.generator.preview(1).head match {
           case S(_, _) | Z(_, _) => game.generator.next
           case _ =>
