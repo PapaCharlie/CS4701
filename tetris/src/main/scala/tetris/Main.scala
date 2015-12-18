@@ -105,6 +105,7 @@ object Main extends App {
           count
         }
         averageTime(h - 5) = times.sum.toDouble / 10.0
+        println(s"Average time for h = $h: ${averageTime(h - 5)}")
       }
       println(averageTime.mkString("[", ",", "]"))
     }
