@@ -92,7 +92,7 @@ object Main extends App {
       for (h <- 5 to 15) {
         println(s"Getting height $h")
         val times = for (n <- 0 until 10) yield {
-          val game = new RankedGame(4, h)
+          val game = new RankedGame(5, h)
           var count = 0
           try {
             while (true) {

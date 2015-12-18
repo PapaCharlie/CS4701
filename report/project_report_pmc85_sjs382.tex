@@ -113,29 +113,29 @@ The scoring scheme outlined above is unfortunately quite complex. Additionally, 
 \label{par:timing}
 Another important aspect of \tetris{} is that there is a time limit for every move. The first problem is that it is hard to interrupt a running algorithm and get the currently computed best move from it. The second problem is that computers are quite fast, and are expected to come up with the next best move rather quickly. As such, instead of setting arbitrarily low time limits on the players, no time limits were set under the assumptions that AI players would be too fast for it to matter anyway.
 
-\section{Initial Attempts}
-\label{sec:initial_attempts}
+% \section{Initial Attempts}
+% \label{sec:initial_attempts}
 
-\subsection{MiniMax}
-\par We tried to maximize the pieces placement in a way that would minimize the possible damage/maximize the least expected outcome of the next few pieces the \tetris{} board provides by using the MiniMax approach.
-\subsubsection{Heuristic}
-\par This lead us into the difficulty of grading boards on quality so that we could have a function to minimize over.
+% \subsection{MiniMax}
+% \par We tried to maximize the pieces placement in a way that would minimize the possible damage/maximize the least expected outcome of the next few pieces the \tetris{} board provides by using the MiniMax approach.
+% \subsubsection{Heuristic}
+% \par This lead us into the difficulty of grading boards on quality so that we could have a function to minimize over.
 
-\par One thought would be to penalize boards that have holes or overhangs in them (i.e. pieces covering empty spaces), though penalize overhangs less since you can get around them sometimes.
+% \par One thought would be to penalize boards that have holes or overhangs in them (i.e. pieces covering empty spaces), though penalize overhangs less since you can get around them sometimes.
 
-\par The next obvious criteria was to give a max value to any board that has a \tetris{} (4 complete rows at once) and a lesser, but still high, score to any number of complete rows.
+% \par The next obvious criteria was to give a max value to any board that has a \tetris{} (4 complete rows at once) and a lesser, but still high, score to any number of complete rows.
 
-\par This leaves us an issue of all the boards with no obvious issues, and no obvious bonuses. We made a guess that having a more level board would be best (i.e. the distance between the lowest free spot and the highest tower you have is minimized).
+% \par This leaves us an issue of all the boards with no obvious issues, and no obvious bonuses. We made a guess that having a more level board would be best (i.e. the distance between the lowest free spot and the highest tower you have is minimized).
 
-\par An alternative to this is to make up as many features as possible and try to assign weights to them based on if they lead to failed games quickly (we'd have to play the game a bunch of times).
+% \par An alternative to this is to make up as many features as possible and try to assign weights to them based on if they lead to failed games quickly (we'd have to play the game a bunch of times).
 
-\par We weren't quite sure how to implement this though since we did not know how to weight each feature appropriately besides running it a million times over, which was too slow.
+% \par We weren't quite sure how to implement this though since we did not know how to weight each feature appropriately besides running it a million times over, which was too slow.
 
-\subsubsection{The Tree}
+% \subsubsection{The Tree}
 
-\par We began by choosing trees that would be good regardless of what the unknown pieces would be, this meant leaving out what would probably have been good choices assuming we didn't get the one or two pieces, or combinations, that messed it up. Later, we considered weighing the loss according to its likelihood, though we were unsure how to make that work in terms of discounting the negative value of a branch.
+% \par We began by choosing trees that would be good regardless of what the unknown pieces would be, this meant leaving out what would probably have been good choices assuming we didn't get the one or two pieces, or combinations, that messed it up. Later, we considered weighing the loss according to its likelihood, though we were unsure how to make that work in terms of discounting the negative value of a branch.
 
-\par We memoized the algorithm by keeping the trees in memory and clipping relevant branches as we went on, and just recomputed the last branch from there so as to save time.
+% \par We memoized the algorithm by keeping the trees in memory and clipping relevant branches as we went on, and just recomputed the last branch from there so as to save time.
 
 % \section{Challenges Faced}
 % \label{sec:challenges_faced}
@@ -196,6 +196,8 @@ Evidently, this will not fit in the memory of most machines. As such, precaution
 \section{Game Tree Search}
 \label{sec:game_tree_search}
 
+\subsection{In Theory}
+\label{sub:in_theory}
 \par Computing the rank of every stack using the method defined above is almost equivalent to approximating the state evaluation function for \tetris{}. In other words, this means that an agent is able to play using Game Tree Search methods. Listing~\ref{lst:tetris_game_tree_traversal} is the pseudo code representation of the traversal algorithm. The algorithm traverses the Game Tree using Depth First Search, but pruning stacks that have a rank of zero, or have a rank lower than what has already been explored. It also only looks at stacks that are valid, i.e. stacks that have no holes in them, and that are not lost games. Because only stacks generated using the Contour approximating were ranked, the agent will only create stacks with an empty column. The subtlety not shown in Listing~\ref{lst:tetris_game_tree_traversal} is that if the next tetromino dealt to the player is an $I$, and the highest column in the stack has a height higher than a certain factor $h$, the agent will place the $I$ in the empty column, to force to the stack to be lower than $h$.
 \begin{lstlisting}[caption={\tetris{} Game Tree Traversal},label={lst:tetris_game_tree_traversal}, style=Pseudocode]
 $s$ := Current Stack
@@ -218,9 +220,32 @@ enddef
 $nextmove$,_ := $Search(s,\,d)$
 $Play(nextmove)$
 \end{lstlisting}
-\par The Contour approximation of stacks
 \par Two things need to be mentioned about this algorithm. The first is that it only looks at the best possible rank achievable after placing $d$ tetrominoes. Some might argue that this is not accurate because the worst case scenario needs to be considered as well. Yet, at the core of the ranking algorithm sits the fact that a stack should only have a nonzero rank if and only if \textbf{all} the tetrominoes can be placed on it. This algorithm prunes those stacks, and therefore only recommends moves that lead to stacks of nonzero rank. Choosing therefore the highest ranking sequence of moves ensures the lowest likelihood of failure.
-\par The second thing that needs to be mentioned regards the nature of the Tree itself. There is a large problem with this algorithm that appears at line 6, which is that the variable $t$ becomes all possible positions and rotations of each tetromino. In other words, with $1 + 2 + 2 + 2 + 4 + 4 + 4 = 19$ total possible rotations, 10 potential columns upon which the
+\par The second thing that needs to be mentioned regards the nature of the Tree itself. There is a large problem with this algorithm that appears at line 6, which is that the variable $t$ becomes all possible positions and rotations of each tetromino. In other words, with $1 + 2 + 2 + 2 + 4 + 4 + 4 = 19$ total possible rotations and 10 potential columns upon which the tetromino can fall, a search down to $d$ depth can potentially expand as many as $190^d$ stacks. This is less than ideal, and becomes extremely expensive very quickly.
+
+\subsection{Tuning the Parameters}
+\label{sub:tuning_the_parameters}
+
+\subsubsection{Search Depth}
+\label{ssub:search_depth}
+\par The first parameter that needs to be set is the game search depth. Ideally, this would be set to an arbitrarily large number, but that's obviously impossible.
+\paragraph{Memory}
+\label{par:memory}
+The search is done depth first search. This means that only the current path is kept in memory, and the total memory overhead is proportional to the current depth. This overhead is the size of the instruction stack. Regardless of language, this is expected to be relatively small, and therefore memory is not the limiting factor.
+
+\paragraph{Play Time}
+\label{par:play_time}
+This implementation of \tetris{} does not limit the time it takes the player to decide where they will place the piece they were dealt. This does not mean that the agent should have an infinite amount of time to play. Therefore the search depth should be tuned such that the agent takes a reasonable amount of time to make its decision. In this case, given the fact that computers crunch numbers very quickly, the agent has an unfair advantage over humans, therefore an arbitrarily low bound on search time can be set. For this particular implementation, the decision was made to tune $d$ such that the agent never takes more than half of a second to make its decision.
+
+\paragraph{Lookahead}
+\label{par:lookahead}
+Most modern versions of \tetris{} give players an $n$ piece lookahead. A lookahead tells the player exactly what tetrominoes will be dealt in the upcoming $n$ turns. If the agent knows what tetrominoes will be dealt next, it can also immediately prune branches that do not fit the sequence. This would bring the branching factor down to at most $4 * 10 = 40$. This is considerably smaller, and in practice drastically reduces search time.
+
+\par With no lookahead, the agent only takes less than half a second to make its decision when the search depth is 5. As such, this is what this parameter was set to. On the other hand, the lookahead length is expected only to make the agent's decision easier. This was indeed observed as there was a correlation between how the long the lookahead was and how long the agent was able to play without losing the game. See Figure~\ref{fig:n_lookahead_vs_play_time} for a table that demonstrates this correlation.
+
+\subsubsection{Maximum Allowed Stack Height}
+\label{ssub:maximum_allowed_stack_height}
+\par The other parameter that needed to be set was the maximum allowed stack height. Letting the stack run higher means letting the agent use the $I$ tetromino longer. Since we do not know if the $I$ piece is essential to the agent's strategy (it may play a large role in constructing stacks upon which many tetrominoes can be placed), we also cannot force it to shorten the stack too early by making it place the $I$ pieces in the empty column. Therefore this parameter needs to be tuned as well. This parameter was set using empirical evidence. The agent was given a 5 piece lookahead, i.e. the best possible lookahead given that its search depth is 5, and played the game multiple times over, with instruction to limit the stack height at particular values. Figure~\ref{fig:maximum_stack_height_vs_time_alive} shows the relationship between the stack height and how many consecutive pieces the agent was able to place without losing.
 
 \section{Conclusion}
 \label{sec:conclusion}
