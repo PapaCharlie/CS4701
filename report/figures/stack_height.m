@@ -4,16 +4,14 @@ fig = figure;
 plot(heights, means_d4, 'r+-', 'LineWidth', 2);
 xlabel 'Maximum Stack Height'
 ylabel 'Consecutive Tetrominoes Placed'
-saveas(fig, 'height_v_time_d4.pdf');
-saveas(fig, 'height_v_time_d4.png');
+saveas(fig, 'height_v_time_d4.eps');
 close all
 
-depths = 1:4
+depths = 1:4;
 mean_times = [48.1,210.65,215.8,814.45];
 fig = figure;
 plot(depths, mean_times, 'r+-', 'LineWidth', 2);
 xlabel 'Lookahead'
 ylabel 'Consecutive Tetrominoes Placed'
-saveas(fig, 'lookahead_v_time.pdf');
-saveas(fig, 'lookahead_v_time.png');
+saveas(fig, 'lookahead_v_time.eps');
 close all
