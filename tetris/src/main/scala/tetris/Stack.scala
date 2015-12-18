@@ -114,6 +114,8 @@ class Stack(val pieces: IndexedSeq[IndexedSeq[(Boolean, Color)]] = emptyStack) {
 
   def stackHeight: Int = (0 to width).map(highestY).max
 
+  def lowestColumn: Int = (0 to width).minBy(highestY)
+
   def contour: Contour = {
     (0 to width - 1).map(highestY) |> Contour.fromHeights
   }

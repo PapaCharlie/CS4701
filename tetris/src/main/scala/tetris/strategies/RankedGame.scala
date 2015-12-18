@@ -74,12 +74,19 @@ class RankedGame(depth: Int = 4, maxHeight: Int = 9) extends Strategy {
   def play(): Unit = {
     generator.preview(1).head match {
       case _: I if currentStack.stackHeight > maxHeight => {
+        var placed = false
         for (x <- 0 to width) {
           currentStack + new I(x) match {
             case Some(s) if s.stackHeight < currentStack.stackHeight => {
               currentStack = s
-              return
+              placed = true
             }
+            case _ =>
+          }
+        }
+        if (!placed) {
+          currentStack + new I(currentStack.lowestColumn) match {
+            case Some(s) => currentStack = s
             case _ =>
           }
         }
