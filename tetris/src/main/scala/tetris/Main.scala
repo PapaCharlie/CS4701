@@ -91,7 +91,7 @@ object Main extends App {
       val averageTime = Array.ofDim[Double](11)
       for (h <- 5 to 15) {
         println(s"Getting height $h")
-        val times = for (n <- 0 until 10) yield {
+        val times = for (n <- 0 until 20) yield {
           val game = new RankedGame(5, h)
           var count = 0
           try {
