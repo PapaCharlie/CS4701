@@ -96,7 +96,7 @@ object Main extends App {
       val averageTime = Array.ofDim[Double](11)
       for (h <- 5 to 15) {
         println(s"Getting height $h")
-        val times = for (n <- 0 until 20) yield {
+        val times = for (n <- 0 until 5) yield {
           val game = new RankedGame(5, h)
           var count = 0
           try {
@@ -109,17 +109,17 @@ object Main extends App {
           }
           count
         }
-        averageTime(h - 5) = times.sum.toDouble / 20.0
+        averageTime(h - 5) = times.sum.toDouble / 5.0
         println(s"Average time for h = $h: ${averageTime(h - 5)}")
       }
       println(averageTime.mkString("[", ",", "]"))
     }
     case "rankedStatsLookahead" => {
       val averageTime = Array.ofDim[Double](4)
-      for (d <- 1 to 4) {
+      for (d <- 5 until 6) {
         println(s"Getting depth $d")
         val times = for (n <- 0 until 20) yield {
-          val game = new RankedGame(d, 9)
+          val game = new RankedGame(d, 13)
           var count = 0
           try {
             while (true) {
