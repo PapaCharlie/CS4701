@@ -242,9 +242,9 @@ This implementation of \tetris{} does not limit the time it takes the player to 
 \label{par:lookahead}
 Most modern versions of \tetris{} give players an $n$ piece lookahead. A lookahead tells the player exactly what tetrominoes will be dealt in the upcoming $n$ turns. If the agent knows what tetrominoes will be dealt next, it can also immediately prune branches that do not fit the sequence. This would bring the branching factor down to at most $4 * 10 = 40$. This is considerably smaller, and in practice drastically reduces search time.
 
-\par With no lookahead, the agent only takes less than half a second to make its decision when the search depth is 4 or smaller. As such, this is what this parameter was set to. On the other hand, the lookahead length is expected only to make the agent's decision easier. This was indeed observed as there was a correlation between how the long the lookahead was and how long the agent was able to play without losing the game. Figure~\ref{fig:n_lookahead_vs_play_time} is a plot that demonstrates this relationship. In each batch of simulations, the maximum allowed stack height was set to the optimal calculated value (see Section~\ref{ssub:maximum_allowed_stack_height}).
+\par With no lookahead, the agent only takes less than half a second to make its decision when the search depth is 4 or smaller. When the search depth is set to 5, the agent takes considerably longer, sometimes up to two seconds, to make its decision. As such, the parameter was set to 4. There was a correlation observed between the search depth and how long the agent was able to play without losing the game. Figure~\ref{fig:n_lookahead_vs_play_time} is a plot that demonstrates this relationship. In each batch of simulations, the maximum allowed stack height was set to the optimal calculated value (see Section~\ref{ssub:maximum_allowed_stack_height}), and the lookahead was set to $d-2$, or 0 when not applicable.
 
-\begin{figure}[H]
+\begin{figure}[h!]
   \centering
   \includegraphics[width=0.6\textwidth]{figures/lookahead_v_time}
   \caption{$n$-Lookahead versus Play Time}
@@ -253,7 +253,12 @@ Most modern versions of \tetris{} give players an $n$ piece lookahead. A lookahe
 
 \subsubsection{Maximum Allowed Stack Height}
 \label{ssub:maximum_allowed_stack_height}
-\par The other parameter that needed to be set was the maximum allowed stack height. Letting the stack run higher means letting the agent use the $I$ tetromino longer. Since we do not know if the $I$ piece is essential to the agent's strategy (it may play a large role in constructing stacks upon which many tetrominoes can be placed), we also cannot force it to shorten the stack too early by making it place the $I$ pieces in the empty column. Therefore the maximum allowed stack height, i.e. the height at which the agent forces lines to clear, needs to be tuned as well. This was done using using empirical evidence. Monte Carlo simulations were run for different maximum allowed heights. It was also expected that every level of search depth would have a different optimal allowed stack height. This is because implicitly, the agent's strategy is different. As such, the allowed stack height needed to be tuned for each search depth level. Figure~\ref{fig:stack_height_vs_time_alive_all} shows the average number of consecutive pieces the agent was able to place without losing versus the allowed height for search depths ranging from 1 to 5. In each simulation, the lookahead was set to be as long as the search depth to give the agent the best chance to succeed, and get the best case scenario value for the allowed stack height.
+\par The other parameter that needed to be set was the maximum allowed stack height. Letting the stack run higher means letting the agent use the $I$ tetromino longer. Since we do not know if the $I$ piece is essential to the agent's strategy (it may play a large role in constructing stacks upon which many tetrominoes can be placed), we also cannot force it to shorten the stack too early by making it place the $I$ pieces in the empty column. Therefore the maximum allowed stack height, i.e. the height at which the agent forces lines to clear, needs to be tuned as well. This was done using using empirical evidence. Monte Carlo simulations were run for different maximum allowed heights. It was also expected that every level of search depth would have a different optimal allowed stack height. This is because implicitly, the agent's strategy is different. As such, the allowed stack height needed to be tuned for each search depth level. Figure~\ref{fig:stack_height_vs_time_alive_all} shows the average number of consecutive pieces the agent was able to place without losing versus the allowed height for search depths ranging from 1 to 5. In each simulation, the lookahead was set to be as long as the search depth to give the agent the best chance to succeed, and get the best case scenario value for the allowed stack height. As we can see, the optimal stack height is not the same for different search depths. In fact, there seems to be a trend, where the optimal height is higher and higher for large and larger search depths. Since the default search depth is set to 4, the default stack height was set to 9, accordingly.
+
+
+\section{A World Record}
+\label{sec:a_world_record}
+\par Please see this \href{https://www.youtube.com/watch?v=YpMx1XobhWA}{\ttfamily\color{blue} \underline{recording}} of the agent playing its best recorded game. The highest observed score was 2241 turns played, with 1018 lines cleared. One of the ways to entire the small circle of \tetris{} world record holders is to get a perfect score on the NES version of the game \cite{bib:world_record}. This achievement is hard enough that not more than a handful of players have done it. Every player to have achieved this perfect score has done so by placing less than 800 tetrominoes consecutively. The average number of pieces placed when the search depth is 4 is a little above 1300. This means that the agent, on average, easily achieves a perfect score, and higher. Among other achievements is the number of consecutive Tetris clears (clearing 4 lines simultaneously), though there is no official record for it. In any case, the agent almost exclusively executes Tetris clears, as such if there ever were to be a record, the agent would certainly beat it.
 
 \begin{figure}[H]
   \centering
@@ -261,14 +266,6 @@ Most modern versions of \tetris{} give players an $n$ piece lookahead. A lookahe
   \caption{Maximum Allowed Stack Height versus Time Alive}
   \label{fig:stack_height_vs_time_alive_all}
 \end{figure}
-
-As we can see, the peak stack height is not quite the same for all search depths.
-
-\section{A World Record}
-\label{sec:a_world_record}
-Please see this \href{https://www.youtube.com/watch?v=YpMx1XobhWA}{\ttfamily\color{blue} \underline{recording}} of the agent playing its best recorded game. The highest observed score was 2241 turns played, with 1018 lines cleared. One of the ways to entire the small circle of \tetris{} world record holders is to get a perfect score on the NES version of the game. This achievement is hard enough that not more than a handful of players have done it. Every player to have achieved this perfect score has done so by placing less than a thousand pieces consecutively.
-Very few people have gotten a perfect score in the NES version
-% In order to achieve the maximum score, thereby also entering the small group of world record holders
 
 \section{Conclusion}
 \label{sec:conclusion}
