@@ -2,7 +2,7 @@ package tetris
 
 import Utils._
 import tetris.randomizers.TGMRandomizer
-import tetris.strategies.{MinimaxGame, RankedGame}
+import tetris.strategies.RankedGame
 import tetris.strategies.Strategy.GameLostException
 import tetris.tetrominoes.Color.Red
 import tetris.tetrominoes._
@@ -38,7 +38,6 @@ object Main extends App {
     }
     case "testRandomizer" => {
       val rng = new TGMRandomizer()
-      //      println(rng.bag.mkString("[",",","]"))
       val stats = Array.ofDim[Int](pieces.length)
       for (_ <- 0 until 2000) {
         stats(toID(rng.next())) += 1
@@ -57,10 +56,16 @@ object Main extends App {
           case _ =>
         }
         var turn = 0
+        var linesCleared = 0
         try {
           while (true) {
-            println(turn)
+            println(s"Current turn:  $turn")
+            println(s"Lines cleared: $linesCleared")
+            val height = game.currentStack.stackHeight
             game.play()
+            if (height > game.currentStack.stackHeight) {
+              linesCleared += height - game.currentStack.stackHeight
+            }
             waitToPrint()
             clearScreen()
             println(game.currentStack)
@@ -73,7 +78,7 @@ object Main extends App {
             println(game.currentStack.toLoserStack())
             println(new Red().console + "GAME OVER!" + Console.RESET)
             println(msg)
-            println(s"$turn turns played.")
+            println(s"$turn turns played, $linesCleared lines cleared.")
           }
         }
         print("Press enter to play again, or q to quit:")
@@ -87,7 +92,7 @@ object Main extends App {
         }
       }
     }
-    case "rankedStats" => {
+    case "rankedStatsHeight" => {
       val averageTime = Array.ofDim[Double](11)
       for (h <- 5 to 15) {
         println(s"Getting height $h")
@@ -104,35 +109,32 @@ object Main extends App {
           }
           count
         }
-        averageTime(h - 5) = times.sum.toDouble / 10.0
+        averageTime(h - 5) = times.sum.toDouble / 20.0
         println(s"Average time for h = $h: ${averageTime(h - 5)}")
       }
       println(averageTime.mkString("[", ",", "]"))
     }
-    case "playMiniMax" => {
-      import tetrominoes.{S, Z}
-      while (true) {
-        System.gc()
-        val game = new MinimaxGame
-        game.generator.preview(1).head match {
-          case S(_, _) | Z(_, _) => game.generator.next
-          case _ =>
-        }
-        try {
-          var turn = 0
-          while (true) {
-            println(turn)
-            game.play()
-            waitToPrint()
-            clearScreen()
-            println(game.currentStack)
-            turn += 1
+    case "rankedStatsLookahead" => {
+      val averageTime = Array.ofDim[Double](4)
+      for (d <- 1 to 4) {
+        println(s"Getting depth $d")
+        val times = for (n <- 0 until 20) yield {
+          val game = new RankedGame(d, 9)
+          var count = 0
+          try {
+            while (true) {
+              game.play()
+              count += 1
+            }
+          } catch {
+            case GameLostException(_) =>
           }
-        } catch {
-          case GameLostException(msg) => println(msg)
+          count
         }
-        scala.io.StdIn.readLine()
+        averageTime(d - 1) = times.sum.toDouble / 20.0
+        println(s"Average time for h = $d: ${averageTime(d - 1)}")
       }
+      println(averageTime.mkString("[", ", ", "]"))
     }
     case _ => println("Unknown game mode")
   }

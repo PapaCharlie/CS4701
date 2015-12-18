@@ -218,7 +218,7 @@ def $Search(s,\,d)$
   endfor
   return bestmove, bestrank
 enddef
-$nextmove$,_ := $Search(s,\,d)$
+$nextmove$, _ := $Search(s,\,d)$
 $Play(nextmove)$
 \end{lstlisting}
 \par Two things need to be mentioned about this algorithm. The first is that it only looks at the best possible rank achievable after placing $d$ tetrominoes. Some might argue that this is not accurate because the worst case scenario needs to be considered as well. Yet, at the core of the ranking algorithm sits the fact that a stack should only have a nonzero rank if and only if \textbf{all} the tetrominoes can be placed on it. This algorithm prunes those stacks, and therefore only recommends moves that lead to stacks of nonzero rank. Choosing therefore the highest ranking sequence of moves ensures the lowest likelihood of failure.
@@ -242,15 +242,22 @@ This implementation of \tetris{} does not limit the time it takes the player to 
 \label{par:lookahead}
 Most modern versions of \tetris{} give players an $n$ piece lookahead. A lookahead tells the player exactly what tetrominoes will be dealt in the upcoming $n$ turns. If the agent knows what tetrominoes will be dealt next, it can also immediately prune branches that do not fit the sequence. This would bring the branching factor down to at most $4 * 10 = 40$. This is considerably smaller, and in practice drastically reduces search time.
 
-\par With no lookahead, the agent only takes less than half a second to make its decision when the search depth is 5. As such, this is what this parameter was set to. On the other hand, the lookahead length is expected only to make the agent's decision easier. This was indeed observed as there was a correlation between how the long the lookahead was and how long the agent was able to play without losing the game. See Figure~\ref{fig:n_lookahead_vs_play_time} for a table that demonstrates this correlation.
-
-\subsubsection{Maximum Allowed Stack Height}
-\label{ssub:maximum_allowed_stack_height}
-\par The other parameter that needed to be set was the maximum allowed stack height. Letting the stack run higher means letting the agent use the $I$ tetromino longer. Since we do not know if the $I$ piece is essential to the agent's strategy (it may play a large role in constructing stacks upon which many tetrominoes can be placed), we also cannot force it to shorten the stack too early by making it place the $I$ pieces in the empty column. Therefore this parameter needs to be tuned as well. This parameter was set using empirical evidence. The agent was given a 5 piece lookahead, i.e. the best possible lookahead given that its search depth is 5, and played the game multiple times over, with instruction to limit the stack height at particular values. Figure~\ref{fig:maximum_stack_height_vs_time_alive} shows the relationship between the stack height and how many consecutive pieces the agent was able to place without losing.
+\par With no lookahead, the agent only takes less than half a second to make its decision when the search depth is 4 or smaller. As such, this is what this parameter was set to. On the other hand, the lookahead length is expected only to make the agent's decision easier. This was indeed observed as there was a correlation between how the long the lookahead was and how long the agent was able to play without losing the game. See Figure~\ref{fig:n_lookahead_vs_play_time} for a graph that demonstrates this correlation. Evidently, there is a drastic improvement in score with the larger lookahead.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.5\textwidth]{figures/height_v_time_d4}
+  \includegraphics[width=0.6\textwidth]{figures/lookahead_v_time}
+  \caption{$n$-Lookahead versus Play Time}
+  \label{fig:n_lookahead_vs_play_time}
+\end{figure}
+
+\subsubsection{Maximum Allowed Stack Height}
+\label{ssub:maximum_allowed_stack_height}
+\par The other parameter that needed to be set was the maximum allowed stack height. Letting the stack run higher means letting the agent use the $I$ tetromino longer. Since we do not know if the $I$ piece is essential to the agent's strategy (it may play a large role in constructing stacks upon which many tetrominoes can be placed), we also cannot force it to shorten the stack too early by making it place the $I$ pieces in the empty column. Therefore this parameter needs to be tuned as well. This parameter was set using empirical evidence. The agent was given a 4 piece lookahead, i.e. the best possible lookahead given that its search depth is 4, and played the game multiple times over, with instruction to limit the stack height at particular values. Figure~\ref{fig:maximum_stack_height_vs_time_alive} shows the relationship between the stack height and how many consecutive pieces the agent was able to place without losing.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.6\textwidth]{figures/height_v_time_d4}
   \caption{Maximum Stack Height versus Time Alive}
   \label{fig:maximum_stack_height_vs_time_alive}
 \end{figure}

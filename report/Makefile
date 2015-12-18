@@ -3,6 +3,7 @@ SHELL := /bin/sh
 SRC := $(wildcard *.tex)
 PDF := $(SRC:.tex=.pdf)
 FIGURES := $(filter-out $(wildcard figures/*-crop.pdf), $(wildcard figures/*.pdf))
+PNGS := $(filter-out $(wildcard figures/*-crop.png), $(wildcard figures/*.png))
 
 all:
 	-mkdir .build

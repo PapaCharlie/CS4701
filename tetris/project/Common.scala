@@ -14,7 +14,6 @@ object Common {
     "org.specs2"              %%  "specs2-core"     % "2.3.11"  % "test",
     "org.scalatest"           %   "scalatest_2.11"  % "2.2.4"   % "test",
     "org.scalacheck"          %%  "scalacheck"      % "1.12.5"  % "test"
-
   )
 
   val names: Seq[Setting[_]] = Seq(
