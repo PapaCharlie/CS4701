@@ -15,6 +15,7 @@ all:
 crop:
 	for fig in $(FIGURES) ; do \
 		pdfcrop $$fig ; \
+		mv `echo $$fig | sed "s/.pdf/-crop.pdf/g"` $$fig ; \
 	done
 
 clean:

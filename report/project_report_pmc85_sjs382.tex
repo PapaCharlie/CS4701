@@ -198,8 +198,9 @@ Evidently, this will not fit in the memory of most machines. As such, precaution
 
 \subsection{In Theory}
 \label{sub:in_theory}
-\par Computing the rank of every stack using the method defined above is almost equivalent to approximating the state evaluation function for \tetris{}. In other words, this means that an agent is able to play using Game Tree Search methods. Listing~\ref{lst:tetris_game_tree_traversal} is the pseudo code representation of the traversal algorithm. The algorithm traverses the Game Tree using Depth First Search, but pruning stacks that have a rank of zero, or have a rank lower than what has already been explored. It also only looks at stacks that are valid, i.e. stacks that have no holes in them, and that are not lost games. Because only stacks generated using the Contour approximating were ranked, the agent will only create stacks with an empty column. The subtlety not shown in Listing~\ref{lst:tetris_game_tree_traversal} is that if the next tetromino dealt to the player is an $I$, and the highest column in the stack has a height higher than a certain factor $h$, the agent will place the $I$ in the empty column, to force to the stack to be lower than $h$.
-\begin{lstlisting}[caption={\tetris{} Game Tree Traversal},label={lst:tetris_game_tree_traversal}, style=Pseudocode]
+\par Computing the rank of every stack using the method defined above is almost equivalent to approximating the state evaluation function for \tetris{}. In other words, this means that an agent is able to play using Game Tree Search methods. Pseudocode~\ref{lst:tetris_game_tree_traversal} is the pseudo code representation of the traversal algorithm. The algorithm traverses the Game Tree using Depth First Search, but pruning stacks that have a rank of zero, or have a rank lower than what has already been explored. It also only looks at stacks that are valid, i.e. stacks that have no holes in them, and that are not lost games. Because only stacks generated using the Contour approximating were ranked, the agent will only create stacks with an empty column. The subtlety not shown in Listing~\ref{lst:tetris_game_tree_traversal} is that if the next tetromino dealt to the player is an $I$, and the highest column in the stack has a height higher than a certain factor $h$, the agent will place the $I$ in the empty column, to force to the stack to be lower than $h$.
+\renewcommand{\lstlistingname}{Pseudocode}
+\begin{lstlisting}[caption=\relax \tetris{} Game Tree Traversal,label={lst:tetris_game_tree_traversal}, style=Pseudocode]
 $s$ := Current Stack
 $d$ := Search depth
 def $Search(s,\,d)$
@@ -247,12 +248,15 @@ Most modern versions of \tetris{} give players an $n$ piece lookahead. A lookahe
 \label{ssub:maximum_allowed_stack_height}
 \par The other parameter that needed to be set was the maximum allowed stack height. Letting the stack run higher means letting the agent use the $I$ tetromino longer. Since we do not know if the $I$ piece is essential to the agent's strategy (it may play a large role in constructing stacks upon which many tetrominoes can be placed), we also cannot force it to shorten the stack too early by making it place the $I$ pieces in the empty column. Therefore this parameter needs to be tuned as well. This parameter was set using empirical evidence. The agent was given a 5 piece lookahead, i.e. the best possible lookahead given that its search depth is 5, and played the game multiple times over, with instruction to limit the stack height at particular values. Figure~\ref{fig:maximum_stack_height_vs_time_alive} shows the relationship between the stack height and how many consecutive pieces the agent was able to place without losing.
 
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.5\textwidth]{figures/height_v_time_d4}
+  \caption{Maximum Stack Height versus Time Alive}
+  \label{fig:maximum_stack_height_vs_time_alive}
+\end{figure}
+
 \section{Conclusion}
 \label{sec:conclusion}
-
-\par Dealing with the computational difficulties of the problem, instead of just the theoretical and comprehension related difficulties like we do in our normal class, was educational. It brought to life the issues that our choices of algorithm and implementation would bring.
-
-\par Checking every possible combination is nice, but looking for ways to not have to do that would be ideal because the size gets out of hand quickly. We knew this before, but this was a nice demonstration of that on what one would have though is a simple problem (since it is one of the original video games).
 
 
 
@@ -267,6 +271,8 @@ Tetris is Hard, Even to Approximate}.
 \\\href{https://arxiv.org/abs/cs/0210020}{arXiv:cs/0210020}
 \bibitem{bib:ryan_heise}
   \url{http://www.ryanheise.com/tetris/tetris_artificial_intelligence.html}
+\bibitem{bib:world_record}
+  \url{http://www.nintendolife.com/news/2012/02/new_york_gamer_breaks_tetris_record}
 \bibitem{bib:TGMRandomizer}
   \url{http://tetris.wikia.com/wiki/TGM_randomizer}
 \end{thebibliography}
