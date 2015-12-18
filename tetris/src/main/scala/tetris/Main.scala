@@ -24,9 +24,9 @@ object Main extends App {
       }
     }
     case "showRowClear" => {
-      val s = (new Stack ++ Seq(J(4), S(2,1), Z(1), O(8), O(2), L(5), I(1,1))).get
+      val s = (new Stack ++ Seq(J(4), S(2, 1), Z(1), O(8), O(2), L(5), I(1, 1))).get
       println(s)
-      println((s + (I(7), false)).get)
+      println((s +(I(7), false)).get)
       println((s + I(7)).get)
     }
     case "loadRanks" => ContourRank.loadRanks
@@ -34,16 +34,16 @@ object Main extends App {
       val c = (new Stack).contour
       println((c + T(4)).get.toStack)
       val zerp = (c + T(4)).get
-      println((zerp + T(3,3)).get.toStack)
+      println((zerp + T(3, 3)).get.toStack)
     }
     case "testRandomizer" => {
       val rng = new TGMRandomizer()
-//      println(rng.bag.mkString("[",",","]"))
+      //      println(rng.bag.mkString("[",",","]"))
       val stats = Array.ofDim[Int](pieces.length)
       for (_ <- 0 until 2000) {
         stats(toID(rng.next())) += 1
       }
-      println(stats.mkString("[",",","]"))
+      println(stats.mkString("[", ",", "]"))
       println(stats.indices.map(n => fromID(n.toByte)))
     }
     case "playRanked" => {
@@ -51,13 +51,13 @@ object Main extends App {
       var continue = true
       while (continue) {
         System.gc()
-        val game = new RankedGame(5)
+        val game = new RankedGame
         game.generator.preview(1).head match {
           case S(_, _) | Z(_, _) => game.generator.next
           case _ =>
         }
         var turn = 0
-        try{
+        try {
           while (true) {
             println(turn)
             game.play()
@@ -87,7 +87,27 @@ object Main extends App {
         }
       }
     }
-
+    case "rankedStats" => {
+      val averageTime = Array.ofDim[Double](11)
+      for (h <- 5 to 15) {
+        println(s"Getting height $h")
+        val times = for (n <- 0 until 10) yield {
+          val game = new RankedGame(4, h)
+          var count = 0
+          try {
+            while (true) {
+              game.play()
+              count += 1
+            }
+          } catch {
+            case GameLostException(_) =>
+          }
+          count
+        }
+        averageTime(h - 5) = times.sum.toDouble / 10.0
+      }
+      println(averageTime.mkString("[", ",", "]"))
+    }
     case "playMiniMax" => {
       import tetrominoes.{S, Z}
       while (true) {
@@ -97,7 +117,7 @@ object Main extends App {
           case S(_, _) | Z(_, _) => game.generator.next
           case _ =>
         }
-        try{
+        try {
           var turn = 0
           while (true) {
             println(turn)

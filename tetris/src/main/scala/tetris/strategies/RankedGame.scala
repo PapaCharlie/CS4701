@@ -12,7 +12,7 @@ import scala.util.Random.{nextBoolean, nextInt, shuffle}
 /**
  * Created by papacharlie on 11/18/15.
  */
-class RankedGame(depth: Int = 4) extends Strategy {
+class RankedGame(depth: Int = 4, maxHeight: Int = 10) extends Strategy {
 
   private val ranks = Main.ranks
 
@@ -51,7 +51,7 @@ class RankedGame(depth: Int = 4) extends Strategy {
             None
           }
         }
-        case Seq() => None
+        case Seq() => Some(ranks(contour.toBase10))
       }
     }
     val piece = upcoming.head
@@ -73,7 +73,7 @@ class RankedGame(depth: Int = 4) extends Strategy {
 
   def play(): Unit = {
     generator.preview(1).head match {
-      case _: I if currentStack.stackHeight > 10 => {
+      case _: I if currentStack.stackHeight > maxHeight => {
         for (x <- 0 to width) {
           currentStack + new I(x) match {
             case Some(s) if s.stackHeight < currentStack.stackHeight => {

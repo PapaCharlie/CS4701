@@ -48,6 +48,9 @@ testContour:
 playRanked:
 	$(SBT) "run playRanked"
 
+rankedStats:
+	$(SBT) "run rankedStats"
+
 tetrominoes:
 	$(SBT) "run tetrominoes"
 

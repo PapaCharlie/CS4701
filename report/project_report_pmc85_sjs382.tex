@@ -27,13 +27,22 @@
 
 \usepackage{listings, color, times, textcomp, setspace}
 \definecolor{Code}{rgb}{0,0,0}\definecolor{Decorators}{rgb}{0.5,0.5,0.5}\definecolor{Numbers}{rgb}{0.5,0,0}
-\definecolor{MatchingBrackets}{rgb}{0.25,0.5,0.5}\definecolor{Keywords}{rgb}{0,0,1}\definecolor{self}{rgb}{0,0,0}
+\definecolor{MatchingBrackets}{rgb}{0.25,0.5,0.5}\definecolor{Keywords}{rgb}{0,0,0}\definecolor{self}{rgb}{0,0,0}
 \definecolor{Strings}{rgb}{0,0.63,0}\definecolor{Comments}{rgb}{0,0.63,1}\definecolor{Backquotes}{rgb}{0,0,0}
 \definecolor{Classname}{rgb}{0,0,0}\definecolor{FunctionName}{rgb}{0,0,0}\definecolor{Operators}{rgb}{0,0,0}
 \definecolor{Background}{rgb}{0.98,0.98,0.98}
 
 \lstdefinestyle{Scala}{
   backgroundcolor=\color{Background},basicstyle=\ttfamily\small\setstretch{1},breaklines=true,commentstyle=\color{Comments}\slshape,emph={self},emphstyle={\color{self}\slshape},frame=l,framexbottommargin=2em,framextopmargin=2em,keywordstyle={[2]\color{Decorators}\slshape},keywordstyle={\color{Keywords}\bfseries},morekeywords={abstract,case,catch,class,def,do,else,extends,false,final,finally,for,if,implicit,import,lazy,match,mixin,new,null,object,override,package,private,protected,requires,return,sealed,er,this,throw,trait,true,try,type,val,var,while,with,yield},otherkeywords={=>,<-,<\%,<:,>:,\#,@},sensitive=true,morecomment=[l]{//},morecomment=[n]{/*}{*/},morestring=[b]",morestring=[b]',morestring=[b]""",numbers=left,numbersep=1em,numberstyle=\footnotesize,showspaces=false,showstringspaces=false,showtabs=false,stringstyle=\color{Strings},tabsize=4,xleftmargin=1em,
+}
+
+\lstdefinestyle{Pseudocode}{
+  backgroundcolor=\color{Background},basicstyle=\ttfamily\small\setstretch{1},breaklines=true,mathescape,
+  commentstyle=\color{Comments}\slshape,emph={self},emphstyle={\color{self}\slshape},frame=l,framexbottommargin=2em,
+  framextopmargin=2em,keywordstyle={[2]\color{Decorators}\slshape},keywordstyle={\color{Keywords}\bfseries},
+  morekeywords={for,while,if,in,else,break,def,endfor,endif,enddef,endwhile,return,None},otherkeywords={:=, =},
+  numbers=left,numbersep=1em,numberstyle=\footnotesize,showspaces=false,showstringspaces=false,showtabs=false,
+  stringstyle=\color{Strings},tabsize=4,xleftmargin=1em,
 }
 
 \begin{document}
@@ -53,18 +62,18 @@
 \begin{figure}[h!]
   \centering
   \includegraphics[width=0.4\textwidth, height=0.1\textwidth]{figures/pieces}
-  \caption{The 7 tetrominoes J, L, O, S, T, Z and I }
+  \caption{The 7 tetrominoes $J$, $L$, $O$, $S$, $T$, $Z$ and $I$ }
   \label{fig:the_7_tetrominoes}
 \end{figure}
 
 \par The mechanics of \tetris{} are beautifully simple. The user begins with an game board, henceforth referred to as the ``stack'', 10 units wide and 20 units high. The user is then given a random sequence of the \tetris{} pieces, or ``tetrominoes'', shown in Figure~\ref{fig:the_7_tetrominoes}, to be placed on top of one another. Tetrominoes are each made up of 4 identical connected squares, and rotate by 90\textdegree clockwise or counterclockwise. When a tetromino is placed, it maintains its shape. In other words, it can create holes (see Figure~\ref{fig:placing_an_i_piece_to_clear_a_row}).
-\par When a horizontal line is full, this line is removed. Every individual square above the cleared row then move directly downward $n$ vertical units, where $n$ is the number of row cleared. Figure~\ref{fig:placing_an_i_piece_to_clear_a_row} shows both the mechanic involved in clearing rows, and how poor placement of piece can create undesired holes. Here, the I piece was placed horizontally on top of the O, which blocks access to the three empty spaces below.
-\par As time goes on, the amount of time the user has to place the piece decreases, making it difficult to keep up with, and to keep playing, the user must clear as many rows as possible to prevent the top of the stack from reaching height 20, otherwise, it's GAME OVER. The game is scored relative to how many rows were cleared by a single placement, and how frequently rows are cleared. The best score is achieved by using the I piece to clear 4 rows at once, and consecutive row clears multiply the score given (i.e. combos).
+\par When a horizontal line is full, this line is removed. Every individual square above the cleared row then move directly downward $n$ vertical units, where $n$ is the number of row cleared. Figure~\ref{fig:placing_an_i_piece_to_clear_a_row} shows both the mechanic involved in clearing rows, and how poor placement of piece can create undesired holes. Here, the $I$ piece was placed horizontally on top of the $O$, which blocks access to the three empty spaces below.
+\par As time goes on, the amount of time the user has to place the piece decreases, making it difficult to keep up with, and to keep playing, the user must clear as many rows as possible to prevent the top of the stack from reaching height 20, otherwise, it's GAME OVER. The game is scored relative to how many rows were cleared by a single placement, and how frequently rows are cleared. The best score is achieved by using the $I$ piece to clear 4 rows at once, and consecutive row clears multiply the score given (i.e. combos).
 
 \begin{figure}[h!]
   \centering
   \includegraphics[width=0.6\textwidth, height=0.4\textwidth]{figures/rowclear-crop}
-  \caption{Placing an I piece to clear a row}
+  \caption{Placing an $I$ piece to clear a row}
   \label{fig:placing_an_i_piece_to_clear_a_row}
 \end{figure}
 
@@ -73,7 +82,7 @@
 \subsubsection{Tetrominoes}
 \label{ssub:tetrominoes}
 
-\par A simple, yet efficient efficient way to represent an single rotation of an individual tetromino is by keeping a list of two dimensional vectors representing the location of each square from the center of mass of the tetromino. Equation~\ref{eq:t_offsets} is an example of such a list for the T piece in the orientation shown in Figure~\ref{fig:the_7_tetrominoes}.
+\par A simple, yet efficient efficient way to represent an single rotation of an individual tetromino is by keeping a list of two dimensional vectors representing the location of each square from the center of mass of the tetromino. Equation~\ref{eq:t_offsets} is an example of such a list for the $T$ piece in the orientation shown in Figure~\ref{fig:the_7_tetrominoes}.
 \begin{align}
   [(0,0), (-1, 0), (0, 1), (1, 0)]\label{eq:t_offsets}
 \end{align}
@@ -81,26 +90,28 @@ With these lists and a given pair of coordinates $(x,y)$, finding the location o
 
 \subsubsection{The Stack}
 \label{ssub:the_stack}
-\subsubsection{Arrays}
-\label{ssub:arrays}
-\par One way to represent a stack is with an array. In this case, the stack was represented as a $10\times 20$ two dimensional array, where each square in the theoretical stack maps to an element in the array. One square is represented as a tuple $(s,c)$ where $s$ is a boolean representing whether or not there exists a square in the stack at that location, and $c$ is the color of that square \footnote{Again, $c$ is only kept for graphical purposes and plays no role in the actual implementation}. In this implementation, traversing the array to figure out whether or not a row is full is very straightforward.
+\paragraph{Arrays}
+\label{par:arrays}
+One way to represent a stack is with an array. In this case, the stack was represented as a $10\times 20$ two dimensional array, where each square in the theoretical stack maps to an element in the array. One square is represented as a tuple $(s,c)$ where $s$ is a boolean representing whether or not there exists a square in the stack at that location, and $c$ is the color of that square \footnote{Again, $c$ is only kept for graphical purposes and plays no role in the actual implementation}. In this implementation, traversing the array to figure out whether or not a row is full is very straightforward.
 \par Adding a tetromino to such a stack is a little more difficult. The player (human or otherwise) only has a choice between which column the center of mass of the tetromino will fall on, and at which height the piece will settle is entirely dependent on the current state of the stack. To find which height the tetromino should settle at, all we need to do is iteratively try to place the tetromino higher and higher starting at the current height of the specified column plus one. If at any time, any of the squares in the tetromino occupy a square that is already full, this height must be invalid, and we must try again one unit higher. Once all the squares fit and occupy what were empty spaces, return the new stack. This is a little slow, but is the only way to find a position where the tetromino fits.
-\subsubsection{Contour}
-\label{ssub:contour}
-\par The other way to represent a stack, according to Ryan Heise's similar attempt at playing \tetris{} \cite{bib:ryan_heise}, is by only keeping track of the shape of the stack's contour. The stack's contour is defined by the height of each individual column minus the height of the shortest column. Suppose we maintain the guarantee that the stack is always full, i.e. never has holes, and one of the outermost columns is always kept empty. In this case, two stacks of different heights can have the same contour, and all stacks with the same contour can be treated equally. Heise also introduced a method of serializing this contour to a single integer. A stack can be represented as a sequence of ``relative difference in height between one column and the next'', with the slight subtlety that an absolute difference greater than 4 will be cut to -4 and 4 accordingly. This sacrifice in complexity is argued to be mostly harmless under the guise that two such stacks will behave similarly. Given this sequence of numbers between -4 and 4, we can add 4 to each and string them together to get a base 9 integers. There is therefore a 1 to 1 mapping between contours and integers, which allows us to hash the contour.
+\paragraph{Contour}
+\label{par:contour}
+The other way to represent a stack, according to Ryan Heise's similar attempt at playing \tetris{} \cite{bib:ryan_heise}, is by only keeping track of the shape of the stack's contour. The stack's contour is defined by the height of each individual column minus the height of the shortest column. Suppose we maintain the guarantee that the stack is always full, i.e. never has holes, and one of the outermost columns is always kept empty. In this case, two stacks of different heights can have the same contour, and all stacks with the same contour can be treated equally. Heise also introduced a method of serializing this contour to a single integer. A stack can be represented as a sequence of ``relative difference in height between one column and the next'', with the slight subtlety that an absolute difference greater than 4 will be cut to -4 and 4 accordingly. This sacrifice in complexity is argued to be mostly harmless under the guise that two such stacks will behave similarly. Given this sequence of numbers between -4 and 4, we can add 4 to each and string them together to get a base 9 integers. There is therefore a 1 to 1 mapping between contours and integers, which allows us to generate stacks without brute forcing every single possible arrangement. The flaw in this method is that it can only generate stacks that are 9 columns wide. This is by design. The reasoning behind it comes from the fact that the only way to clear rows in a completely full, 9 column wide stack without creating holes is to use an $I$ piece in the empty columns, potentially clearing 4 rows at once. A 4-row clear is called a Tetris because it is hardest to achieve and rewards the player with the most points. Therefore a player that plays only on stacks generated by this approach is likely to have the highest possible score, meaning that using this method is still acceptable.
 \par We can also add tetrominoes directly to a contour, given a desired column. First, transform the contour back into a list of heights. Then, for the desired column, attempt to place the tetromino at that height plus the height of the tetromino's center of mass. For all columns of height $h$, if the tetromino adds $n$ squares to that column, check that all those squares are at height $\leq h + n$. If not, then placing the tetromino at that height must have put a hole in the stack. This violates the invariant that a contour represents a stack with no holes, and therefore that tetromino cannot be placed in this spot. This is more efficient than the addition operation described above, since there are fewer squares to check.
+
+\subsection{Randomizer}
+\label{sub:randomizer}
+\par The final step in this simulation of the game is to implement the Randomizer. In \tetris{}, the Randomizer is the component that decides which tetromino the player must place on the stack next. The \tetris{} Grand Master official \cite{bib:TGMRandomizer} Randomizer is initialized as a queue containing the following 4 pieces: $Z,Z,S,S$. The queue represents the last 4 tetrominoes dealt to the user. The Randomizer then randomly picks a tetromino, each with equal chance. If the picked tetromino is in the history, the Randomizer tries again, else the new piece is pushed onto the history, the least recent piece is removed from the history, and the new piece is dealt to the user. The Randomizer attempts to generate a new piece that is not in the history six times. If all six pieces were in the history, then the Randomizer returns the most recently generated piece after pushing it onto the history, and removing the least recent piece from history.
+\par The Randomizer behaves like this in order to decrease the likelihood of a given piece being dealt too many times in a row. The Randomizer also never deals an $S$ or a $Z$ as the first piece, otherwise the user is forced to have a hanging square from the very beginning.
 
 \subsection{Relaxations}
 \label{sub:relaxations}
-\begin{description}
-  \item[Scoring] The scoring scheme outlined above is unfortunately quite complex. Additionally, every implementation of \tetris{} uses a slightly different scheme. As such, given that there is no strong consensus and given the additional complexity, the decision was made to score a player by how many tetrominoes they can consecutively place without losing. This also implies that a bot can search for the best move only by looking at the expected life of the stack that it creates.
-  \item[Timing] Another important aspect of \tetris{} is that there is a time limit for every move. The first problem is that it is hard to interrupt a running algorithm and get the currently computed best move from it. The second problem is that computers are quite fast, and are expected to come up with the next best move rather quickly. As such, instead of setting arbitrarily low time limits on the players, no time limits were set under the assumptions that AI players would be too fast for it to matter anyway.
-\end{description}
-
-% \subsection{The Motivation}
-% \label{sub:the_motivation}
-% Some scientists have shown that \tetris{} is NP-Complete. In other words, there exists
-
+\paragraph{Scoring}
+\label{par:scoring}
+The scoring scheme outlined above is unfortunately quite complex. Additionally, every implementation of \tetris{} uses a slightly different scheme. As such, given that there is no strong consensus and given the additional complexity, the decision was made to score a player by how many tetrominoes they can consecutively place without losing. This also implies that a bot can search for the best move only by looking at the expected life of the stack that it creates.
+\paragraph{Timing}
+\label{par:timing}
+Another important aspect of \tetris{} is that there is a time limit for every move. The first problem is that it is hard to interrupt a running algorithm and get the currently computed best move from it. The second problem is that computers are quite fast, and are expected to come up with the next best move rather quickly. As such, instead of setting arbitrarily low time limits on the players, no time limits were set under the assumptions that AI players would be too fast for it to matter anyway.
 
 \section{Initial Attempts}
 \label{sec:initial_attempts}
@@ -140,9 +151,8 @@ With these lists and a given pair of coordinates $(x,y)$, finding the location o
 % \par Scala, a coding language that is a superset of Java, kept optimizing our for loops. It also had trouble efficiently dealing with the binary files (in terms of I/O) that we had to write our massive rankings data to.
 
 
-\section{Page Rank}
+\section{Stack Rank}
 \label{sec:page_rank}
-
 
 \par The current and best algorithm developed for this project uses a method that is quite close to Google's PageRank algorithm. Given an arbitrary stack, it attempts to calculate a meaningful rank given the rank of the stacks that it can reach and the stacks that reach it. For a stack $s$ to be able to ``reach'' another stack $s'$, there exists a tetromino such that can be placed on $s$ without creating any holes such that $s$ and $s'$ have the same contour.
 
@@ -167,19 +177,50 @@ Evidently, this will not fit in the memory of most machines. As such, precaution
 
 \subsection{The Ranking Stage}
 \label{sub:the_ranking_stage}
+\subsubsection{In Theory}
+\label{ssub:in_theory}
 \par The Ranking Stage is rather elegantly simple. Given a stack $s$, and an array $a$ of all the ranks of the stacks that reach it, compute $rank(s,a)$. The spread of ranks is computed iteratively. In other words, all ranks are initially set to the same value, then for all subsequent iterations, $a$ contains the ranks computed in the previous iteration. Because the previously computed ranks are used, the current rank of a contour changes only when it is computed, so as not to give bias to ranks depending on the order in which we compute them.
 \par The greatest hurdle in computing the rank of a given stack is figuring out what a good measure for the quality of a stack is. Here were the initial attempts:
 \begin{description}
-  \item[Naive Connectivity] For a given stack, its rank is the sum of ranks of all the stacks that it can reach. The problem with this is that some pieces fit in a lot of places on the stack. For example, the T piece is likely to place many, many times in different rotations and locations. This means that this sum is quite skewed, and means almost nothing when the piece that can be attribute to most of this sum is not available to play.
+  \item[Naive Connectivity] For a given stack, its rank is the sum of ranks of all the stacks that it can reach. The problem with this is that some pieces fit in a lot of places on the stack. For example, the $T$ piece is likely to place many, many times in different rotations and locations. This means that this sum is quite skewed, and means almost nothing when the piece that can be attribute to most of this sum is not available to play.
   \item[Average Connectivity] For a given stack, its rank is the average rank of all the stacks that it can reach. This suffers from the same problem as Naive Connectivity. Even though the effect is lessened, if there is a truly large difference between how many times certain pieces can be placed, then this ranking still means next to nothing when the wrong piece is in play.
-  \item[Majority Rules] For a given stack, its rank is defined by the following: 0 if for more than half of the tetrominoes cannot be placed on this stack without creating a hole, else the sum of the ranks that this stack can reach over the number of tetrominoes, i.e. 7. This was actually quite a good measure. The bot played far better than with the two previous ranking schema, but there was still potential for improvement, since when the agent was unlucky, it would fail miserably.
+  \item[Majority Rules] For a given stack, its rank is defined by the following: 0 if for more than half of the tetrominoes cannot be placed on this stack without creating a hole, else the sum of the ranks that this stack can reach over the number of tetrominoes, i.e. 7. This was actually quite a good measure. The bot played far better than with the two previous ranking schema, but there was still potential for improvement, since when the agent was unlucky, it would fail miserably. In this case, all ranks are initialized to 1.
 \end{description}
 
-\par The final ranking function, Pessimistic Evaluation, was designed to account for the absolute worst case scenario. It is quite similar to Majority Rules, but sets the score to 0 when more than 1 tetrominoes cannot be placed. This means that a ranking is only inaccurate \nicefrac{1}{7}th of the time, which some might consider unlikely.
+\par The final ranking function, Pessimistic Evaluation, was designed to account for the absolute worst case scenario. It is quite similar to Majority Rules, but sets the score to 0 when more than 0 tetrominoes cannot be placed. Essentially, if the ranking for a given stack is nonzero, it is guaranteed that the player can keep going, regardless of which piece is dealt next. In theory, after $n$ iterations of the Ranking Stage, the stacks upon which any sequence of $n$ tetrominoes can be placed without creating holes should have the highest ranks.
 
 \subsubsection{Technical Difficulties}
 \label{ssub:technical_difficulties}
 \par We know that the computed ranks of only two iterations are in play at all times. As such the ranks of all but the last two iterations can be pushed to disk and flushed from memory. The array of ranks is therefore a $2\times 9^8$ two dimensional array of either single precision floats or integers, depending on the implementation. Thankfully, this is only $2 \times 9^8 \times 4 = \SI{328.5}{\mega\byte}$, which certainly fits into memory. On the other hand, the same problem as in the Mapping Stage arises when loading the stack graph into memory: it is far too big. As such, computing the ranks is equally segmented, and only \nicefrac{1}{1000}th of the graph is loaded into memory at all times. Again, because the ranks are computed iteratively, the fact that not all of it is in memory comes into play when considering the corrected of the computations.
+
+\section{Game Tree Search}
+\label{sec:game_tree_search}
+
+\par Computing the rank of every stack using the method defined above is almost equivalent to approximating the state evaluation function for \tetris{}. In other words, this means that an agent is able to play using Game Tree Search methods. Listing~\ref{lst:tetris_game_tree_traversal} is the pseudo code representation of the traversal algorithm. The algorithm traverses the Game Tree using Depth First Search, but pruning stacks that have a rank of zero, or have a rank lower than what has already been explored. It also only looks at stacks that are valid, i.e. stacks that have no holes in them, and that are not lost games. Because only stacks generated using the Contour approximating were ranked, the agent will only create stacks with an empty column. The subtlety not shown in Listing~\ref{lst:tetris_game_tree_traversal} is that if the next tetromino dealt to the player is an $I$, and the highest column in the stack has a height higher than a certain factor $h$, the agent will place the $I$ in the empty column, to force to the stack to be lower than $h$.
+\begin{lstlisting}[caption={\tetris{} Game Tree Traversal},label={lst:tetris_game_tree_traversal}, style=Pseudocode]
+$s$ := Current Stack
+$d$ := Search depth
+def $Search(s,\,d)$
+  $bestmove$ := null
+  $bestrank$ := $-\infty$
+  for $t$ in $AllPositions(AllRotations($Tetrominoes$))$
+    if $\neg\,GameOver(s + t) \wedge HasNoHoles(s + t) \wedge Rank(s + t) > 0 \wedge Rank(s + t) > bestRank$
+      if $d > 0$
+        $bestmove$, $bestrank$ = $search(s + t,\, d - 1)$
+      else
+        $bestmove$ = $t$
+        $bestrank$ = $rank(s + t)$
+      endif
+    endif
+  endfor
+  return bestmove, bestrank
+enddef
+$nextmove$,_ := $Search(s,\,d)$
+$Play(nextmove)$
+\end{lstlisting}
+\par The Contour approximation of stacks
+\par Two things need to be mentioned about this algorithm. The first is that it only looks at the best possible rank achievable after placing $d$ tetrominoes. Some might argue that this is not accurate because the worst case scenario needs to be considered as well. Yet, at the core of the ranking algorithm sits the fact that a stack should only have a nonzero rank if and only if \textbf{all} the tetrominoes can be placed on it. This algorithm prunes those stacks, and therefore only recommends moves that lead to stacks of nonzero rank. Choosing therefore the highest ranking sequence of moves ensures the lowest likelihood of failure.
+\par The second thing that needs to be mentioned regards the nature of the Tree itself. There is a large problem with this algorithm that appears at line 6, which is that the variable $t$ becomes all possible positions and rotations of each tetromino. In other words, with $1 + 2 + 2 + 2 + 4 + 4 + 4 = 19$ total possible rotations, 10 potential columns upon which the
 
 \section{Conclusion}
 \label{sec:conclusion}
@@ -201,5 +242,7 @@ Tetris is Hard, Even to Approximate}.
 \\\href{https://arxiv.org/abs/cs/0210020}{arXiv:cs/0210020}
 \bibitem{bib:ryan_heise}
   \url{http://www.ryanheise.com/tetris/tetris_artificial_intelligence.html}
+\bibitem{bib:TGMRandomizer}
+  \url{http://tetris.wikia.com/wiki/TGM_randomizer}
 \end{thebibliography}
 \end{document}
