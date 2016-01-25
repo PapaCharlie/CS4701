@@ -1,9 +1,4 @@
-# Page Rank
+# Tetris Bot
 
-# Reinforced Learning
-
-# Sources
-http://tetris.wikia.com/wiki/Random_Generator
-http://tetris.wikia.com/wiki/TGM_randomizer
-http://www.ryanheise.com/tetris/tetris_artificial_intelligence.html
-http://www.ryanheise.com/tetris/tetris_stacking.html
+## Page Rank
+The goal of this project is to create a Tetris agent that plays Tetris better than most human players, if not all of them. See (this video)[https://youtu.be/YpMx1XobhWA] for an example of it playing one of the longest recorded sessions.
