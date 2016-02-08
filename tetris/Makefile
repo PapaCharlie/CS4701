@@ -36,12 +36,6 @@ showRowClear:
 loadRanks:
 	$(SBT) "run loadRanks"
 
-runIterations:
-	$(SBT) "run runIterations"
-
-testRandomizer:
-	$(SBT) "run testRandomizer"
-
 testContour:
 	$(SBT) "run testContour"
 
@@ -60,6 +54,20 @@ tetrominoes:
 install:
 	test -e $(SBT_TAR) || wget $(SBT_URL)
 	tar xzf $(SBT_TAR)
+
+publish:
+	-rm -r maven
+	sbt publish
+
+local:
+	sbt publishLocal
+
+update:
+	ssh oureatech.com 'sudo mkdir -p /root/maven/'
+	-rsync -vrc --progress maven/ oureatech.com:~/maven/
+	ssh oureatech.com 'sudo rsync -vrc ~/maven/ /root/maven/'
+
+upgrade: publish update
 
 tar:
 	-test -e tetris.tar && rm tetris.tar
