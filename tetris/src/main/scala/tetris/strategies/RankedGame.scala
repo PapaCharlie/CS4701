@@ -12,9 +12,9 @@ import scala.util.Random.{nextBoolean, nextInt, shuffle}
 /**
  * Created by papacharlie on 11/18/15.
  */
-class RankedGame(depth: Int = 4, maxHeight: Int = 9) extends Strategy {
+class RankedGame(depth: Int = 4, maxHeight: Int = 9, otherRanks : Option[Array[Float]] = None) extends Strategy {
 
-  private val ranks = Main.ranks
+  private val ranks = otherRanks.getOrElse(Main.ranks)
 
   private def getBest(contour: Contour, upcoming: Seq[Tetromino]): Option[Tetromino] = {
     def getBestRank(contour: Contour, upcoming: Seq[Tetromino]): Option[Float] = {
@@ -74,19 +74,12 @@ class RankedGame(depth: Int = 4, maxHeight: Int = 9) extends Strategy {
   def play(): Unit = {
     generator.preview(1).head match {
       case _: I if currentStack.stackHeight > maxHeight => {
-        var placed = false
         for (x <- 0 to width) {
           currentStack + new I(x) match {
             case Some(s) if s.stackHeight < currentStack.stackHeight => {
               currentStack = s
-              placed = true
+              return
             }
-            case _ =>
-          }
-        }
-        if (!placed) {
-          currentStack + new I(currentStack.lowestColumn) match {
-            case Some(s) => currentStack = s
             case _ =>
           }
         }
