@@ -1,11 +1,5 @@
 name := "tetris"
 
-version := "1.0"
-
-scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
-
-// scalaVersion := "2.11.7"
-
 lazy val tetris =
   project.in(file("."))
     .settings(Common.settings: _*)
