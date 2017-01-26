@@ -8,11 +8,7 @@ import tetris.tetrominoes._
 import scala.collection.mutable.Queue
 import scala.util.Random.shuffle
 
-/**
- * Created by papacharlie on 12/17/15.
- */
 class TGMRandomizer extends Randomizer {
-
   private val rng = new Random()
 
   private val tetrominoes = pieces.length
@@ -54,5 +50,4 @@ class TGMRandomizer extends Randomizer {
       toCome.slice(0, n).map(fromID).toIndexedSeq
     }
   }
-
 }

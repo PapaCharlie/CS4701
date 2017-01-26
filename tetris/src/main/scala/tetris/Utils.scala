@@ -61,7 +61,7 @@ object Utils {
   val rankMapFilename = "maps/rank_map.map"
 
   def biggestPart(filename: String): Option[String] = {
-    val f = filename.split(File.separator)
+    val f = filename.split(File.separatorChar)
     f.take(f.length - 1).mkString(File.separator) match {
       case "" => new File(".").list.filter(_.contains(f.last)).sorted.lastOption
       case dir => new File(dir).list.filter(_.contains(f.last)).sorted.lastOption.map(dir + File.separator + _)

@@ -12,7 +12,7 @@ object Common {
     "commons-io"              %   "commons-io"      % "2.4",
     // "org.scala-lang.modules"  %%  "scala-pickling"  % "0.10.1",
     "org.specs2"              %%  "specs2-core"     % "2.3.11"  % "test",
-    "org.scalatest"           %   "scalatest_2.11"  % "2.2.4"   % "test"
+    "org.scalatest"           %%  "scalatest"       % "2.2.4"   % "test"
     // "org.scalacheck"          %%  "scalacheck"      % "1.12.5"  % "test"
   )
 

@@ -9,11 +9,11 @@ import tetris.Utils._
 
 import scala.util.Random.{nextBoolean, nextInt, shuffle}
 
-/**
- * Created by papacharlie on 11/18/15.
- */
-class RankedGame(depth: Int = 4, maxHeight: Int = 9, otherRanks : Option[Array[Float]] = None) extends Strategy {
-
+class RankedGame(
+  depth: Int = 4,
+  maxHeight: Int = 9,
+  otherRanks: Option[Array[Float]] = None
+) extends Strategy {
   private val ranks = otherRanks.getOrElse(Main.ranks)
 
   private def getBest(contour: Contour, upcoming: Seq[Tetromino]): Option[Tetromino] = {
@@ -35,7 +35,7 @@ class RankedGame(depth: Int = 4, maxHeight: Int = 9, otherRanks : Option[Array[F
             None
           }
         }
-        case Seq(hd, tl@_*) => {
+        case Seq(hd, tl @ _*) => {
           val options = for (x <- 0 to width; r <- 0 until 4) yield {
             val newPiece = hd.copy(x, r)
             contour + newPiece match {
@@ -70,7 +70,6 @@ class RankedGame(depth: Int = 4, maxHeight: Int = 9, otherRanks : Option[Array[F
     }
   }
 
-
   def play(): Unit = {
     generator.preview(1).head match {
       case _: I if currentStack.stackHeight > maxHeight => {
@@ -100,5 +99,4 @@ class RankedGame(depth: Int = 4, maxHeight: Int = 9, otherRanks : Option[Array[F
     }
     generator.next()
   }
-
 }
