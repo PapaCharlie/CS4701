@@ -2,12 +2,9 @@ package tetris.strategies
 
 import tetris.Stack._
 import tetris.strategies.Strategy.GameLostException
-import tetris.tetrominoes.{I, Tetromino}
 import tetris.tetrominoes.Tetromino._
+import tetris.tetrominoes.{I, Tetromino}
 import tetris.{Contour, Main}
-import tetris.Utils._
-
-import scala.util.Random.{nextBoolean, nextInt, shuffle}
 
 class RankedGame(
   depth: Int = 4,

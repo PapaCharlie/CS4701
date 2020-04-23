@@ -3,7 +3,6 @@ package tetris
 import tetris.tetrominoes.{Tetromino, Color}
 import tetris.tetrominoes.Color.Black
 import tetris.Stack._
-import tetris.Utils._
 
 import scala.math._
 
@@ -18,9 +17,9 @@ case class Contour(contour: Int) {
     Integer.parseInt(contour.toString, 9)
   }
 
-  lazy val heights = {
+  lazy val heights: IndexedSeq[Int] = {
     ((width - 2) to 0 by -1).map { n =>
-      contour / pow(10, n).toInt % 10 - 4
+      contour / pow(10, n.toDouble).toInt % 10 - 4
     } |> (0 +: _) |> { diffs =>
       (1 until width).foldLeft(IndexedSeq.fill(width)(0)) { case (hs, n) =>
         hs.map(_ - diffs(n)).updated(n, hs(n - 1))
@@ -69,14 +68,13 @@ case class Contour(contour: Int) {
     }
     new Stack(heights.map(createSeq))
   }
-
 }
 
 object Contour {
 
   def fromBase10(i: Int): Option[Contour] = {
     val contour = Integer.parseInt(Integer.toString(i, 9))
-    val fits = ((width - 2) to 0 by -1).map(contour / pow(10, _).toInt % 10 - 4).foldLeft((true, 0)) {
+    val fits = ((width - 2) to 0 by -1).map(h => contour / pow(10, h.toDouble).toInt % 10 - 4).foldLeft((true, 0)) {
       case ((true, h), d) if abs(h + d) <= height + 1 => (true, h + d)
       case _ => (false, 0)
     }._1
@@ -95,5 +93,4 @@ object Contour {
       new Contour(c)
     }
   }
-
 }

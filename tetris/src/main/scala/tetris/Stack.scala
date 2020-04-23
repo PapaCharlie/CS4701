@@ -1,11 +1,8 @@
 package tetris
 
 import tetris.Stack._
-import tetris.Utils.Pipe
 import tetris.tetrominoes.Color.Black
 import tetris.tetrominoes.{Color, Tetromino}
-
-import scala.math._
 
 /**
  * Created by papacharlie on 10/17/15.
@@ -24,9 +21,12 @@ class Stack(val pieces: IndexedSeq[IndexedSeq[(Boolean, Color)]] = emptyStack) {
     }.mkString("-" * (width + 3) + "\n", "\n", "\n" + "-" * (width + 3))
   }
 
-  private def clearRows(stack: IndexedSeq[IndexedSeq[(Boolean, Color)]], y: Int = 0): IndexedSeq[IndexedSeq[(Boolean, Color)]] = {
+  private def clearRows(
+    stack: IndexedSeq[IndexedSeq[(Boolean, Color)]],
+    y: Int = 0
+  ): IndexedSeq[IndexedSeq[(Boolean, Color)]] = {
     def moveBackAddFalse(seq: IndexedSeq[(Boolean, Color)]): IndexedSeq[(Boolean, Color)] = {
-      seq.slice(0, y) ++ seq.slice(y + 1, height + 1) :+(false, new Black)
+      seq.slice(0, y) ++ seq.slice(y + 1, height + 1) :+ ((false, new Black))
     }
     if (y == height) {
       stack
@@ -115,7 +115,7 @@ class Stack(val pieces: IndexedSeq[IndexedSeq[(Boolean, Color)]] = emptyStack) {
   def stackHeight: Int = (0 to width).map(highestY).max
 
   def contour: Contour = {
-    (0 to width - 1).map(highestY) |> Contour.fromHeights
+    (0 until width).map(highestY) |> Contour.fromHeights
   }
 
 }
@@ -125,16 +125,16 @@ object Stack extends {
   type Square = (Int, Int)
 
   implicit class RichSquare(val s1: Square) extends AnyVal {
-    def fits = (s1._1 >= 0 && s1._1 <= width) && (s1._2 >= 0 && s1._2 <= height)
+    def fits: Boolean = (s1._1 >= 0 && s1._1 <= width) && (s1._2 >= 0 && s1._2 <= height)
 
     def <(s2: Square): Boolean = {
       (s1._1 < s2._1) || (s1._1 == s2._1 && s1._2 < s2._2)
     }
   }
 
-  val height = 21
+  val height: Int = 21
 
-  val width = 9
+  val width: Int = 9
 
   private def emptyStack: IndexedSeq[IndexedSeq[(Boolean, Color)]] = {
     val column: IndexedSeq[(Boolean, Color)] = (0 to height).map { x => (false, new Black) }

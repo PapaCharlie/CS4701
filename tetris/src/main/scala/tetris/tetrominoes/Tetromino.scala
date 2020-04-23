@@ -1,6 +1,6 @@
 package tetris.tetrominoes
 
-import tetris.Stack.{Square, height, width}
+import tetris.Stack.{Square, width}
 
 /**
  * Created by papacharlie on 10/17/15.
@@ -22,7 +22,7 @@ abstract class Tetromino {
   def fits: Boolean = currentShape.forall { case (posx, _) => posx + x >= 0 && posx + x <= width }
 
   def getSquares(y: Int): Seq[Square] = {
-    (currentShape :+(0, 0)).map { case (dx, dy) => (x + dx, y + dy) }
+    (currentShape :+ ((0, 0))).map { case (dx, dy) => (x + dx, y + dy) }
   }
 
   def allRotations: Seq[Tetromino]
@@ -40,7 +40,7 @@ object Tetromino {
   val pieces: Seq[Tetromino] = Seq(new J, new L, new O, new S, new T, new Z, new I)
 
   def printTetromino(p: Tetromino): Unit = {
-    var squares = p.currentShape :+ (0,0)
+    var squares = p.currentShape :+ ((0,0))
     squares = squares.map{case (x, y) => (x - squares.minBy(_._1)._1, y - squares.minBy(_._2)._2)}
     val layers = squares.map(_._2).distinct.sorted.reverse
     for (y <- layers) {
@@ -84,5 +84,5 @@ object Tetromino {
     case 5 => new Z
     case 6 => new T
   }
-  
+
 }

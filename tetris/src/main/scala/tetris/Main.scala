@@ -40,7 +40,7 @@ object Main extends App {
       val rng = new TGMRandomizer()
       val stats = Array.ofDim[Int](pieces.length)
       for (_ <- 0 until 2000) {
-        stats(toID(rng.next())) += 1
+        stats(toID(rng.next()).toInt) += 1
       }
       println(stats.mkString("[", ",", "]"))
       println(stats.indices.map(n => fromID(n.toByte)))

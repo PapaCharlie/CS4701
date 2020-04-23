@@ -40,15 +40,6 @@ object Utils {
     }
   }
 
-  implicit class Pipe[T](val t: T) extends AnyVal {
-    def |->(fun: T => Unit): T = {
-      fun(t)
-      t
-    }
-
-    def |>[U](fun: T => U): U = fun(t)
-  }
-
   def mkdirp(dirname: String) = {
     if (!new File(dirname).isDirectory) {
       new File(dirname).mkdir()
@@ -72,7 +63,7 @@ object Utils {
     def save(filename: String) = {
       val file = new DataOutputStream(new FileOutputStream(filename))
       for (n <- arr.indices) {
-        file.writeFloat(arr(n))
+        file.writeInt(arr(n))
         if (n % 128 == 0) { // per block size
           file.flush()
         }

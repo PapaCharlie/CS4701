@@ -1,14 +1,11 @@
 package tetris
 
 import java.util.Calendar
+import scala.collection.mutable
 
-//import tetris.tetrominoes.Tetromino
-
-//import org.apache.spark.broadcast.Broadcast
 import tetris.Stack.width
 import tetris.Utils._
 import tetris.tetrominoes.Tetromino._
-import scala.collection.mutable.HashMap
 import scala.math.abs
 
 /**
@@ -29,8 +26,8 @@ object ContourRank {
         for (piece <- pieces){
           if (stackMap.contains((contour, toID(piece)))) {
 //            ranks(iteration % 2)(contour) = stackMap(contour).map(ranks(abs(iteration - 1) % 2)(_)).sum
-            pieceRanks(toID(piece)) = stackMap((contour, toID(piece))).map(ranks(abs(iteration - 1) % 2)(_)).sum
-            pieceLengths(toID(piece)) = stackMap((contour, toID(piece))).length
+            pieceRanks(toID(piece).toInt) = stackMap((contour, toID(piece))).map(ranks(abs(iteration - 1) % 2)(_)).sum
+            pieceLengths(toID(piece).toInt) = stackMap((contour, toID(piece))).length
           }
         }
         if (pieceLengths.count(_ == 0) > 0) {
@@ -54,11 +51,10 @@ object ContourRank {
     for (iteration <- 1 to iterations) {
       loadArrayDouble(rankArrayFilename, Some(iteration)) match {
         case Some(arr) => ranks(iteration % 2) = arr
-        case _ => {
+        case _ =>
           println(s"${Calendar.getInstance.getTime.toString}: Starting iteration ${iteration + 1} of $iterations")
           propagateRanks(iteration)
           println(s"${Calendar.getInstance.getTime.toString}: Finished iteration ${iteration + 1} of $iterations")
-        }
       }
     }
   }
@@ -70,10 +66,10 @@ object ContourRank {
     }
   }
 
-  val parts = 1000
+  val parts: Int = 1000
   val contours: Int = 43046721 + 1
 
-  def computeMap() = {
+  def computeMap(): Array[Unit] = {
     executeInSpark { sc =>
       val data = 0 until ContourRank.parts
       sc.parallelize(data).map(ContourRank.computeMapPart).collect()
@@ -83,7 +79,7 @@ object ContourRank {
   def computeMapPart(part: Int): Unit = {
     if (!partExists(rankMapFilename, part)) {
       System.gc()
-      val map: HashMap[(Int, Byte), Seq[Int]] = new HashMap()
+      val map: mutable.HashMap[(Int, Byte), Seq[Int]] = new mutable.HashMap()
       println(s"${Calendar.getInstance.getTime.toString}: Starting part ${part + 1} of $parts")
       for (contour <- (part * (contours / parts)) until ((part + 1) * (contours / parts))) {
         for (piece <- pieces) {
